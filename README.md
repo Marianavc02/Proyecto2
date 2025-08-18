@@ -18,7 +18,7 @@ A continuación se explican los pasos para clonar el repositorio y ejecutarlo en
 
 ## Clonar el repositorio
 ```bash
-git clone https://github.com/TU_USUARIO/ProyectoSDB.git
+git clone [https://github.com/TU_USUARIO/ProyectoSDB.git](https://github.com/Marianavc02/Proyecto2.git)
 cd ProyectoSDB
 ```
 ## Crear y activar el entorno virtual
