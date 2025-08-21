@@ -1,0 +1,6 @@
+<h2>Importar Empleados</h2>
+<form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    <input type="file" name="file" accept=".xlsx,.xls">
+    <button type="submit">Importar</button>
+</form>

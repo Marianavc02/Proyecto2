@@ -1,0 +1,9 @@
+<h2>Lista de Empleados</h2>
+<a href="{% url 'importar_empleados' %}">Importar Excel</a>
+
+
+<ul>
+{% for e in empleados %}
+    <li>{{ e.id }} - {{ e.preferred_name }} - {{ e.sbd_email }}</li>
+{% endfor %}
+</ul>
