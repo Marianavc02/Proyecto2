@@ -1,6 +1,64 @@
-<h2>Importar Empleados</h2>
-<form method="post" enctype="multipart/form-data">
-    {% csrf_token %}
-    <input type="file" name="file" accept=".xlsx,.xls">
-    <button type="submit">Importar</button>
-</form>
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Importar Empleados</title>
+    <!-- Fuente Montserrat -->
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600&display=swap" rel="stylesheet">
+    <!-- Iconos (Font Awesome para el ícono de cargar) -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Montserrat', sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f5f5f5;
+        }
+
+        .upload-btn {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            width: 320px;
+            height: 320px;
+            background-color: #FFD20A;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            font-size: 20px;
+            font-weight: 600;
+            color: #000;
+            text-align: center;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .upload-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0px 6px 20px rgba(0,0,0,0.2);
+        }
+
+        .upload-btn i {
+            font-size: 50px;
+            margin-bottom: 15px;
+        }
+
+        input[type="file"] {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        <label for="file" class="upload-btn">
+            <i class="fas fa-upload"></i>
+            Subir Datos empleados<br>desde Excel
+        </label>
+        <input type="file" name="file" id="file" onchange="this.form.submit()">
+    </form>
+</body>
+</html>
