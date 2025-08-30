@@ -1,17 +1,14 @@
 # views.py
 import pandas as pd
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from django.http import JsonResponse
 from .models import Producto, ProductoImagen
 from .forms import ExcelUploadForm, ImagenUploadForm
+from .utils import clasificar_empresa
 
-# views.py
-import pandas as pd
-from django.shortcuts import render, redirect
-from django.contrib import messages
-from .models import Producto, ProductoImagen
-from .forms import ExcelUploadForm, ImagenUploadForm
+
+
 
 def cargar_excel(request):
     if request.method == 'POST':
@@ -77,3 +74,19 @@ def cargar_imagen(request):
         form = ImagenUploadForm()
     
     return render(request, 'productos/cargar_imagen.html', {'form': form})
+
+#View para mostrar productos según empresa
+
+def productos_por_empresa(request, empresa):
+    productos = Producto.objects.filter(empresa=empresa)  
+    return render(request, 'productos/productos_por_empresa.html', {
+        'empresa': empresa,
+        'productos': productos
+    })
+
+#View para mostrar detalle producto
+def detalle_producto(request, pk):
+    producto = get_object_or_404(Producto, pk=pk)
+    return render(request, 'productos/detalle_producto.html', {'producto': producto})
+
+#<--!"{% url 'producto_detalle' producto.pk %}"-->
