@@ -30,9 +30,14 @@
 
         <div class="icons">
             <a href="#"><span class="material-icons">search</span></a>
-            <a href="#"><span class="material-icons">shopping_cart</span></a>
             <a href="#"><span class="material-icons">person</span></a>
+
+            <!-- Cambia este -->
+            <a href="{% url 'carrito_ver' %}" class="cart-link">
+                <span class="material-icons">shopping_cart</span>
+            </a>
         </div>
+
     </nav>
 
 {% block content %}
