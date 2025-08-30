@@ -20,8 +20,15 @@
             <button class="btn-cantidad">-</button>
             <input type="text" value="1" readonly>
             <button class="btn-cantidad">+</button>
-            <button class="btn-carrito">Añadir al carrito</button>
+
+    
+            <form method="post" action="{% url 'carrito_agregar' producto.sku %}" style="display:inline;">
+                {% csrf_token %}
+                <button type="submit" class="btn-carrito">Añadir al carrito</button>
+            </form>
+            
         </div>
+
 
         <p><strong>Referencia:</strong> {{ producto.sku }}</p>
         <p><strong>SBU:</strong> {{ producto.sbu|default:"No disponible" }}</p>

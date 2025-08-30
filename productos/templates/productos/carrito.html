@@ -1,0 +1,78 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Carrito{% endblock %}
+
+{% block content %}
+<div class="cart-container">
+  <div class="cart-left">
+    <div class="cart-header">
+      <h3>Carro de Compras</h3>
+      <span class="cart-badge">{{ count }}</span>
+      <div class="cart-max">Máximo {{ max_items }} productos</div>
+    </div>
+
+    {% if messages %}
+      <div class="cart-messages">
+        {% for message in messages %}
+          <div class="cart-alert cart-{{ message.tags }}">{{ message }}</div>
+        {% endfor %}
+      </div>
+    {% endif %}
+
+    {% if items %}
+      {% for it in items %}
+      <div class="cart-item">
+        <div class="cart-item-left">
+          {% if it.imagen_url %}
+            <img src="{{ it.imagen_url }}" alt="{{ it.descripcion }}">
+          {% else %}
+            <img src="{% static 'img/no-image.png' %}" alt="Sin imagen">
+          {% endif %}
+        </div>
+        <div class="cart-item-middle">
+          <div class="cart-item-title">{{ it.descripcion }}</div>
+          <div class="cart-item-meta">
+            <div>Referencia: {{ it.sku }}</div>
+            <div>Categoría: {{ it.categoria|default:"N/A" }}</div>
+          </div>
+        </div>
+        <div class="cart-item-right">
+          <div class="cart-price">Precio Empleado: ${{ it.precio }}</div>
+          <form method="post" action="{% url 'carrito_eliminar' it.sku %}">
+            {% csrf_token %}
+            <button type="submit" class="btn-icon" title="Eliminar">
+                <span class="material-icons">delete</span>
+            </button>
+          </form>
+        </div>
+      </div>
+      {% endfor %}
+    {% else %}
+      <div class="cart-empty">Tu carrito está vacío.</div>
+    {% endif %}
+  </div>
+
+  <aside class="cart-right">
+    <div class="summary-card">
+      <h4>Resumen del pedido</h4>
+      <div class="summary-list">
+        {% for it in items %}
+          <div class="summary-row">
+            <span>1 {{ it.descripcion }}</span>
+            <span>${{ it.precio }}</span>
+          </div>
+        {% endfor %}
+      </div>
+      <div class="summary-total">
+        <span><strong>TOTAL:</strong></span>
+        <span><strong>${{ total }}</strong></span>
+      </div>
+      <button class="btn-yellow" disabled>Enviar Pedido</button>
+      <p class="summary-note">
+        Una vez enviado el pedido, se analizarán los artículos para verificar si cumples con el pedido mínimo. Luego, se te enviará una confirmación con los artículos que hayan sido aprobados.
+      </p>
+    </div>
+  </aside>
+</div>
+{% endblock %}
