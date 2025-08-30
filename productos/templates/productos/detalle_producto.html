@@ -1,0 +1,79 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}{{ producto.descripcion }}{% endblock %}
+
+{% block content %}
+<div class="detalle-container">
+    <div class="detalle-imagen">
+        {% if producto.imagen %}
+            <img src="{{ producto.imagen.url }}" alt="{{ producto.descripcion }}">
+        {% else %}
+            <img src="{% static 'img/no-image.png' %}" alt="Sin imagen">
+        {% endif %}
+    </div>
+
+    <div class="detalle-info">
+        <h2>{{ producto.descripcion }}</h2>
+        <p class="precio">Precio Empleado: ${{ producto.precio_sin_iva }}</p>
+
+        <div class="cantidad-carrito">
+            <button class="btn-cantidad">-</button>
+            <input type="text" value="1" readonly>
+            <button class="btn-cantidad">+</button>
+            <button class="btn-carrito">Añadir al carrito</button>
+        </div>
+
+        <p><strong>Referencia:</strong> {{ producto.sku }}</p>
+        <p><strong>SBU:</strong> {{ producto.sbu|default:"No disponible" }}</p>
+        <p><strong>Pedido mínimo:</strong> {{ producto.pedido_minimo|default:"N/A" }}</p>
+        <p><strong>Se han pedido:</strong> {{ producto.pedidos|default:"0" }}</p>
+        
+        
+        <h4>Descripción:</h4>
+        <p>{{ producto.descripcion }}</p>
+        <p><strong>Categoría</strong> {{ producto.categoria|default:"sin categoria" }}</p>
+    </div>
+</div>
+
+<style>
+.detalle-container {
+    display: flex;
+    gap: 30px;
+    padding: 30px;
+    max-width: 1200px;
+    margin: auto;
+    align-items: start;
+}
+.detalle-imagen img {
+    width: 400px;
+    border-radius: 10px;
+}
+.detalle-info {
+    flex: 1;
+}
+.precio {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: #333;
+}
+.cantidad-carrito {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 15px 0;
+}
+.btn-cantidad {
+    padding: 5px 10px;
+    border: 1px solid #ccc;
+    background: white;
+    cursor: pointer;
+}
+.btn-carrito {
+    background: #FFD700;
+    border: none;
+    padding: 10px 15px;
+    cursor: pointer;
+    font-weight: bold;
+}
+</style>
+{% endblock %}

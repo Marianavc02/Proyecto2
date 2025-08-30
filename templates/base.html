@@ -1,0 +1,41 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Mi App{% endblock %}</title>
+
+    <!-- Fuente Montserrat -->
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600&display=swap" rel="stylesheet">
+
+    <!-- CSS -->
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar">
+        <div class="logo">
+            <img src="{% static 'img/logo.png' %}" alt="StanleyBlack&Decker">
+        </div>
+        <ul class="nav-links">
+            <li><a href="{% url 'productos_por_empresa' 'DeWalt' %}">DeWalt</a></li>
+            <li><a href="{% url 'productos_por_empresa' 'Stanley' %}">Stanley</a></li>
+            <li><a href="{% url 'productos_por_empresa' 'Irwin' %}">Irwin</a></li>
+            <li><a href="{% url 'productos_por_empresa' 'Black&Decker' %}">Black&Decker</a></li>
+            <li><a href="{% url 'productos_por_empresa' 'Otros' %}">Otros</a></li>
+        </ul>
+
+        <div class="icons">
+            <a href="#"><span class="material-icons">search</span></a>
+            <a href="#"><span class="material-icons">shopping_cart</span></a>
+            <a href="#"><span class="material-icons">person</span></a>
+        </div>
+    </nav>
+
+{% block content %}
+{% endblock %}
+</body>
+</html>
