@@ -20,15 +20,22 @@
                 <label>Categoría:</label><br>
                 <input type="text" name="categoria" value="{{ request.GET.categoria }}" placeholder="Ej: Taladro" style="width: 100%; margin-bottom: 10px;">
 
-                <label>Precio mínimo:</label><br>
-                <input type="number" name="min_precio" value="{{ request.GET.min_precio }}" style="width: 100%; margin-bottom: 10px;">
-
-                <label>Precio máximo:</label><br>
-                <input type="number" name="max_precio" value="{{ request.GET.max_precio }}" style="width: 100%; margin-bottom: 10px;">
+                <!-- Contenedor en flex para los precios -->
+                <div style="display: flex; gap: 10px; margin-bottom: 10px;">
+                    <div style="flex: 1;">
+                        <label>Precio mínimo:</label>
+                        <input type="number" name="min_precio" value="{{ request.GET.min_precio }}" style="width: 100%;">
+                    </div>
+                    <div style="flex: 1;">
+                        <label>Precio máximo:</label>
+                        <input type="number" name="max_precio" value="{{ request.GET.max_precio }}" style="width: 100%;">
+                    </div>
+                </div>
 
                 <button type="submit" style="background: #f4dc00e8; color: black; border: none; padding: 10px; border-radius: 5px; width: 100%; cursor: pointer;">Filtrar</button>
                 <a href="{% url 'productos_por_empresa' empresa %}" style="display:block; text-align:center; margin-top:10px; text-decoration:none; color:red;">Limpiar</a>
             </form>
+
         </div>
 
         <!-- Grid de Productos -->
