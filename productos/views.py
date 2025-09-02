@@ -78,12 +78,34 @@ def cargar_imagen(request):
     return render(request, 'productos/cargar_imagen.html', {'form': form})
 
 #View para mostrar productos según empresa
-
 def productos_por_empresa(request, empresa):
-    productos = Producto.objects.filter(empresa=empresa)  
-    return render(request, 'productos/productos_por_empresa.html', {
-        'empresa': empresa,
-        'productos': productos
+    productos = Producto.objects.filter(empresa__iexact=empresa)
+
+    # Obtener filtros de GET
+    marca = request.GET.get("marca")
+    categoria = request.GET.get("categoria")
+    min_precio = request.GET.get("min_precio")
+    max_precio = request.GET.get("max_precio")
+
+    # Filtros dinámicos
+    if marca and marca.strip():
+        productos = productos.filter(empresa__icontains=marca.strip())
+    if categoria and categoria.strip():
+        productos = productos.filter(categoria__icontains=categoria.strip())
+    if min_precio:
+        try:
+            productos = productos.filter(precio_sin_iva__gte=float(min_precio))
+        except ValueError:
+            pass
+    if max_precio:
+        try:
+            productos = productos.filter(precio_sin_iva__lte=float(max_precio))
+        except ValueError:
+            pass
+
+    return render(request, "productos/productos_por_empresa.html", {
+        "productos": productos,
+        "empresa": empresa
     })
 
 #View para mostrar detalle producto
