@@ -1,0 +1,146 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Home{% endblock %}
+
+{% block content %}
+<!-- Fuente Montserrat desde Google Fonts -->
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;600;700;900&display=swap" rel="stylesheet">
+
+<style>
+  .split-screen {
+    display: flex;
+    height: 100vh;
+    width: 100%;
+    font-family: 'Montserrat', sans-serif;
+  }
+  .left {
+    flex: 1;
+    background-color: #e0e0e0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    text-align: center;
+    padding: 40px;
+  }
+  .left h1 {
+    font-size: 4rem; /* mucho más grande */
+    font-weight: 900;
+    margin-bottom: 20px;
+  }
+  .left h2 {
+    font-size: 2.5rem; /* más grande */
+    font-weight: 700;
+    margin-bottom: 40px;
+  }
+  .countdown {
+    display: flex;
+    gap: 35px; /* más espacio entre cuadros */
+    margin-bottom: 25px;
+  }
+  .time-box {
+    background-color: black;
+    color: white;
+    font-size: 3.5rem; /* mucho más grande */
+    font-weight: 800;
+    padding: 30px 40px;
+    border-radius: 12px;
+    min-width: 120px; /* más ancho */
+    text-align: center;
+  }
+  .time-labels {
+    display: flex;
+    gap: 35px;
+    justify-content: center;
+    font-size: 1.6rem; /* más grande */
+    font-weight: 700;
+    margin-bottom: 40px;
+  }
+  .time-labels div {
+    min-width: 120px;
+    text-align: center;
+  }
+  .left p {
+    font-size: 1.6rem; /* más grande */
+    line-height: 1.6;
+    max-width: 600px;
+  }
+
+  .right {
+    flex: 1;
+    background-color: white;
+    color: black;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+  }
+  .image-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    grid-gap: 35px;
+    width: 90%;
+    max-width: 700px;
+  }
+  .image-grid img {
+    width: 100%;
+    aspect-ratio: 1/1;
+    object-fit: cover;
+    border-radius: 15px;
+    box-shadow: 0 6px 15px rgba(0,0,0,0.25);
+  }
+  .info-text {
+    margin-top: 50px;
+    text-align: center;
+    font-size: 1.6rem; /* más grande */
+  }
+</style>
+
+<div class="split-screen">
+  <!-- Parte izquierda (gris con contador) -->
+  <div class="left">
+    <h1>¡Cuenta regresiva activa!</h1>
+    <h2><strong>SOLO TIENES</strong></h2>
+    <div class="countdown">
+      <div class="time-box">12</div>
+      <div class="time-box">45</div>
+      <div class="time-box">36</div>
+    </div>
+    <div class="time-labels">
+      <div>Horas</div>
+      <div>Minutos</div>
+      <div>Segundos</div>
+    </div>
+    <p>
+      Accede al catálogo de <br>
+      herramientas con descuentos <br>
+      especiales para ti.
+    </p>
+  </div>
+
+  <!-- Parte derecha (blanca con imágenes) -->
+  <div class="right">
+    <div class="image-grid">
+        <a href="/productos/empresa/DeWalt/">
+            <img src="{% static 'img/dewalt.jpg' %}" alt="dewalt">
+        </a>
+        <a href="/productos/empresa/Black&Decker/">
+            <img src="{% static 'img/blackdecker.jpg' %}" alt="blackdecker">
+        </a>
+        <a href="/productos/empresa/Irwin/">
+            <img src="{% static 'img/irwin.jpg' %}" alt="irwin">
+        </a>
+        <a href="/productos/empresa/Stanley/">
+            <img src="{% static 'img/stanley.jpg' %}" alt="stanley">
+        </a>
+    </div>
+
+    <!-- Texto debajo -->
+    <div class="info-text">
+      <p>¿Tienes preguntas?<br>
+      Haz clic en <strong>"Más info"</strong> arriba y entérate de todo.</p>
+    </div>
+  </div>
+</div>
+{% endblock %}
