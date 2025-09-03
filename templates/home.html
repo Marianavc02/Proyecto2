@@ -13,53 +13,68 @@
     height: 100vh;
     width: 100%;
     font-family: 'Montserrat', sans-serif;
-    flex-wrap: wrap; /* permite que los bloques se acomoden */
+    flex-wrap: wrap;
   }
 
   .left {
     flex: 1;
-    background-color: #e0e0e0; /* gris claro */
+    background-color: #e0e0e0;
     display: flex;
     justify-content: center;
     align-items: center;
     flex-direction: column;
     text-align: center;
-    padding: 30px;
+    padding: 10px;
   }
 
   .left h1 {
-    font-size: 3rem;
+    font-size: 1.3rem;
     font-weight: 700;
-    margin-bottom: 15px;
+    margin-bottom: 6px;
   }
 
   .left h2 {
-    font-size: 2rem;
+    font-size: 1rem;
     font-weight: 700;
-    margin-bottom: 30px;
+    margin-bottom: 12px;
   }
 
   .countdown {
     display: flex;
-    gap: 20px;
-    margin-bottom: 35px;
+    gap: 10px;
+    margin-bottom: 15px;
   }
 
   .time-box {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
     background-color: black;
     color: white;
-    font-size: 2.5rem;
     font-weight: 700;
-    padding: 20px 25px;
-    border-radius: 10px;
-    min-width: 90px;
+    padding: 8px 10px;
+    border-radius: 5px;
+    min-width: 45px;
     text-align: center;
   }
 
+  .time-number {
+    font-size: 1.1rem;
+    margin-bottom: 3px;
+  }
+
+  .time-label {
+    font-size: 0.6rem;
+    font-weight: 500;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    color: #fff;
+  }
+
   .left p {
-    font-size: 1.3rem;
-    line-height: 1.5;
-    max-width: 500px;
+    font-size: 0.8rem;
+    line-height: 1.2;
+    max-width: 320px;
   }
 
   .right {
@@ -70,74 +85,91 @@
     flex-direction: column;
     justify-content: center;
     align-items: center;
+    padding: 8px;
   }
 
   .image-grid {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
-    grid-gap: 25px;
-    width: 85%;
-    max-width: 600px;
+    grid-gap: 8px; /* menos espacio */
+    width: 60%;   /* más angosto */
+    max-width: 280px; /* más compacto */
   }
 
   .image-grid img {
     width: 100%;
     aspect-ratio: 1/1;
     object-fit: cover;
-    border-radius: 12px;
-    box-shadow: 0 5px 12px rgba(0,0,0,0.25);
+    border-radius: 5px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.15);
   }
 
   .info-text {
-    margin-top: 40px;
+    margin-top: 12px;
     font-family: 'Montserrat', sans-serif;
     text-align: center;
-    font-size: 1.3rem;
+    font-size: 0.75rem;
   }
 
-  /* 🔹 Responsivo para móviles */
+  /* 🔹 Responsivo */
   @media (max-width: 768px) {
     .split-screen {
-      flex-direction: column; /* se apilan */
-      height: auto; /* que crezca según contenido */
+      flex-direction: column;
+      height: auto;
     }
 
     .left, .right {
       width: 100%;
       height: auto;
-      padding: 20px;
+      padding: 10px;
     }
 
     .left h1 {
-      font-size: 2rem;
+      font-size: 1.1rem;
     }
 
     .left h2 {
-      font-size: 1.5rem;
+      font-size: 0.9rem;
     }
 
-    .time-box {
-      font-size: 1.8rem;
-      padding: 15px 20px;
-      min-width: 70px;
+    .time-number {
+      font-size: 1rem;
+    }
+
+    .time-label {
+      font-size: 0.55rem;
+    }
+
+    .image-grid {
+      width: 70%;
+      max-width: 240px; /* más pequeño en móvil */
     }
 
     .info-text {
-      font-size: 1.1rem;
-      margin-top: 20px;
+      font-size: 0.7rem;
+      margin-top: 8px;
     }
   }
 </style>
 
 <div class="split-screen">
-  <!-- Parte izquierda (gris con contador) -->
+  <!-- Parte izquierda (contador) -->
   <div class="left">
     <h1>¡Cuenta regresiva activa!</h1>
     <h2><strong>SOLO TIENES</strong></h2>
     <div class="countdown">
-      <div class="time-box">12</div>
-      <div class="time-box">45</div>
-      <div class="time-box">36</div>
+      <div class="time-box">
+        <div class="time-number">12</div>
+        <div class="time-label">HORAS</div>
+      </div>
+      <div class="time-box">
+        <div class="time-number">45</div>
+        <div class="time-label">MINUTOS</div>
+      </div>
+      <div class="time-box">
+        <div class="time-number">36</div>
+        <div class="time-label">SEGUNDOS</div>
+      </div>
     </div>
     <p>
       Accede al catálogo de <br>
@@ -146,13 +178,13 @@
     </p>
   </div>
 
-  <!-- Parte derecha (blanca con imágenes) -->
+  <!-- Parte derecha (imágenes) -->
   <div class="right">
     <div class="image-grid">
       <a href="/productos/empresa/DeWalt/">
         <img src="{% static 'img/dewalt.jpg' %}" alt="dewalt">
       </a>
-      <a href="/productos/empresa/Black-Decker/">
+      <a href="/productos/empresa/Black&Decker/">
         <img src="{% static 'img/blackdecker.jpg' %}" alt="blackdecker">
       </a>
       <a href="/productos/empresa/Irwin/">
