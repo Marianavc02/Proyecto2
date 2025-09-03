@@ -18,7 +18,9 @@
     <!-- Navbar -->
     <nav class="navbar">
         <div class="logo">
-            <img src="{% static 'img/logo.png' %}" alt="StanleyBlack&Decker">
+            <a href="/">
+                <img src="{% static 'img/logo.png' %}" alt="StanleyBlack&Decker">
+            </a>
         </div>
         <ul class="nav-links">
             <li><a href="{% url 'productos_por_empresa' 'DeWalt' %}">DeWalt</a></li>
