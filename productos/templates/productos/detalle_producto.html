@@ -32,13 +32,35 @@
 
         <p><strong>Referencia:</strong> {{ producto.sku }}</p>
         <p><strong>SBU:</strong> {{ producto.sbu|default:"No disponible" }}</p>
-        <p><strong>Pedido mínimo:</strong> {{ producto.pedido_minimo|default:"N/A" }}</p>
-        <p><strong>Se han pedido:</strong> {{ producto.pedidos|default:"0" }}</p>
-        
-        
+        <p><strong>Pedido mínimo:</strong> {{ producto.minimo_pedido|default:"N/A" }}</p>
+        <p><strong>Se han pedido:</strong> <span id="pedidos-count">{{ pedidos }}</span></p>
+        <p id="estado-minimo">
+            {% if cumplido %}
+                <span style="color:green; font-weight:bold;">¡Se cumplió el pedido mínimo!</span>
+            {% else %}
+                <span style="color:orange;">Faltan <span id="faltan-count">{{ faltan }}</span> para cumplir el mínimo.</span>
+            {% endif %}
+        </p>
         <h4>Descripción:</h4>
         <p>{{ producto.descripcion }}</p>
         <p><strong>Categoría</strong> {{ producto.categoria|default:"sin categoria" }}</p>
+
+<script>
+// Actualización periódica del estado del pedido mínimo
+function actualizarEstadoMinimo() {
+    fetch(window.location.href, {headers: {'x-requested-with': 'XMLHttpRequest'}})
+        .then(r => r.json())
+        .then(data => {
+            document.getElementById('pedidos-count').textContent = data.pedidos;
+            if (data.cumplido) {
+                document.getElementById('estado-minimo').innerHTML = '<span style="color:green; font-weight:bold;">¡Se cumplió el pedido mínimo!</span>';
+            } else {
+                document.getElementById('estado-minimo').innerHTML = '<span style="color:orange;">Faltan <span id="faltan-count">' + data.faltan + '</span> para cumplir el mínimo.</span>';
+            }
+        });
+}
+setInterval(actualizarEstadoMinimo, 5000);
+</script>
     </div>
 </div>
 

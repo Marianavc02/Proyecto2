@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% block title %}Buscar productos{% endblock %}
+{% block content %}
+<div style="max-width:800px;margin:auto;padding:2rem;">
+    <h2>Resultados de búsqueda{% if query %} para "{{ query }}"{% endif %}</h2>
+    <form method="get" action="">
+        <input type="text" name="q" value="{{ query }}" placeholder="Buscar productos..." style="padding:5px; border-radius:5px; border:1px solid #ccc;">
+        <button type="submit" class="button">Buscar</button>
+    </form>
+    <br>
+    {% if productos %}
+    <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 20px;">
+        {% for producto in productos %}
+            <a href="{% url 'detalle_producto' producto.id %}" style="text-decoration: none; color: black;">
+                <div style="border: 2px solid #ccc; border-radius: 0; overflow: hidden; text-align: center; background: #fff;">
+                    {% if producto.imagenes.first %}
+                        <img src="{{ producto.imagenes.first.imagen.url }}" alt="{{ producto.descripcion }}" style="width: 100%; height: 150px; object-fit: contain;">
+                    {% else %}
+                        <div style="width: 100%; height: 150px; background: #fff; display: flex; align-items: center; justify-content: center;">Sin Imagen</div>
+                    {% endif %}
+                    <div style="background: #f5f4f2ff; padding: 10px; font-weight: bold;">{{ producto.descripcion }}</div>
+                    <p style="margin: 5px 0;">Precio: ${{ producto.precio_sin_iva }}</p>
+                </div>
+            </a>
+        {% endfor %}
+    </div>
+    {% else %}
+        <p>No se encontraron productos.</p>
+    {% endif %}
+</div>
+{% endblock %}

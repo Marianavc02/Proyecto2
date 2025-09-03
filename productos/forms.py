@@ -1,6 +1,13 @@
+
+
 # forms.py
 from django import forms
 from .models import Producto, ProductoImagen
+
+class ActualizarStockMinimoForm(forms.Form):
+    sku = forms.CharField(label='SKU', max_length=100)
+    stock = forms.IntegerField(label='Stock', min_value=0)
+    minimo_pedido = forms.IntegerField(label='Mínimo para pedido', min_value=1)
 
 class ExcelUploadForm(forms.Form):
     archivo = forms.FileField(

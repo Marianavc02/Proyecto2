@@ -68,7 +68,20 @@
         <span><strong>TOTAL:</strong></span>
         <span><strong>${{ total }}</strong></span>
       </div>
-      <button class="btn-yellow" disabled>Enviar Pedido</button>
+      {% if productos_no_cumplen %}
+        <div class="cart-alert cart-warning" style="margin-bottom:10px;">
+          <b>Advertencia:</b><br>
+          Los siguientes productos no cumplen con el pedido mínimo:<br>
+          <ul>
+            {% for p in productos_no_cumplen %}
+              <li>{{ p.descripcion }} (SKU: {{ p.sku }}) - Mínimo requerido: {{ p.minimo_pedido }}<br>
+                <span style="color: #d35400;">Faltan {{ p.faltan }} para cumplir el mínimo.</span>
+              </li>
+            {% endfor %}
+          </ul>
+        </div>
+      {% endif %}
+      <button class="btn-yellow">Enviar Pedido</button>
       <p class="summary-note">
         Una vez enviado el pedido, se analizarán los artículos para verificar si cumples con el pedido mínimo. Luego, se te enviará una confirmación con los artículos que hayan sido aprobados.
       </p>

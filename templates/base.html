@@ -31,10 +31,13 @@
         </ul>
 
         <div class="icons">
-            <a href="#"><span class="material-icons">search</span></a>
+            <form action="{% url 'buscar_productos' %}" method="get" style="display:inline;">
+                <input type="text" name="q" placeholder="Buscar productos..." style="padding:5px; border-radius:5px; border:1px solid #ccc;">
+                <button type="submit" style="background:none; border:none; cursor:pointer;">
+                    <span class="material-icons">search</span>
+                </button>
+            </form>
             <a href="#"><span class="material-icons">person</span></a>
-
-            <!-- Cambia este -->
             <a href="{% url 'carrito_ver' %}" class="cart-link">
                 <span class="material-icons">shopping_cart</span>
             </a>
