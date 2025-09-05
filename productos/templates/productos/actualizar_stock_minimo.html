@@ -28,8 +28,12 @@
             {% csrf_token %}
             <div style="margin-bottom: 1rem;">
                 <label for="id_sku"><strong>Buscar por SKU:</strong></label>
-                <input type="text" name="sku" id="id_sku" value="{{ sku|default:'' }}" required {% if producto %}readonly{% endif %} style="margin-left:10px;">
-                <button type="submit" name="buscar" class="button" {% if producto %}disabled{% endif %}>Buscar</button>
+                <div class="search-container" style="margin-top:8px;">
+                    <input type="text" name="sku" id="id_sku" value="{{ sku|default:'' }}" required placeholder="Ej: 08414-PWR">
+                    <button type="submit" name="buscar" title="Buscar">
+                        <i class="material-icons">search</i>
+                    </button>
+                </div>
             </div>
             {% if producto %}
                 <div style="margin-bottom: 1rem; text-align:center;">
@@ -48,11 +52,11 @@
                     <label for="id_minimo_pedido">Mínimo para pedido:</label>
                     <input type="number" name="minimo_pedido" id="id_minimo_pedido" value="{{ producto.minimo_pedido }}" min="1" required>
                 </div>
-                <input type="hidden" name="sku" value="{{ producto.sku }}">
-                <button type="submit" name="actualizar" class="button">Actualizar</button>
+                <input type="hidden" name="sku_confirmado" value="{{ producto.sku }}">
+                <button type="submit" name="actualizar" class="btn-carrito">Actualizar</button>
             {% endif %}
         </form>
     </div>
-    <a href="{% url 'lista_productos' %}" class="button">Volver a la lista</a>
+    <a href="{% url 'lista_productos' %}" class="btn-carrito" style="text-decoration:none; display:inline-block;">Volver a la lista</a>
 </div>
 {% endblock %}

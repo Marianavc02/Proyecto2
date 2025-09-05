@@ -1,31 +1,66 @@
 {% extends "base.html" %}
+{% load static %}
 {% block title %}Buscar productos{% endblock %}
 {% block content %}
-<div style="max-width:800px;margin:auto;padding:2rem;">
-    <h2>Resultados de búsqueda{% if query %} para "{{ query }}"{% endif %}</h2>
-    <form method="get" action="">
-        <input type="text" name="q" value="{{ query }}" placeholder="Buscar productos..." style="padding:5px; border-radius:5px; border:1px solid #ccc;">
-        <button type="submit" class="button">Buscar</button>
-    </form>
-    <br>
-    {% if productos %}
-    <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 20px;">
-        {% for producto in productos %}
-            <a href="{% url 'detalle_producto' producto.id %}" style="text-decoration: none; color: black;">
-                <div style="border: 2px solid #ccc; border-radius: 0; overflow: hidden; text-align: center; background: #fff;">
-                    {% if producto.imagenes.first %}
-                        <img src="{{ producto.imagenes.first.imagen.url }}" alt="{{ producto.descripcion }}" style="width: 100%; height: 150px; object-fit: contain;">
-                    {% else %}
-                        <div style="width: 100%; height: 150px; background: #fff; display: flex; align-items: center; justify-content: center;">Sin Imagen</div>
-                    {% endif %}
-                    <div style="background: #f5f4f2ff; padding: 10px; font-weight: bold;">{{ producto.descripcion }}</div>
-                    <p style="margin: 5px 0;">Precio: ${{ producto.precio_sin_iva }}</p>
+<div style="margin-top: 100px;">
+    <div style="display: grid; grid-template-columns: 250px 1fr; gap: 20px; max-width: 1400px; margin: auto; margin-top: 30px;">
+        <!-- Sidebar de Filtros -->
+        <div style="background: #fff; padding: 20px; border-radius: 10px; box-shadow: 0px 2px 5px rgba(0,0,0,0.1); height: fit-content;">
+            <h3 style="margin-bottom: 15px; display: flex; align-items: center; gap: 8px;">
+                <img src="{% static 'img/filtro.jpg' %}" alt="Filtro" width="20" height="20">
+                Filtros
+            </h3>
+            <form method="get">
+                <input type="hidden" name="q" value="{{ query }}">
+                <label>Categoría:</label><br>
+                <input type="text" name="categoria" value="{{ request.GET.categoria }}" placeholder="Ej: Taladro" style="width: 100%; margin-bottom: 10px;">
+                <div style="display: flex; gap: 10px; margin-bottom: 10px;">
+                    <div style="flex: 1;">
+                        <label>Precio mínimo:</label>
+                        <input type="number" name="min_precio" value="{{ request.GET.min_precio }}" style="width: 100%;">
+                    </div>
+                    <div style="flex: 1;">
+                        <label>Precio máximo:</label>
+                        <input type="number" name="max_precio" value="{{ request.GET.max_precio }}" style="width: 100%;">
+                    </div>
                 </div>
-            </a>
-        {% endfor %}
+                <button type="submit" style="background: #f4dc00e8; color: black; border: none; padding: 10px; border-radius: 5px; width: 100%; cursor: pointer;">Filtrar</button>
+                <a href="?q={{ query|urlencode }}" style="display:block; text-align:center; margin-top:10px; text-decoration:none; color:red;">Limpiar</a>
+            </form>
+        </div>
+        <!-- Grid de Productos -->
+        <div>
+            <h2>Resultados de búsqueda{% if query %} para "{{ query }}"{% endif %}</h2>
+            <form method="get" action="" class="search-container" style="margin: 10px 0 20px;">
+                <input type="text" name="q" value="{{ query }}" placeholder="Buscar productos...">
+                <button type="submit" title="Buscar">
+                    <i class="material-icons">search</i>
+                </button>
+                <input type="hidden" name="categoria" value="{{ request.GET.categoria }}">
+                <input type="hidden" name="min_precio" value="{{ request.GET.min_precio }}">
+                <input type="hidden" name="max_precio" value="{{ request.GET.max_precio }}">
+            </form>
+            <br>
+            {% if productos %}
+            <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 20px;">
+                {% for producto in productos %}
+                    <a href="{% url 'detalle_producto' producto.id %}" style="text-decoration: none; color: black;">
+                        <div style="border: 2px solid #ccc; border-radius: 0; overflow: hidden; text-align: center; background: #fff;">
+                            {% if producto.imagenes.first %}
+                                <img src="{{ producto.imagenes.first.imagen.url }}" alt="{{ producto.descripcion }}" style="width: 100%; height: 150px; object-fit: contain;">
+                            {% else %}
+                                <div style="width: 100%; height: 150px; background: #fff; display: flex; align-items: center; justify-content: center;">Sin Imagen</div>
+                            {% endif %}
+                            <div style="background: #f5f4f2ff; padding: 10px; font-weight: bold;">{{ producto.descripcion }}</div>
+                            <p style="margin: 5px 0;">Precio: ${{ producto.precio_sin_iva }}</p>
+                        </div>
+                    </a>
+                {% endfor %}
+            </div>
+            {% else %}
+                <p>No se encontraron productos.</p>
+            {% endif %}
+        </div>
     </div>
-    {% else %}
-        <p>No se encontraron productos.</p>
-    {% endif %}
 </div>
 {% endblock %}

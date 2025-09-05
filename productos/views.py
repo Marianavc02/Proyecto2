@@ -262,8 +262,9 @@ def actualizar_stock_minimo(request):
     form = None
     sku = None
     if request.method == 'POST':
-        sku = request.POST.get('sku')
-        if 'buscar' in request.POST and sku:
+        # En buscar usamos el campo 'sku' del input; en actualizar usamos 'sku_confirmado'
+        if 'buscar' in request.POST:
+            sku = request.POST.get('sku')
             try:
                 producto = Producto.objects.get(sku=sku)
                 form = ActualizarStockMinimoForm(initial={
@@ -272,12 +273,13 @@ def actualizar_stock_minimo(request):
                     'minimo_pedido': producto.minimo_pedido
                 })
             except Producto.DoesNotExist:
-                messages.error(request, f'No se encontró el producto con SKU {sku}')
+                producto = None
                 form = ActualizarStockMinimoForm(initial={'sku': sku})
+                messages.error(request, f'No se encontró el producto con SKU {sku}')
         elif 'actualizar' in request.POST:
+            sku = request.POST.get('sku_confirmado') or request.POST.get('sku')
             form = ActualizarStockMinimoForm(request.POST)
             if form.is_valid():
-                sku = form.cleaned_data['sku']
                 stock = form.cleaned_data['stock']
                 minimo_pedido = form.cleaned_data['minimo_pedido']
                 try:
@@ -287,8 +289,10 @@ def actualizar_stock_minimo(request):
                     producto.save()
                     messages.success(request, f'Stock y mínimo de pedido actualizados para {sku}')
                 except Producto.DoesNotExist:
+                    producto = None
                     messages.error(request, f'No se encontró el producto con SKU {sku}')
             else:
+                producto = None
                 messages.error(request, 'Formulario inválido')
     else:
         form = ActualizarStockMinimoForm()
