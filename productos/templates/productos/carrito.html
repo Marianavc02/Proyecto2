@@ -15,7 +15,9 @@
     {% if messages %}
       <div class="cart-messages">
         {% for message in messages %}
-          <div class="cart-alert cart-{{ message.tags }}">{{ message }}</div>
+          {% if 'Stock y mínimo de pedido actualizados' not in message %}
+            <div class="cart-alert cart-{{ message.tags }}">{{ message }}</div>
+          {% endif %}
         {% endfor %}
       </div>
     {% endif %}
