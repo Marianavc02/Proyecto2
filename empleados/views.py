@@ -1,13 +1,9 @@
-from django.shortcuts import render
-import pandas as pd
-from django.shortcuts import render, redirect
-from django.http import HttpResponse
-from .models import Empleado
-
 # Subir archivo Excel e importar empleados
 import pandas as pd
-from django.shortcuts import render
+from django.shortcuts import redirect, render
+
 from .models import Empleado
+
 
 def importar_empleados(request):
     if request.method == "POST" and request.FILES["file"]:
@@ -21,11 +17,7 @@ def importar_empleados(request):
 
         # Cargar los nuevos registros
         for _, row in df.iterrows():
-            Empleado.objects.create(
-                id=row["ID"],
-                preferred_name=row["Preferred Name"],
-                sbd_email=row["SBD Email"]
-            )
+            Empleado.objects.create(id=row["ID"], preferred_name=row["Preferred Name"], sbd_email=row["SBD Email"])
 
         return redirect("lista_empleados")
 
@@ -36,4 +28,3 @@ def importar_empleados(request):
 def lista_empleados(request):
     empleados = Empleado.objects.all()
     return render(request, "empleados/lista.html", {"empleados": empleados})
-

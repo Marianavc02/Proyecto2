@@ -1,83 +1,91 @@
 # views.py
-import pandas as pd
 from decimal import Decimal
-from django.shortcuts import render, redirect, get_object_or_404
+
+import pandas as pd
 from django.contrib import messages
-from django.http import JsonResponse
-from django.urls import reverse
+from django.shortcuts import get_object_or_404, redirect, render
 
-from .models import Producto, ProductoImagen
 from .forms import ExcelUploadForm, ImagenUploadForm
-from .utils import clasificar_empresa
-
+from .models import Producto, ProductoImagen
 
 
 def cargar_excel(request):
-    if request.method == 'POST':
+    if request.method == "POST":
         form = ExcelUploadForm(request.POST, request.FILES)
         if form.is_valid():
             try:
-                archivo = request.FILES['archivo']
+                archivo = request.FILES["archivo"]
                 df = pd.read_excel(archivo, decimal=",")
 
                 # Normalizar nombres de columnas
                 df.columns = [col.strip().upper() for col in df.columns]
 
                 # Columnas requeridas en el Excel
-                columnas_requeridas = ['SKU', 'DESCRICIÓN', 'SBU', 'CATEGORÍA', 'PRECIO ANTES DE IVA']
+                columnas_requeridas = [
+                    "SKU",
+                    "DESCRICIÓN",
+                    "SBU",
+                    "CATEGORÍA",
+                    "PRECIO ANTES DE IVA",
+                ]
 
                 if not all(col in df.columns for col in columnas_requeridas):
-                    messages.error(request, f'El archivo no tiene las columnas requeridas. Columnas encontradas: {df.columns.tolist()}')
-                    return redirect('cargar_excel')
+                    messages.error(
+                        request,
+                        f"El archivo no tiene las columnas requeridas. Columnas encontradas: {df.columns.tolist()}",
+                    )
+                    return redirect("cargar_excel")
 
                 # Procesar cada fila
                 for _, row in df.iterrows():
                     Producto.objects.update_or_create(
-                        sku=row['SKU'],  # <-- aquí usamos sku
+                        sku=row["SKU"],  # <-- aquí usamos sku
                         defaults={
-                            'descripcion': row['DESCRICIÓN'],
-                            'sbu': row['SBU'],
-                            'categoria': row['CATEGORÍA'],
-                            'precio_sin_iva': row['PRECIO ANTES DE IVA'],
-                        }
+                            "descripcion": row["DESCRICIÓN"],
+                            "sbu": row["SBU"],
+                            "categoria": row["CATEGORÍA"],
+                            "precio_sin_iva": row["PRECIO ANTES DE IVA"],
+                        },
                     )
 
-                messages.success(request, 'Productos cargados exitosamente')
-                return redirect('lista_productos')
+                messages.success(request, "Productos cargados exitosamente")
+                return redirect("lista_productos")
 
             except Exception as e:
-                messages.error(request, f'Error al procesar el archivo: {str(e)}')
-                return redirect('cargar_excel')
+                messages.error(request, f"Error al procesar el archivo: {str(e)}")
+                return redirect("cargar_excel")
     else:
         form = ExcelUploadForm()
 
-    return render(request, 'productos/cargar_excel.html', {'form': form})
+    return render(request, "productos/cargar_excel.html", {"form": form})
 
 
 def lista_productos(request):
-    productos = Producto.objects.all().prefetch_related('imagenes')
-    return render(request, 'productos/lista_productos.html', {'productos': productos})
+    productos = Producto.objects.all().prefetch_related("imagenes")
+    return render(request, "productos/lista_productos.html", {"productos": productos})
+
 
 def cargar_imagen(request):
-    if request.method == 'POST':
+    if request.method == "POST":
         form = ImagenUploadForm(request.POST, request.FILES)
         if form.is_valid():
-            sku = form.cleaned_data['sku']  # ahora usamos SKU
-            imagen = form.cleaned_data['imagen']
-            
+            sku = form.cleaned_data["sku"]  # ahora usamos SKU
+            imagen = form.cleaned_data["imagen"]
+
             try:
                 producto = Producto.objects.get(sku=sku)  # buscar por SKU
                 ProductoImagen.objects.create(producto=producto, imagen=imagen)
-                messages.success(request, 'Imagen cargada exitosamente')
-                return redirect('lista_productos')
+                messages.success(request, "Imagen cargada exitosamente")
+                return redirect("lista_productos")
             except Producto.DoesNotExist:
-                messages.error(request, 'Producto no encontrado')
+                messages.error(request, "Producto no encontrado")
     else:
         form = ImagenUploadForm()
-    
-    return render(request, 'productos/cargar_imagen.html', {'form': form})
 
-#View para mostrar productos según empresa
+    return render(request, "productos/cargar_imagen.html", {"form": form})
+
+
+# View para mostrar productos según empresa
 def productos_por_empresa(request, empresa):
     productos = Producto.objects.filter(empresa__iexact=empresa)
 
@@ -103,17 +111,20 @@ def productos_por_empresa(request, empresa):
         except ValueError:
             pass
 
-    return render(request, "productos/productos_por_empresa.html", {
-        "productos": productos,
-        "empresa": empresa
-    })
+    return render(
+        request,
+        "productos/productos_por_empresa.html",
+        {"productos": productos, "empresa": empresa},
+    )
 
-#View para mostrar detalle producto
+
+# View para mostrar detalle producto
 def detalle_producto(request, pk):
     producto = get_object_or_404(Producto, pk=pk)
-    return render(request, 'productos/detalle_producto.html', {'producto': producto})
+    return render(request, "productos/detalle_producto.html", {"producto": producto})
 
-#<--!"{% url 'producto_detalle' producto.pk %}"-->
+
+# <--!"{% url 'producto_detalle' producto.pk %}"-->
 
 
 # CARRITO (sesión)  RF_12-RF_14
@@ -121,12 +132,15 @@ def detalle_producto(request, pk):
 MAX_ITEMS = 5
 SESSION_KEY = "carrito"
 
+
 def _get_cart(request):
     return request.session.get(SESSION_KEY, {})
+
 
 def _save_cart(request, cart):
     request.session[SESSION_KEY] = cart
     request.session.modified = True
+
 
 def carrito_agregar(request, sku):
     """
@@ -170,6 +184,7 @@ def carrito_agregar(request, sku):
     messages.success(request, "Producto agregado al carrito.")
     return redirect("carrito_ver")
 
+
 def carrito_eliminar(request, sku):
     """
     RF_13: Eliminar producto del carrito.
@@ -186,6 +201,7 @@ def carrito_eliminar(request, sku):
         messages.warning(request, "Ese producto no estaba en tu carrito.")
     return redirect("carrito_ver")
 
+
 def carrito_ver(request):
     """
     RF_14: Ver carrito + resumen (subtotal/total).
@@ -198,14 +214,16 @@ def carrito_ver(request):
         precio = Decimal(data.get("precio", "0"))
         subtotal = precio  # cantidad fija = 1 (no repetidos)
         total += subtotal
-        items.append({
-            "sku": sku,
-            "descripcion": data.get("descripcion", ""),
-            "precio": precio,
-            "subtotal": subtotal,
-            "categoria": data.get("categoria", ""),
-            "imagen_url": data.get("imagen_url", ""),
-        })
+        items.append(
+            {
+                "sku": sku,
+                "descripcion": data.get("descripcion", ""),
+                "precio": precio,
+                "subtotal": subtotal,
+                "categoria": data.get("categoria", ""),
+                "imagen_url": data.get("imagen_url", ""),
+            }
+        )
 
     contexto = {
         "items": items,

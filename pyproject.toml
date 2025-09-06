@@ -1,0 +1,17 @@
+[tool.black]
+line-length = 120
+target-version = ['py39']
+exclude = '''
+/(
+  migrations
+  | __pycache__
+  | manage.py
+  | settings.py
+  | env
+)/
+'''
+
+[tool.isort]
+profile = "black"
+line_length = 120
+skip = ["migrations", "manage.py", "settings.py", "env"]
