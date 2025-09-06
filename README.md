@@ -47,3 +47,13 @@ source env/bin/activate # Para activar
 Con el entorno virtual activado, instala los paquetes necesarios:
 ```bash
 pip install -r requirements.txt
+```
+## Análisis de código estáico 
+Este proyecto utiliza herramientas de análisis y formateo automático de código para mantener un estilo consistente y detectar posibles errores
+Con el entorno virtual activa y las dependencias instaladas ejecutar 
+
+```bash
+python -m flake8 .
+black .
+isort .
+```
