@@ -1,21 +1,14 @@
-
-
 # views.py
 from decimal import Decimal
 import pandas as pd
 from django.contrib import messages
-
 from django.http import JsonResponse
 #from django.urls import reverse
-
 from .models import Producto, ProductoImagen
 from django.db import models
-
 from django.shortcuts import get_object_or_404, redirect, render
-
 from .forms import ExcelUploadForm, ImagenUploadForm
 from .models import Producto, ProductoImagen
-
 
 def cargar_excel(request):
     if request.method == "POST":
