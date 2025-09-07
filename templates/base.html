@@ -31,11 +31,19 @@
         </ul>
 
         <div class="icons">
-            <a href="#"><span class="material-icons">search</span></a>
-            <a href="#"><span class="material-icons">person</span></a>
-
-            <!-- Cambia este -->
-            <a href="{% url 'carrito_ver' %}" class="cart-link">
+            <div class="nav-search" id="navSearch">
+                <button type="button" class="search-toggle icon-btn" id="searchToggle" aria-label="Mostrar búsqueda">
+                    <span class="material-icons">search</span>
+                </button>
+                <form action="{% url 'buscar_productos' %}" method="get" class="search-container">
+                    <input type="text" name="q" placeholder="Buscar productos..." value="{{ request.GET.q }}">
+                    <button type="submit" title="Buscar" class="icon-btn">
+                        <i class="material-icons">search</i>
+                    </button>
+                </form>
+            </div>
+            <a href="#" class="icon-btn" title="Usuario"><span class="material-icons">person</span></a>
+            <a href="{% url 'carrito_ver' %}" class="icon-btn cart-link" title="Carrito">
                 <span class="material-icons">shopping_cart</span>
             </a>
         </div>
@@ -45,4 +53,23 @@
 {% block content %}
 {% endblock %}
 </body>
+<script>
+    (function(){
+        const navSearch = document.getElementById('navSearch');
+        const btn = document.getElementById('searchToggle');
+        const input = navSearch?.querySelector('input');
+        const icon = btn?.querySelector('.material-icons');
+        if(btn && navSearch){
+            btn.addEventListener('click', function(){
+                navSearch.classList.toggle('open');
+                if(navSearch.classList.contains('open')){
+                    if(icon){ icon.textContent = 'close'; btn.setAttribute('aria-label','Ocultar búsqueda'); }
+                    if(input){ setTimeout(()=> input.focus(), 100); }
+                } else {
+                    if(icon){ icon.textContent = 'search'; btn.setAttribute('aria-label','Mostrar búsqueda'); }
+                }
+            });
+        }
+    })();
+</script>
 </html>

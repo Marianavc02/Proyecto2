@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+{% block title %}Actualizar Stock y Pedido Mínimo{% endblock %}
+{% block content %}
+<style>
+    .centered-form {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        min-height: 60vh;
+    }
+    .form-box {
+        background: #fff;
+        padding: 2rem 2.5rem;
+        border-radius: 12px;
+        box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+        min-width: 320px;
+        margin-bottom: 2rem;
+    }
+    .button {
+        margin-top: 1rem;
+    }
+</style>
+<div class="centered-form">
+    <div class="form-box">
+        <h2 style="text-align:center;">Actualizar Stock y Pedido Mínimo</h2>
+        <form method="post">
+            {% csrf_token %}
+            <div style="margin-bottom: 1rem;">
+                <label for="id_sku"><strong>Buscar por SKU:</strong></label>
+                <div class="search-container" style="margin-top:8px;">
+                    <input type="text" name="sku" id="id_sku" value="{{ sku|default:'' }}" required placeholder="Ej: 08414-PWR">
+                    <button type="submit" name="buscar" title="Buscar">
+                        <i class="material-icons">search</i>
+                    </button>
+                </div>
+            </div>
+            {% if producto %}
+                <div style="margin-bottom: 1rem; text-align:center;">
+                    <strong>Producto encontrado:</strong><br>
+                    SKU: <b>{{ producto.sku }}</b><br>
+                    Descripción: <b>{{ producto.descripcion }}</b><br>
+                    Categoría: <b>{{ producto.categoria }}</b><br>
+                    Stock actual: <b>{{ producto.stock }}</b><br>
+                    Mínimo para pedido: <b>{{ producto.minimo_pedido }}</b>
+                </div>
+                <div style="margin-bottom: 1rem;">
+                    <label for="id_stock">Stock actual:</label>
+                    <input type="number" name="stock" id="id_stock" value="{{ producto.stock }}" min="0" required>
+                </div>
+                <div style="margin-bottom: 1rem;">
+                    <label for="id_minimo_pedido">Mínimo para pedido:</label>
+                    <input type="number" name="minimo_pedido" id="id_minimo_pedido" value="{{ producto.minimo_pedido }}" min="1" required>
+                </div>
+                <input type="hidden" name="sku_confirmado" value="{{ producto.sku }}">
+                <button type="submit" name="actualizar" class="btn-carrito">Actualizar</button>
+            {% endif %}
+        </form>
+    </div>
+    <a href="{% url 'lista_productos' %}" class="btn-carrito" style="text-decoration:none; display:inline-block;">Volver a la lista</a>
+</div>
+{% endblock %}

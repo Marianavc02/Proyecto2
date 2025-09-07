@@ -7,12 +7,17 @@ def image_upload_path(instance, filename):
 
 
 class Producto(models.Model):
+
     sku = models.CharField("Referencia", max_length=100, unique=True)
     descripcion = models.TextField("Descripción")
     sbu = models.CharField("SBU", max_length=100, blank=True, null=True)
     categoria = models.CharField("Categoría", max_length=100, blank=True, null=True)
     precio_sin_iva = models.DecimalField("Precio antes de IVA", max_digits=10, decimal_places=2, null=True, blank=True)
-    empresa = models.CharField("Empresa", max_length=50, blank=True, null=True)
+    empresa = models.CharField("Empresa", max_length=50, blank=True, null=True) 
+    # Nuevo: stock actual y mínimo de pedido
+    stock = models.PositiveIntegerField("Stock actual", default=0)
+    minimo_pedido = models.PositiveIntegerField("Mínimo para pedido", default=1, help_text="Cantidad mínima para que el producto sea factible de enviar.")
+#save para que siempre que se guarde en la base de datos se le ponga empresa
 
     def save(self, *args, **kwargs):
         self.empresa = clasificar_empresa(self.sku)

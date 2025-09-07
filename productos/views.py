@@ -2,10 +2,13 @@
 from decimal import Decimal
 import pandas as pd
 from django.contrib import messages
+from django.http import JsonResponse
+#from django.urls import reverse
+from .models import Producto, ProductoImagen
+from django.db import models
 from django.shortcuts import get_object_or_404, redirect, render
 from .forms import ExcelUploadForm, ImagenUploadForm
 from .models import Producto, ProductoImagen
-
 
 def cargar_excel(request):
     if request.method == "POST":
@@ -119,7 +122,28 @@ def productos_por_empresa(request, empresa):
 # View para mostrar detalle producto
 def detalle_producto(request, pk):
     producto = get_object_or_404(Producto, pk=pk)
-    return render(request, "productos/detalle_producto.html", {"producto": producto})
+    # Contar cuántos hay en el carrito de este usuario (por sesión)
+    pedidos = 0
+    cart = request.session.get('carrito', {})
+    if producto.sku in cart:
+        pedidos = 1  # solo 1 por usuario según lógica actual
+    # Para AJAX: si es petición JS, devolver solo el estado
+    if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+        faltan = max(0, producto.minimo_pedido - pedidos)
+        return JsonResponse({
+            'pedidos': pedidos,
+            'minimo_pedido': producto.minimo_pedido,
+            'cumplido': pedidos >= producto.minimo_pedido,
+            'faltan': faltan
+        })
+    faltan = max(0, producto.minimo_pedido - pedidos)
+    return render(request, 'productos/detalle_producto.html', {
+        'producto': producto,
+        'pedidos': pedidos,
+        'faltan': faltan,
+        'cumplido': pedidos >= producto.minimo_pedido
+    })
+
 
 
 # <--!"{% url 'producto_detalle' producto.pk %}"-->
@@ -208,10 +232,36 @@ def carrito_ver(request):
     items = []
     total = Decimal("0")
 
+    productos_no_cumplen = []
     for sku, data in cart.items():
         precio = Decimal(data.get("precio", "0"))
         subtotal = precio  # cantidad fija = 1 (no repetidos)
         total += subtotal
+
+        # Buscar el producto real para validar el mínimo
+        try:
+            producto = Producto.objects.get(sku=sku)
+            cantidad_en_carrito = 1  # si implementas cantidades, cámbialo aquí
+            cumple_minimo = cantidad_en_carrito >= producto.minimo_pedido
+            if not cumple_minimo:
+                faltan = producto.minimo_pedido - cantidad_en_carrito
+                productos_no_cumplen.append({
+                    "sku": sku,
+                    "descripcion": producto.descripcion,
+                    "minimo_pedido": producto.minimo_pedido,
+                    "faltan": faltan
+                })
+        except Producto.DoesNotExist:
+            pass
+        items.append({
+            "sku": sku,
+            "descripcion": data.get("descripcion", ""),
+            "precio": precio,
+            "subtotal": subtotal,
+            "categoria": data.get("categoria", ""),
+            "imagen_url": data.get("imagen_url", ""),
+        })
+
         items.append(
             {
                 "sku": sku,
@@ -223,10 +273,86 @@ def carrito_ver(request):
             }
         )
 
+
     contexto = {
         "items": items,
         "total": total,
         "max_items": MAX_ITEMS,
         "count": len(items),
+        "productos_no_cumplen": productos_no_cumplen,
     }
     return render(request, "productos/carrito.html", contexto)
+
+
+
+def actualizar_stock_minimo(request):
+    from .forms import ActualizarStockMinimoForm
+    producto = None
+    form = None
+    sku = None
+    if request.method == 'POST':
+        # En buscar usamos el campo 'sku' del input; en actualizar usamos 'sku_confirmado'
+        if 'buscar' in request.POST:
+            sku = request.POST.get('sku')
+            try:
+                producto = Producto.objects.get(sku=sku)
+                form = ActualizarStockMinimoForm(initial={
+                    'sku': producto.sku,
+                    'stock': producto.stock,
+                    'minimo_pedido': producto.minimo_pedido
+                })
+            except Producto.DoesNotExist:
+                producto = None
+                form = ActualizarStockMinimoForm(initial={'sku': sku})
+                messages.error(request, f'No se encontró el producto con SKU {sku}')
+        elif 'actualizar' in request.POST:
+            sku = request.POST.get('sku_confirmado') or request.POST.get('sku')
+            form = ActualizarStockMinimoForm(request.POST)
+            if form.is_valid():
+                stock = form.cleaned_data['stock']
+                minimo_pedido = form.cleaned_data['minimo_pedido']
+                try:
+                    producto = Producto.objects.get(sku=sku)
+                    producto.stock = stock
+                    producto.minimo_pedido = minimo_pedido
+                    producto.save()
+                    messages.success(request, f'Stock y mínimo de pedido actualizados para {sku}')
+                except Producto.DoesNotExist:
+                    producto = None
+                    messages.error(request, f'No se encontró el producto con SKU {sku}')
+            else:
+                producto = None
+                messages.error(request, 'Formulario inválido')
+    else:
+        form = ActualizarStockMinimoForm()
+    return render(request, 'productos/actualizar_stock_minimo.html', {'form': form, 'producto': producto, 'sku': sku})
+
+def buscar_productos(request):
+    query = request.GET.get('q', '')
+    categoria = request.GET.get('categoria', '')
+    min_precio = request.GET.get('min_precio', '')
+    max_precio = request.GET.get('max_precio', '')
+    productos = Producto.objects.all()
+    if query:
+        productos = productos.filter(
+            models.Q(descripcion__icontains=query) |
+            models.Q(sku__icontains=query) |
+            models.Q(categoria__icontains=query)
+        )
+    if categoria:
+        productos = productos.filter(categoria__icontains=categoria)
+    if min_precio:
+        try:
+            productos = productos.filter(precio_sin_iva__gte=float(min_precio))
+        except ValueError:
+            pass
+    if max_precio:
+        try:
+            productos = productos.filter(precio_sin_iva__lte=float(max_precio))
+        except ValueError:
+            pass
+    return render(request, 'productos/buscar_productos.html', {
+        'productos': productos,
+        'query': query
+    })
+
