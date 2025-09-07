@@ -3,6 +3,7 @@ from django.urls import path
 from . import views
 
 urlpatterns = [
+
     path('cargar-excel/', views.cargar_excel, name='cargar_excel'),
     path('lista-productos/', views.lista_productos, name='lista_productos'),
     path('cargar-imagen/', views.cargar_imagen, name='cargar_imagen'),
@@ -14,3 +15,4 @@ urlpatterns = [
     path('carrito/eliminar/<str:sku>/', views.carrito_eliminar, name='carrito_eliminar'),
     path('buscar/', views.buscar_productos, name='buscar_productos'),
 ]
+

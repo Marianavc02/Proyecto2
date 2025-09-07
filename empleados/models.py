@@ -1,5 +1,6 @@
 from django.db import models
 
+
 class Empleado(models.Model):
     id = models.AutoField(primary_key=True)
     preferred_name = models.CharField(max_length=100)
