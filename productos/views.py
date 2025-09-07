@@ -6,7 +6,7 @@ import pandas as pd
 from django.contrib import messages
 
 from django.http import JsonResponse
-from django.urls import reverse
+#from django.urls import reverse
 
 from .models import Producto, ProductoImagen
 from django.db import models
