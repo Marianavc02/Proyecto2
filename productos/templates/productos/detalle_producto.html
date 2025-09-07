@@ -16,10 +16,7 @@
         <h2>{{ producto.descripcion }}</h2>
         <p class="precio">Precio Empleado: ${{ producto.precio_sin_iva }}</p>
 
-        <div class="cantidad-carrito">
-            <button class="btn-cantidad">-</button>
-            <input type="text" value="1" readonly>
-            <button class="btn-cantidad">+</button>
+
 
     
             <form method="post" action="{% url 'carrito_agregar' producto.sku %}" style="display:inline;">
@@ -27,7 +24,7 @@
                 <button type="submit" class="btn-carrito">Añadir al carrito</button>
             </form>
             
-        </div>
+
 
 
         <p><strong>Referencia:</strong> {{ producto.sku }}</p>
