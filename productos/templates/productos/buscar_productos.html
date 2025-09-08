@@ -47,9 +47,33 @@
                     <a href="{% url 'detalle_producto' producto.id %}" style="text-decoration: none; color: black;">
                         <div style="border: 2px solid #ccc; border-radius: 0; overflow: hidden; text-align: center; background: #fff;">
                             {% if producto.imagenes.first %}
-                                <img src="{{ producto.imagenes.first.imagen.url }}" alt="{{ producto.descripcion }}" style="width: 100%; height: 150px; object-fit: contain;">
-                            {% else %}
-                                <div style="width: 100%; height: 150px; background: #fff; display: flex; align-items: center; justify-content: center;">Sin Imagen</div>
+ 
+                                <img src="{{ producto.imagenes.first.imagen.url }}" 
+                                    alt="{{ producto.descripcion }}" 
+                                    style="width:100%; height:110px; object-fit:contain;">
+                                {% else %}
+
+                                {% if producto.empresa == "Stanley" %}
+                                    <img src="{% static 'img/stanley.jpg' %}" 
+                                        alt="Imagen Stanley" 
+                                        style="width:100%; height:110px; object-fit:contain;">
+                                {% elif producto.empresa == "Black&Decker" %}
+                                    <img src="{% static 'img/blackdecker.jpg' %}" 
+                                        alt="Imagen Black&Decker" 
+                                        style="width:100%; height:110px; object-fit:contain;">
+                                {% elif producto.empresa == "Irwin" %}
+                                    <img src="{% static 'img/irwin.jpg' %}" 
+                                        alt="Imagen Irwin" 
+                                        style="width:100%; height:110px; object-fit:contain;">
+                                {% elif producto.empresa == "DeWalt" %}
+                                    <img src="{% static 'img/dewalt.jpg' %}" 
+                                        alt="Imagen Dewalt" 
+                                        style="width:100%; height:110px; object-fit:contain;">
+                                {% else %}
+                                    <img src="{% static 'img/logo.png' %}" 
+                                        alt="Imagen no disponible" 
+                                        style="width:100%; height:110px; object-fit:contain;">
+                                {% endif %}
                             {% endif %}
                             <div style="background: #f5f4f2ff; padding: 10px; font-weight: bold;">{{ producto.descripcion }}</div>
                             <p style="margin: 5px 0;">Precio: ${{ producto.precio_sin_iva }}</p>
