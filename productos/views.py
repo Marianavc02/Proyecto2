@@ -202,6 +202,7 @@ def carrito_agregar(request, sku):
         "descripcion": producto.descripcion,
         "precio": str(producto.precio_sin_iva or Decimal("0")),
         "categoria": producto.categoria or "",
+        "empresa": producto.empresa or "",
         "imagen_url": img_url,
     }
     _save_cart(request, cart)
@@ -255,14 +256,6 @@ def carrito_ver(request):
                 })
         except Producto.DoesNotExist:
             pass
-        items.append({
-            "sku": sku,
-            "descripcion": data.get("descripcion", ""),
-            "precio": precio,
-            "subtotal": subtotal,
-            "categoria": data.get("categoria", ""),
-            "imagen_url": data.get("imagen_url", ""),
-        })
 
         items.append(
             {

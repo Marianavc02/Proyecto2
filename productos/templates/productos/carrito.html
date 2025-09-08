@@ -29,7 +29,17 @@
           {% if it.imagen_url %}
             <img src="{{ it.imagen_url }}" alt="{{ it.descripcion }}">
           {% else %}
-            <img src="{% static 'img/no-image.png' %}" alt="Sin imagen">
+            {% if it.empresa == "Stanley" %}
+              <img src="{% static 'img/stanley.jpg' %}" alt="Imagen Stanley">
+            {% elif it.empresa == "Black&Decker" %}
+              <img src="{% static 'img/blackdecker.jpg' %}" alt="Imagen Black&Decker">
+            {% elif it.empresa == "Irwin" %}
+              <img src="{% static 'img/irwin.jpg' %}" alt="Imagen Irwin">
+            {% elif it.empresa == "DeWalt" %}
+              <img src="{% static 'img/dewalt.jpg' %}" alt="Imagen Dewalt">
+            {% else %}
+              <img src="{% static 'img/logo.png' %}" alt="Imagen no disponible">
+            {% endif %}
           {% endif %}
         </div>
         <div class="cart-item-middle">
