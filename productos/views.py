@@ -255,14 +255,6 @@ def carrito_ver(request):
                 })
         except Producto.DoesNotExist:
             pass
-        items.append({
-            "sku": sku,
-            "descripcion": data.get("descripcion", ""),
-            "precio": precio,
-            "subtotal": subtotal,
-            "categoria": data.get("categoria", ""),
-            "imagen_url": data.get("imagen_url", ""),
-        })
 
         items.append(
             {
