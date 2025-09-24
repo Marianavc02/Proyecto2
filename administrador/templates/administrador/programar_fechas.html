@@ -1,0 +1,200 @@
+{% extends "administrador/base_admin.html" %}
+
+{% block title %}Programar Fechas{% endblock %}
+
+{% block admin_content %}
+<style>
+  :root{
+    --sbd-yellow:#FFD20A; --sbd-gray:#D9D9D9; --text:#111; --muted:#555; --card:#fff;
+    --shadow: 0 8px 24px rgba(0,0,0,.08);
+  }
+
+  /* LAYOUT */
+  .ad-wrap{
+  margin:10px auto 40px; max-width:1200px; padding:0 16px;
+  display:grid; grid-template-columns: 1.35fr .9fr; gap:28px;
+  align-items: flex-start;       
+  font-family:'Montserrat',sans-serif;
+}
+
+  .ad-card{
+    background:var(--card); border:1px solid var(--sbd-gray);
+    border-radius:16px; box-shadow:var(--shadow); padding:22px;
+    display:flex; flex-direction:column;
+  }
+  .ad-title{ font-size:26px; font-weight:800; margin:0 0 14px 0; }
+
+  /* FORM */
+  .field{ margin-bottom:16px; }
+  .field label{ display:block; margin-bottom:8px; font-weight:700; font-size:16px; color:#000; }
+  .input-sm{ width: 280px; max-width:100%; padding:10px 12px; border:1px solid var(--sbd-gray); border-radius:12px; }
+  .help{
+    margin:6px 0 18px; display:flex; align-items:center; gap:10px; color:#333;
+  }
+  .help .bang{
+    width:30px; height:30px; border-radius:50%; background:#111; color:#fff;
+    display:flex; align-items:center; justify-content:center; font-weight:900;
+  }
+
+  .form-actions{ margin-top:auto; display:flex; gap:14px; flex-wrap:wrap; }
+  .btn{
+    border:none; cursor:pointer; font-weight:800; border-radius:1000px;
+    padding:13px 24px; display:inline-flex; align-items:center; gap:10px;
+  }
+  .btn-primary{ background:var(--sbd-yellow); color:#000; border:1px solid var(--sbd-gray); }
+  .btn-link{
+    background:#fff; color:#000; border:1px solid var(--sbd-gray);
+    border-radius:12px; padding:12px 18px; font-weight:700; text-decoration:none;
+  }
+
+  /* RESUMEN */
+  .res-title{ font-size:22px; font-weight:800; margin:4px 0 10px; }
+  .res-line{ margin:6px 0; }
+  .countdown{ margin:14px 0 16px; display:flex; gap:14px; }
+  .cd-box{
+    background:#111; color:#fff; border-radius:10px; padding:14px 18px;
+    min-width:86px; text-align:center;
+  }
+  .cd-num{ font-weight:900; font-size:28px; line-height:1; display:block; }
+  .cd-lab{ font-size:12px; letter-spacing:.6px; text-transform:capitalize; opacity:.9; }
+
+  .res-actions{ margin-top:auto; display:grid; gap:10px; }
+  .btn-danger{
+    background:#e74c3c; color:#fff; border:none; border-radius:12px;
+    padding:12px 16px; font-weight:800; cursor:pointer; width:30%;
+  }
+
+  /* Responsive */
+  @media (max-width: 1024px){
+    .ad-wrap{ grid-template-columns:1fr; }
+  }
+</style>
+
+
+
+
+<div class="ad-wrap">
+  <!-- IZQUIERDA: FORMULARIO -->
+  <section class="ad-card">
+    <h1 class="ad-title">Programar nueva campaña</h1>
+
+    <form method="post" class="ad-form" id="form-campania">
+      {% csrf_token %}
+
+      <div class="field">
+        <label>Fecha de inicio</label>
+        {{ form.fecha_inicio }}
+      </div>
+
+      <div class="field">
+        <label>Fecha de fin</label>
+        {{ form.fecha_fin }}
+      </div>
+
+      <div class="field">
+        <label>Hora de inicio (24h)</label>
+        {{ form.hora_inicio }}
+      </div>
+
+      <div class="field">
+        <label>Hora de fin (24h)</label>
+        {{ form.hora_fin }}
+      </div>
+
+      <div class="help">
+        <span class="bang">!</span>
+        <div>Formato 24 horas. Máximo 999 días de duración.</div>
+      </div>
+
+      {% if form.non_field_errors %}
+        <div style="background:#fdecea;border:1px solid #dc3545;color:#b00020;padding:10px;border-radius:12px;margin-bottom:12px;font-weight:600;">
+          {{ form.non_field_errors }}
+        </div>
+      {% endif %}
+
+      
+          <div style="text-align:center; margin-top:12px;">
+    <button type="submit" name="guardar" class="btn btn-primary">
+      <span class="material-icons">credit_card</span> Confirmar
+    </button>
+  </div>
+      
+    </form>
+  </section>
+
+  <!-- DERECHA: RESUMEN + ELIMINAR -->
+  <aside class="ad-card">
+    <h2 class="res-title">Resumen</h2>
+
+    <div class="res-line"><strong>Inicio:</strong> {{ cfg.inicio|date:"d \\d\\e F Y H:i" }}</div>
+    <div class="res-line"><strong>Fin:</strong> {{ cfg.fin|date:"d \\d\\e F Y H:i" }}</div>
+    <div class="res-line"><strong>Habilitada:</strong> {{ cfg.habilitada|yesno:"Sí,No" }}</div>
+
+    <div class="countdown" id="countdown">
+      <div class="cd-box"><span class="cd-num" id="d">0</span><span class="cd-lab">Días</span></div>
+      <div class="cd-box"><span class="cd-num" id="h">00</span><span class="cd-lab">horas</span></div>
+      <div class="cd-box"><span class="cd-num" id="m">00</span><span class="cd-lab">Minutos</span></div>
+      <div class="cd-box"><span class="cd-num" id="s">00</span><span class="cd-lab">Segundos</span></div>
+    </div>
+
+   <!-- Eliminar dentro de la tarjeta -->
+<div class="res-actions">
+  <form method="post">
+    {% csrf_token %}
+    <button type="submit" name="eliminar" class="btn btn-danger"
+      onclick="return confirm('¿Eliminar campaña? El contador quedará en 0 y no habrá campaña programada.')">
+      <span class="material-icons" style="vertical-align:middle;margin-right:2px;">delete</span>
+      Eliminar
+    </button>
+  </form>
+
+  <a class="btn-link" href="{% url 'administrador:estado_campania' %}">
+    Ver estado de campaña
+  </a>
+</div>
+
+  </aside>
+  
+</div>
+
+<script>
+  // === Countdown (máx 999 días, 0–23 h, 0–59 m/s) ===
+  (function(){
+    function clampMs(ms){
+      const maxMs = ((999*24 + 23)*3600 + 59*60 + 59) * 1000;
+      if (ms < 0) return 0;
+      return Math.min(ms, maxMs);
+    }
+    function split(ms){
+      ms = clampMs(ms);
+      const sec = Math.floor(ms/1000);
+      const d = Math.floor(sec / 86400);
+      let r = sec % 86400;
+      const h = Math.floor(r/3600); r%=3600;
+      const m = Math.floor(r/60);
+      const s = r%60;
+      return {d:Math.min(d,999), h, m, s};
+    }
+    function pad2(n){ return n<10 ? "0"+n : ""+n; }
+
+    const inicio = new Date("{{ cfg.inicio|date:'c' }}");
+    const fin    = new Date("{{ cfg.fin|date:'c' }}");
+    let target = (new Date() < inicio) ? inicio : fin;
+
+    const dEl=document.getElementById('d'),
+          hEl=document.getElementById('h'),
+          mEl=document.getElementById('m'),
+          sEl=document.getElementById('s');
+
+    function tick(){
+      const diff = target.getTime() - Date.now();
+      const t = split(diff);
+      dEl.textContent = t.d;
+      hEl.textContent = pad2(t.h);
+      mEl.textContent = pad2(t.m);
+      sEl.textContent = pad2(t.s);
+    }
+    tick(); setInterval(tick, 1000);
+  })();
+</script>
+{% endblock %}

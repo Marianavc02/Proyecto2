@@ -4,173 +4,87 @@
 {% block title %}Home{% endblock %}
 
 {% block content %}
-<!-- Fuente Montserrat desde Google Fonts -->
+<!-- Fuente Montserrat -->
 <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
 
 <style>
   .split-screen {
-    display: flex;
-    height: 100vh;
-    width: 100%;
-    font-family: 'Montserrat', sans-serif;
-    flex-wrap: wrap;
-  }
+  display: flex;
+  /* altura flexible que descuenta aprox. la navbar (ajusta 64–80px según tu barra) */
+  min-height: calc(100dvh - 72px);
+  width: 100%;
+  font-family: 'Montserrat', sans-serif;
+  flex-wrap: wrap;
+}
 
   .left {
-    flex: 1;
-    background-color: #e0e0e0;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    flex-direction: column;
-    text-align: center;
-    padding: 10px;
+    flex: 1; background-color: #e0e0e0;
+    display: flex; justify-content: center; align-items: center;
+    flex-direction: column; text-align: center; padding: 10px;
   }
+  .left h1 { font-size: 1.3rem; font-weight: 700; margin-bottom: 6px; }
+  .left h2 { font-size: 1rem; font-weight: 700; margin-bottom: 12px; }
 
-  .left h1 {
-    font-size: 1.3rem;
-    font-weight: 700;
-    margin-bottom: 6px;
-  }
-
-  .left h2 {
-    font-size: 1rem;
-    font-weight: 700;
-    margin-bottom: 12px;
-  }
-
-  .countdown {
-    display: flex;
-    gap: 10px;
-    margin-bottom: 15px;
-  }
-
+  .countdown { display: flex; gap: 10px; margin-bottom: 15px; }
   .time-box {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    background-color: black;
-    color: white;
-    font-weight: 700;
-    padding: 8px 10px;
-    border-radius: 5px;
-    min-width: 45px;
-    text-align: center;
+    display: flex; flex-direction: column; align-items: center;
+    background-color: #000; color: #fff; font-weight: 700;
+    padding: 8px 10px; border-radius: 5px; min-width: 56px; text-align: center;
   }
+  .time-number { font-size: 1.1rem; margin-bottom: 3px; }
+  .time-label   { font-size: .6rem; font-weight: 500; letter-spacing: .5px; text-transform: uppercase; }
 
-  .time-number {
-    font-size: 1.1rem;
-    margin-bottom: 3px;
-  }
-
-  .time-label {
-    font-size: 0.6rem;
-    font-weight: 500;
-    letter-spacing: 0.5px;
-    text-transform: uppercase;
-    color: #fff;
-  }
-
-  .left p {
-    font-size: 0.8rem;
-    line-height: 1.2;
-    max-width: 320px;
-  }
+  .left p { font-size: .8rem; line-height: 1.2; max-width: 320px; }
 
   .right {
-    flex: 1;
-    background-color: white;
-    color: black;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    padding: 8px;
+    flex: 1; background-color: #fff; color: #000;
+    display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 8px;
   }
-
   .image-grid {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    grid-gap: 8px; /* menos espacio */
-    width: 60%;   /* más angosto */
-    max-width: 280px; /* más compacto */
+    display: grid; grid-template-columns: repeat(2, 1fr); grid-gap: 8px;
+    width: 60%; max-width: 280px;
   }
-
   .image-grid img {
-    width: 100%;
-    aspect-ratio: 1/1;
-    object-fit: cover;
-    border-radius: 5px;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.15);
+    width: 100%; aspect-ratio: 1/1; object-fit: cover;
+    border-radius: 5px; box-shadow: 0 2px 5px rgba(0,0,0,.15);
   }
+  .info-text { margin-top: 12px; text-align: center; font-size: .75rem; }
 
-  .info-text {
-    margin-top: 12px;
-    font-family: 'Montserrat', sans-serif;
-    text-align: center;
-    font-size: 0.75rem;
-  }
-
-  /* 🔹 Responsivo */
-  @media (max-width: 768px) {
-    .split-screen {
-      flex-direction: column;
-      height: auto;
-    }
-
-    .left, .right {
-      width: 100%;
-      height: auto;
-      padding: 10px;
-    }
-
-    .left h1 {
-      font-size: 1.1rem;
-    }
-
-    .left h2 {
-      font-size: 0.9rem;
-    }
-
-    .time-number {
-      font-size: 1rem;
-    }
-
-    .time-label {
-      font-size: 0.55rem;
-    }
-
-    .image-grid {
-      width: 70%;
-      max-width: 240px; /* más pequeño en móvil */
-    }
-
-    .info-text {
-      font-size: 0.7rem;
-      margin-top: 8px;
-    }
+  @media (max-width: 768px){
+    .split-screen { flex-direction: column; height: auto; }
+    .left, .right { width: 100%; height: auto; padding: 10px; }
+    .left h1 { font-size: 1.1rem; } .left h2 { font-size: .9rem; }
+    .time-number { font-size: 1rem; } .time-label { font-size: .55rem; }
+    .image-grid { width: 70%; max-width: 240px; }
+    .info-text { font-size: .7rem; margin-top: 8px; }
   }
 </style>
 
 <div class="split-screen">
-  <!-- Parte izquierda (contador) -->
+  <!-- IZQUIERDA (contador sincronizado) -->
   <div class="left">
     <h1>¡Cuenta regresiva activa!</h1>
     <h2><strong>SOLO TIENES</strong></h2>
-    <div class="countdown">
+
+    <div class="countdown" id="home-countdown">
       <div class="time-box">
-        <div class="time-number">12</div>
+        <div class="time-number" id="home-d">0</div>
+        <div class="time-label">DÍAS</div>
+      </div>
+      <div class="time-box">
+        <div class="time-number" id="home-h">00</div>
         <div class="time-label">HORAS</div>
       </div>
       <div class="time-box">
-        <div class="time-number">45</div>
+        <div class="time-number" id="home-m">00</div>
         <div class="time-label">MINUTOS</div>
       </div>
       <div class="time-box">
-        <div class="time-number">36</div>
+        <div class="time-number" id="home-s">00</div>
         <div class="time-label">SEGUNDOS</div>
       </div>
     </div>
+
     <p>
       Accede al catálogo de <br>
       herramientas con descuentos <br>
@@ -178,28 +92,71 @@
     </p>
   </div>
 
-  <!-- Parte derecha (imágenes) -->
+  <!-- DERECHA (imágenes) -->
   <div class="right">
     <div class="image-grid">
-      <a href="/productos/empresa/DeWalt/">
-        <img src="{% static 'img/dewalt.jpg' %}" alt="dewalt">
-      </a>
-      <a href="/productos/empresa/Black&Decker/">
-        <img src="{% static 'img/blackdecker.jpg' %}" alt="blackdecker">
-      </a>
-      <a href="/productos/empresa/Irwin/">
-        <img src="{% static 'img/irwin.jpg' %}" alt="irwin">
-      </a>
-      <a href="/productos/empresa/Stanley/">
-        <img src="{% static 'img/stanley.jpg' %}" alt="stanley">
-      </a>
+      <a href="/productos/empresa/DeWalt/"><img src="{% static 'img/dewalt.jpg' %}" alt="DeWalt"></a>
+      <a href="/productos/empresa/Black&Decker/"><img src="{% static 'img/blackdecker.jpg' %}" alt="Black&Decker"></a>
+      <a href="/productos/empresa/Irwin/"><img src="{% static 'img/irwin.jpg' %}" alt="Irwin"></a>
+      <a href="/productos/empresa/Stanley/"><img src="{% static 'img/stanley.jpg' %}" alt="Stanley"></a>
     </div>
-
-    <!-- Texto debajo -->
     <div class="info-text">
-      <p>¿Tienes preguntas?<br>
-      Haz clic en <strong>"Más info"</strong> arriba y entérate de todo.</p>
+      <p>¿Tienes preguntas?<br>Haz clic en <strong>“Más info”</strong> arriba y entérate de todo.</p>
     </div>
   </div>
 </div>
+
+<!-- ===== JS: contador sincronizado (usa nav_campania) ===== -->
+<script>
+(function(){
+  // Fechas que vienen del context processor `nav_campania`
+  const iniStr = "{{ nav_campania.inicio_iso }}";
+  const finStr = "{{ nav_campania.fin_iso }}";
+
+  const dEl = document.getElementById('home-d');
+  const hEl = document.getElementById('home-h');
+  const mEl = document.getElementById('home-m');
+  const sEl = document.getElementById('home-s');
+
+  function pad2(n){ return n<10 ? "0"+n : ""+n; }
+  function setZeros(){
+    dEl.textContent="0"; hEl.textContent="00"; mEl.textContent="00"; sEl.textContent="00";
+  }
+  function clampMs(ms){
+    const maxMs = ((999*24 + 23)*3600 + 59*60 + 59) * 1000; // 999d 23:59:59
+    if (ms < 0) return 0;
+    return Math.min(ms, maxMs);
+  }
+
+  if(!iniStr || !finStr){ setZeros(); return; }
+
+  const inicio = new Date(iniStr);
+  const fin    = new Date(finStr);
+
+  function targetNow(){
+    const now = new Date();
+    return (now < inicio) ? inicio : fin;
+  }
+
+  function tick(){
+    const tgt = targetNow();
+    const diff = clampMs(tgt.getTime() - Date.now());
+    const sec  = Math.floor(diff/1000);
+
+    const d = Math.min(Math.floor(sec/86400), 999);
+    let r    = sec % 86400;
+    const h  = Math.floor(r/3600); r%=3600;
+    const m  = Math.floor(r/60);
+    const s  = r%60;
+
+    dEl.textContent = d;
+    hEl.textContent = pad2(h);
+    mEl.textContent = pad2(m);
+    sEl.textContent = pad2(s);
+  }
+
+  tick();
+  setInterval(tick, 1000);
+})();
+</script>
 {% endblock %}

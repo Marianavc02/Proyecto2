@@ -1,0 +1,95 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}{% block admin_title %}Panel administrador{% endblock %}{% endblock %}
+
+{% block content %}
+<style>
+  :root{
+    --side-w: 260px; --accent:#FFD20A; --shadow:0 6px 18px rgba(0,0,0,.08);
+    --side:#ececec; --text:#111;
+  }
+  .admin-shell{
+    display:grid; grid-template-columns: var(--side-w) 1fr; gap:18px;
+    max-width:1400px; margin:100px auto 32px; padding:0 12px 20px;
+    font-family:'Montserrat',sans-serif;
+  }
+  /* Sidebar */
+  .admin-side{
+    background:var(--side); border-radius:12px; box-shadow:var(--shadow);
+    padding:14px 10px; display:flex; flex-direction:column; justify-content:space-between;
+    min-height:calc(100vh - 120px);
+  }
+  .admin-menu{ display:flex; flex-direction:column; gap:18px; }
+  .admin-item{
+    display:grid; grid-template-columns:40px 1fr; gap:10px; align-items:center;
+    padding:10px 8px; border-radius:10px; color:var(--text); text-decoration:none; font-weight:700; line-height:1.15;
+  }
+  .admin-item:hover{ background:#fff; }
+  .admin-item.disabled{ opacity:.5; pointer-events:none; }
+  .admin-item.active{ background:#fff; outline:2px solid var(--accent); }
+  .admin-ico{
+    width:40px; height:40px; display:flex; align-items:center; justify-content:center;
+    background:#000; color:#fff; border-radius:8px;
+  }
+  .admin-ico .material-icons{ color:#fff; }
+  .admin-logout{
+    display:flex; align-items:center; justify-content:space-between;
+    background:#fff; border-radius:10px; padding:10px 12px; font-weight:700;
+    text-decoration:none; color:#000; border:1px solid #ddd;
+  }
+  /* Contenido (cada vista pone lo suyo) */
+  .admin-content{ min-width:0; }
+  @media (max-width:1024px){ .admin-shell{ grid-template-columns:1fr; } }
+</style>
+
+<div class="admin-shell">
+  <!-- SIDEBAR ÚNICA -->
+  <aside class="admin-side">
+    <nav class="admin-menu">
+
+      <a class="admin-item disabled" href="#">
+        <div class="admin-ico"><span class="material-icons">assignment</span></div>
+        <div>Reporte pedidos<br>empleados</div>
+      </a>
+
+      <a class="admin-item disabled" href="#">
+        <div class="admin-ico"><span class="material-icons">analytics</span></div>
+        <div>Análisis de<br>Pedidos</div>
+      </a>
+
+      <!-- NUEVO: Subir datos EMPLEADOS -->
+      <a class="admin-item {% if request.resolver_match.url_name == 'importar_empleados' %}active{% endif %}"
+         href="{% url 'importar_empleados' %}">
+        <div class="admin-ico"><span class="material-icons">person_add</span></div>
+        <div>Subir datos<br>Empleados</div>
+      </a>
+
+      <!-- Crear Fecha y duración (ya lo tenías) -->
+      <a class="admin-item {% if request.resolver_match.url_name == 'programar_fechas' %}active{% endif %}"
+         href="{% url 'administrador:programar_fechas' %}">
+        <div class="admin-ico"><span class="material-icons">event_available</span></div>
+        <div>Crear Fecha y<br>duración de campaña</div>
+      </a>
+
+      <!-- NUEVO: Subir datos PRODUCTOS -->
+      <a class="admin-item {% if request.resolver_match.url_name == 'cargar_excel' %}active{% endif %}"
+         href="{% url 'cargar_excel' %}">
+        <div class="admin-ico"><span class="material-icons">table_view</span></div>
+        <div>Subir datos<br>Productos</div>
+      </a>
+
+    </nav>
+
+    <!-- Cerrar sesión (placeholder) -->
+    <a class="admin-logout" href="#">
+      <span>Cerrar Sesión</span>
+      <span class="material-icons">logout</span>
+    </a>
+  </aside>
+
+  <!-- CONTENIDO DE CADA PÁGINA -->
+  <main class="admin-content">
+    {% block admin_content %}{% endblock %}
+  </main>
+</div>
+{% endblock %}
