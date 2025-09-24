@@ -5,6 +5,7 @@ from django.utils import timezone
 from .forms import CampaniaForm
 from .utils import obtener_config
 
+
 def programar_fechas(request):
     cfg = obtener_config()
 
@@ -29,6 +30,7 @@ def programar_fechas(request):
         form = CampaniaForm(instance=cfg)
 
     return render(request, "administrador/programar_fechas.html", {"form": form, "cfg": cfg})
+
 
 def estado_campania(request):
     cfg = obtener_config()

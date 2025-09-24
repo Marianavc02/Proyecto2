@@ -27,5 +27,5 @@ urlpatterns = [
     path("empleados/", include("empleados.urls")),
     path("productos/", include("productos.urls")),
     path("", home, name="home"),
-    path("administrador/", include("administrador.urls")), 
+    path("administrador/", include("administrador.urls")),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

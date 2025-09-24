@@ -1,6 +1,8 @@
 # administrador/context_processors.py
 from django.utils import timezone
+
 from .models import CampaniaConfig  # <-- importa el nombre correcto
+
 
 def campania_nav(request):
     """
@@ -17,7 +19,7 @@ def campania_nav(request):
                 "has": False,
                 "inicio_iso": "",
                 "fin_iso": "",
-            }
+            },
         }
 
     tz = timezone.get_current_timezone()
@@ -30,5 +32,5 @@ def campania_nav(request):
             "has": True,
             "inicio_iso": inicio_iso,
             "fin_iso": fin_iso,
-        }
+        },
     }

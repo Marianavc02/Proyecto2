@@ -1,26 +1,19 @@
 from datetime import datetime, time
+
 from django import forms
 from django.utils import timezone
+
 from .models import CampaniaConfig
 
+
 class CampaniaForm(forms.Form):
-    fecha_inicio = forms.DateField(
-        label="Fecha de inicio",
-        widget=forms.DateInput(attrs={"type": "date"})
-    )
+    fecha_inicio = forms.DateField(label="Fecha de inicio", widget=forms.DateInput(attrs={"type": "date"}))
     hora_inicio = forms.TimeField(
-        label="Hora de inicio (24h)",
-        widget=forms.TimeInput(attrs={"type": "time"}),
-        initial=time(8, 0)
+        label="Hora de inicio (24h)", widget=forms.TimeInput(attrs={"type": "time"}), initial=time(8, 0)
     )
-    fecha_fin = forms.DateField(
-        label="Fecha de fin",
-        widget=forms.DateInput(attrs={"type": "date"})
-    )
+    fecha_fin = forms.DateField(label="Fecha de fin", widget=forms.DateInput(attrs={"type": "date"}))
     hora_fin = forms.TimeField(
-        label="Hora de fin (24h)",
-        widget=forms.TimeInput(attrs={"type": "time"}),
-        initial=time(20, 30)
+        label="Hora de fin (24h)", widget=forms.TimeInput(attrs={"type": "time"}), initial=time(20, 30)
     )
 
     def __init__(self, *args, instance: CampaniaConfig | None = None, **kwargs):
@@ -29,9 +22,11 @@ class CampaniaForm(forms.Form):
 
         # 👉 Aplica clase y ancho a los widgets (ya no usamos filtros en el template)
         for name in ["fecha_inicio", "fecha_fin", "hora_inicio", "hora_fin"]:
-            self.fields[name].widget.attrs.update({
-                "class": "input-sm",
-            })
+            self.fields[name].widget.attrs.update(
+                {
+                    "class": "input-sm",
+                }
+            )
 
         # precargar valores si hay instancia
         if instance and not self.is_bound:

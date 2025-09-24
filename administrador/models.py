@@ -6,6 +6,7 @@ class CampaniaConfig(models.Model):
     """
     Configuración de la campaña. Normalmente habrá SOLO un registro (pk=1).
     """
+
     inicio = models.DateTimeField(help_text="Fecha y hora de inicio (UTC por defecto si USE_TZ=True)")
     fin = models.DateTimeField(help_text="Fecha y hora de fin (debe ser posterior a inicio)")
     habilitada = models.BooleanField(default=True, help_text="Permite desactivar la ventana temporal sin borrar fechas")
