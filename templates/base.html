@@ -1,75 +1,198 @@
 {% load static %}
-
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}Mi App{% endblock %}</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{% block title %}Mi App{% endblock %}</title>
 
-    <!-- Fuente Montserrat -->
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600&display=swap" rel="stylesheet">
+  <!-- Fuentes / íconos -->
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;800&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" />
 
-    <!-- CSS -->
-    <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+  <!-- Tu CSS principal -->
+  <link rel="stylesheet" href="{% static 'css/styles.css' %}" />
+
+  <!-- Ajustes de navbar + contador -->
+  <style>
+    :root{ --sbd-yellow:#FFD20A; --sbd-gray:#D9D9D9; }
+
+    /* Navbar */
+    .navbar{
+      display:flex; align-items:center; justify-content:space-between;
+      gap:20px; padding:10px 16px; font-family:'Montserrat',sans-serif;
+      border-bottom:1px solid var(--sbd-gray);
+      position:sticky; top:0; z-index:50; background:#fff;
+    }
+
+    /* IZQ: logo + contador EN FILA */
+    .nav-left{
+      display:flex; flex-direction:row; align-items:center; gap:14px;  /* <- fila */
+      min-width:0;
+    }
+
+    /* Logo algo más compacto para que quepa el contador */
+    .nav-left .logo img{ height:48px; max-height:48px; width:auto; display:block; }
+
+    /* Contador compacto en una fila */
+    .nav-countdown{ display:flex; gap:8px; align-items:center; }
+    .nav-countdown .nc-box{
+      background:#111; color:#fff; border-radius:8px; padding:6px 10px;
+      min-width:50px; text-align:center; line-height:1;
+      box-shadow:0 2px 8px rgba(0,0,0,.06);
+    }
+    .nav-countdown .nc-num{ font-weight:800; font-size:16px; display:block; }
+    .nav-countdown .nc-lab{ font-size:10px; opacity:.9; }
+
+    /* Centro y derecha (igual que antes) */
+    .nav-links{ list-style:none; display:flex; gap:24px; margin:0; padding:0; }
+    .nav-links a{ text-decoration:none; color:#111; font-weight:600; }
+
+    .icons{ display:flex; align-items:center; gap:10px; }
+    .icon-btn{ display:inline-flex; align-items:center; justify-content:center; padding:6px; border-radius:10px; color:#111; text-decoration:none; }
+    .cart-link{ position:relative; }
+
+    /* Buscador */
+    .nav-search{ position:relative; }
+    .nav-search .search-container{
+      display:none; position:absolute; right:0; top:42px; background:#fff; padding:10px; border:1px solid var(--sbd-gray); border-radius:10px;
+      box-shadow:0 8px 24px rgba(0,0,0,.08);
+    }
+    .nav-search.open .search-container{ display:flex; gap:8px; }
+    .nav-search input{ border:1px solid var(--sbd-gray); border-radius:8px; padding:8px 10px; min-width:220px; }
+
+    /* Responsive: si no cabe, apilamos contador debajo del logo automáticamente */
+    @media (max-width: 900px){
+      .nav-left{ flex-direction:column; align-items:flex-start; gap:6px; }
+      .nav-left .logo img{ height:40px; }
+      .nav-countdown .nc-box{ padding:4px 8px; min-width:44px; }
+      .nav-countdown .nc-num{ font-size:14px; }
+      .nav-links{ gap:14px; }
+    }
+  </style>
 </head>
+
 <body>
-    <!-- Navbar -->
-    <nav class="navbar">
-        <div class="logo">
-            <a href="/">
-                <img src="{% static 'img/logo.png' %}" alt="StanleyBlack&Decker">
-            </a>
-        </div>
-        <ul class="nav-links">
-            <li><a href="{% url 'productos_por_empresa' 'DeWalt' %}">DeWalt</a></li>
-            <li><a href="{% url 'productos_por_empresa' 'Stanley' %}">Stanley</a></li>
-            <li><a href="{% url 'productos_por_empresa' 'Irwin' %}">Irwin</a></li>
-            <li><a href="{% url 'productos_por_empresa' 'Black&Decker' %}">Black&Decker</a></li>
-            <li><a href="{% url 'productos_por_empresa' 'Otros' %}">Otros</a></li>
-        </ul>
+  <!-- NAVBAR -->
+  <nav class="navbar">
+    <!-- IZQ: logo + contador sincronizado (AHORA EN LÍNEA) -->
+    <div class="nav-left">
+      <div class="logo">
+        <a href="/"><img src="{% static 'img/logo.png' %}" alt="StanleyBlack&Decker" /></a>
+      </div>
 
-        <div class="icons">
-            <div class="nav-search" id="navSearch">
-                <button type="button" class="search-toggle icon-btn" id="searchToggle" aria-label="Mostrar búsqueda">
-                    <span class="material-icons">search</span>
-                </button>
-                <form action="{% url 'buscar_productos' %}" method="get" class="search-container">
-                    <input type="text" name="q" placeholder="Buscar productos..." value="{{ request.GET.q }}">
-                    <button type="submit" title="Buscar" class="icon-btn">
-                        <i class="material-icons">search</i>
-                    </button>
-                </form>
-            </div>
-            <a href="#" class="icon-btn" title="Usuario"><span class="material-icons">person</span></a>
-            <a href="{% url 'carrito_ver' %}" class="icon-btn cart-link" title="Carrito">
-                <span class="material-icons">shopping_cart</span>
-            </a>
-        </div>
+      <!-- CONTADOR al lado del logo -->
+      <div class="nav-countdown" aria-live="polite">
+        <div class="nc-box"><span class="nc-num" id="nc-d">0</span><span class="nc-lab">Días</span></div>
+        <div class="nc-box"><span class="nc-num" id="nc-h">00</span><span class="nc-lab">Horas</span></div>
+        <div class="nc-box"><span class="nc-num" id="nc-m">00</span><span class="nc-lab">Min</span></div>
+        <div class="nc-box"><span class="nc-num" id="nc-s">00</span><span class="nc-lab">Seg</span></div>
+      </div>
+    </div>
 
-    </nav>
+    <!-- CENTRO: enlaces -->
+    <ul class="nav-links">
+      <li><a href="{% url 'productos_por_empresa' 'DeWalt' %}">DeWalt</a></li>
+      <li><a href="{% url 'productos_por_empresa' 'Stanley' %}">Stanley</a></li>
+      <li><a href="{% url 'productos_por_empresa' 'Irwin' %}">Irwin</a></li>
+      <li><a href="{% url 'productos_por_empresa' 'Black&Decker' %}">Black&Decker</a></li>
+      <li><a href="{% url 'productos_por_empresa' 'Otros' %}">Otros</a></li>
+    </ul>
 
-{% block content %}
-{% endblock %}
-</body>
-<script>
+    <!-- DERECHA: buscador + iconos -->
+    <div class="icons">
+      <div class="nav-search" id="navSearch">
+        <button type="button" class="search-toggle icon-btn" id="searchToggle" aria-label="Mostrar búsqueda">
+          <span class="material-icons">search</span>
+        </button>
+        <form action="{% url 'buscar_productos' %}" method="get" class="search-container">
+          <input type="text" name="q" placeholder="Buscar productos..." value="{{ request.GET.q }}">
+          <button type="submit" title="Buscar" class="icon-btn"><i class="material-icons">search</i></button>
+        </form>
+      </div>
+      <a href="#" class="icon-btn" title="Usuario"><span class="material-icons">person</span></a>
+      <a href="{% url 'carrito_ver' %}" class="icon-btn cart-link" title="Carrito"><span class="material-icons">shopping_cart</span></a>
+    </div>
+  </nav>
+
+  {% block content %}{% endblock %}
+
+  <!-- JS: toggle del buscador -->
+  <script>
     (function(){
-        const navSearch = document.getElementById('navSearch');
-        const btn = document.getElementById('searchToggle');
-        const input = navSearch?.querySelector('input');
-        const icon = btn?.querySelector('.material-icons');
-        if(btn && navSearch){
-            btn.addEventListener('click', function(){
-                navSearch.classList.toggle('open');
-                if(navSearch.classList.contains('open')){
-                    if(icon){ icon.textContent = 'close'; btn.setAttribute('aria-label','Ocultar búsqueda'); }
-                    if(input){ setTimeout(()=> input.focus(), 100); }
-                } else {
-                    if(icon){ icon.textContent = 'search'; btn.setAttribute('aria-label','Mostrar búsqueda'); }
-                }
-            });
-        }
+      const navSearch = document.getElementById('navSearch');
+      const btn = document.getElementById('searchToggle');
+      const input = navSearch?.querySelector('input');
+      const icon = btn?.querySelector('.material-icons');
+      if(btn && navSearch){
+        btn.addEventListener('click', function(){
+          navSearch.classList.toggle('open');
+          if(navSearch.classList.contains('open')){
+            if(icon){ icon.textContent = 'close'; btn.setAttribute('aria-label','Ocultar búsqueda'); }
+            if(input){ setTimeout(()=> input.focus(), 100); }
+          } else {
+            if(icon){ icon.textContent = 'search'; btn.setAttribute('aria-label','Mostrar búsqueda'); }
+          }
+        });
+      }
     })();
-</script>
+  </script>
+
+  <!-- JS: contador sincronizado con la campaña -->
+  <script>
+    (function(){
+      const iniStr = "{{ nav_campania.inicio_iso }}";
+      const finStr = "{{ nav_campania.fin_iso }}";
+
+      const dEl = document.getElementById('nc-d');
+      const hEl = document.getElementById('nc-h');
+      const mEl = document.getElementById('nc-m');
+      const sEl = document.getElementById('nc-s');
+
+      function pad2(n){ return n<10 ? "0"+n : ""+n; }
+      function clampMs(ms){
+        const maxMs = ((999*24 + 23)*3600 + 59*60 + 59) * 1000; // 999d 23:59:59
+        if (ms < 0) return 0;
+        return Math.min(ms, maxMs);
+      }
+      function setZeros(){
+        if(!dEl) return;
+        dEl.textContent = "0";
+        hEl.textContent = "00";
+        mEl.textContent = "00";
+        sEl.textContent = "00";
+      }
+
+      if(!iniStr || !finStr){ setZeros(); return; }
+
+      const inicio = new Date(iniStr);
+      const fin    = new Date(finStr);
+
+      function targetNow(){
+        const now = new Date();
+        return (now < inicio) ? inicio : fin;
+      }
+
+      function tick(){
+        const tgt = targetNow();
+        const diff = clampMs(tgt.getTime() - Date.now());
+        const totalSec = Math.floor(diff/1000);
+
+        const d = Math.min(Math.floor(totalSec/86400), 999);
+        let r = totalSec % 86400;
+        const h = Math.floor(r/3600); r%=3600;
+        const m = Math.floor(r/60);
+        const s = r%60;
+
+        dEl.textContent = d;
+        hEl.textContent = pad2(h);
+        mEl.textContent = pad2(m);
+        sEl.textContent = pad2(s);
+      }
+
+      tick();
+      setInterval(tick, 1000);
+    })();
+  </script>
+</body>
 </html>

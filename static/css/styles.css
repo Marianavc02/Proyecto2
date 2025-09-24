@@ -401,3 +401,32 @@ body {
   }
 }
 
+/* ====== Navbar countdown ====== */
+.navbar .nav-timer {
+  display:flex;
+  align-items:center;
+  gap:6px;
+  margin-left: 14px;           /* separación respecto al logo */
+}
+
+.navbar .nav-timer .tbox {
+  background:#111;
+  color:#fff;
+  border-radius:6px;
+  padding:4px 6px;
+  min-width: 28px;
+  text-align:center;
+  font-weight:800;
+  line-height:1.1;
+}
+.navbar .nav-timer .tlabel {
+  font-size:10px;
+  color:#444;
+  margin-left:6px;
+  display:flex;
+  gap:10px;
+}
+.navbar .nav-timer .tlabel span { white-space:nowrap; }
+@media (max-width: 700px){
+  .navbar .nav-timer .tlabel{ display:none; }
+}
