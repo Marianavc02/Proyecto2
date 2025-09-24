@@ -1,0 +1,45 @@
+from django.contrib import messages
+from django.shortcuts import redirect, render
+from django.utils import timezone
+
+from .forms import CampaniaForm
+from .utils import obtener_config
+
+def programar_fechas(request):
+    cfg = obtener_config()
+
+    if request.method == "POST":
+        # Acción: eliminar (deja todo en “no programado” y contador en 0)
+        if "eliminar" in request.POST:
+            ahora = timezone.now()
+            cfg.inicio = ahora
+            cfg.fin = ahora
+            cfg.habilitada = False
+            cfg.save()
+            messages.success(request, "Campaña eliminada. No hay campaña programada.")
+            return redirect("administrador:programar_fechas")
+
+        # Acción: confirmar (guardar fechas)
+        form = CampaniaForm(request.POST, instance=cfg)
+        if form.is_valid():
+            form.save()
+            messages.success(request, "¡Fechas de campaña guardadas!")
+            return redirect("administrador:programar_fechas")
+    else:
+        form = CampaniaForm(instance=cfg)
+
+    return render(request, "administrador/programar_fechas.html", {"form": form, "cfg": cfg})
+
+def estado_campania(request):
+    cfg = obtener_config()
+    ahora = timezone.now()
+    contexto = {
+        "cfg": cfg,
+        "ahora_iso": ahora.isoformat(),
+        "inicio_iso": cfg.inicio.isoformat(),
+        "fin_iso": cfg.fin.isoformat(),
+        "activa": cfg.esta_activa(ahora),
+        "no_ha_iniciado": cfg.no_ha_iniciado(ahora),
+        "ya_finalizo": cfg.ya_finalizo(ahora),
+    }
+    return render(request, "administrador/estado_campania.html", contexto)
