@@ -93,7 +93,10 @@
           </ul>
         </div>
       {% endif %}
-      <button class="btn-yellow">Enviar Pedido</button>
+      <form method="post" action="{% url 'enviar_pedido' %}">
+        {% csrf_token %}
+        <button type="submit" class="btn-yellow">Enviar Pedido</button>
+      </form>
       <p class="summary-note">
         Una vez enviado el pedido, se analizarán los artículos para verificar si cumples con el pedido mínimo. Luego, se te enviará una confirmación con los artículos que hayan sido aprobados.
       </p>
