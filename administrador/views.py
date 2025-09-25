@@ -1,9 +1,10 @@
 from django.contrib import messages
 from django.shortcuts import redirect, render
 from django.utils import timezone
-
+from django.db.models import Count
 from .forms import CampaniaForm
 from .utils import obtener_config
+from productos.models import PedidoItem, Pedido
 
 
 def programar_fechas(request):
@@ -45,3 +46,16 @@ def estado_campania(request):
         "ya_finalizo": cfg.ya_finalizo(ahora),
     }
     return render(request, "administrador/estado_campania.html", contexto)
+
+
+
+
+
+
+def reporte_pedidos(request):
+    reporte = (
+        PedidoItem.objects.values("producto__sku", "producto__descripcion")
+        .annotate(num_pedidos=Count("pedido", distinct=True))  # 👈 aquí el cambio
+        .order_by("-num_pedidos")
+    )
+    return render(request, "administrador/reporte_pedidos.html", {"reporte": reporte})
