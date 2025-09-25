@@ -18,45 +18,64 @@ def cargar_excel(request):
         form = ExcelUploadForm(request.POST, request.FILES)
         if form.is_valid():
             try:
-                archivo = request.FILES["archivo"]
-                df = pd.read_excel(archivo, decimal=",")
+                archivo1 = request.FILES["archivo1"]
+                archivo2 = request.FILES["archivo2"]
 
-                # Normalizar nombres de columnas
-                df.columns = [col.strip().upper() for col in df.columns]
+                df1 = pd.read_excel(archivo1, decimal=",")
+                df2 = pd.read_excel(archivo2, decimal=",")
 
-                # Columnas requeridas en el Excel
-                columnas_requeridas = [
-                    "SKU",
-                    "DESCRICIÓN",
-                    "SBU",
-                    "CATEGORÍA",
-                    "PRECIO ANTES DE IVA",
-                ]
+                # Normalizar columnas
+                df1.columns = [col.strip().upper() for col in df1.columns]
+                df2.columns = [col.strip().upper() for col in df2.columns]
 
-                if not all(col in df.columns for col in columnas_requeridas):
+                # Columnas requeridas
+                cols_excel1 = ["SKU", "DESCRICIÓN", "SBU", "CATEGORÍA", "PRECIO ANTES DE IVA"]
+                cols_excel2 = ["SKU", "UND EMPAQUE"]
+
+                # Validaciones
+                if not all(c in df1.columns for c in cols_excel1):
                     messages.error(
                         request,
-                        f"El archivo no tiene las columnas requeridas. Columnas encontradas: {df.columns.tolist()}",
+                        f"Archivo 1 inválido. Columnas encontradas: {df1.columns.tolist()}",
                     )
                     return redirect("cargar_excel")
 
-                # Procesar cada fila
-                for _, row in df.iterrows():
+                if not all(c in df2.columns for c in cols_excel2):
+                    messages.error(
+                        request,
+                        f"Archivo 2 inválido. Columnas encontradas: {df2.columns.tolist()}",
+                    )
+                    return redirect("cargar_excel")
+
+                # Quedarse con lo necesario
+                df1 = df1[cols_excel1]
+                df2 = df2[cols_excel2]
+
+                # Unir por SKU
+                df_final = pd.merge(df1, df2, on="SKU", how="left")
+
+                # Guardar en la BD
+                for _, row in df_final.iterrows():
+                    # Tomamos el valor de UND EMPAQUE y si está vacío lo dejamos en 0
+                    minimo_pedido = row.get("UND EMPAQUE", 0)
+                    if pd.isna(minimo_pedido):
+                        minimo_pedido = 0
+
                     Producto.objects.update_or_create(
-                        sku=row["SKU"],  # <-- aquí usamos sku
+                        sku=row["SKU"],
                         defaults={
                             "descripcion": row["DESCRICIÓN"],
                             "sbu": row["SBU"],
                             "categoria": row["CATEGORÍA"],
                             "precio_sin_iva": row["PRECIO ANTES DE IVA"],
+                            "minimo_pedido": minimo_pedido,  # 👈 ya controlado
                         },
                     )
-
                 messages.success(request, "Productos cargados exitosamente")
                 return redirect("lista_productos")
 
             except Exception as e:
-                messages.error(request, f"Error al procesar el archivo: {str(e)}")
+                messages.error(request, f"Error al procesar los archivos: {str(e)}")
                 return redirect("cargar_excel")
     else:
         form = ExcelUploadForm()

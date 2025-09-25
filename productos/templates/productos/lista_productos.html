@@ -33,33 +33,36 @@
         Actualizar Stock y Pedido Mínimo
     </a>
     <!-- Tabla de productos -->
-    <table style="width: 100%; border-collapse: collapse; background: white; border-radius: 10px; overflow: hidden; box-shadow: 0 4px 8px rgba(0,0,0,0.1);">
-        <thead>
-            <tr>
-                <th style="padding: 12px 15px; border-bottom: 1px solid #ddd; background-color: #D9D9D9; font-weight: 600;">SKU</th>
-                <th style="padding: 12px 15px; border-bottom: 1px solid #ddd; background-color: #D9D9D9; font-weight: 600;">Descripción</th>
-                <th style="padding: 12px 15px; border-bottom: 1px solid #ddd; background-color: #D9D9D9; font-weight: 600;">SBU</th>
-                <th style="padding: 12px 15px; border-bottom: 1px solid #ddd; background-color: #D9D9D9; font-weight: 600;">Categoría</th>
-                <th style="padding: 12px 15px; border-bottom: 1px solid #ddd; background-color: #D9D9D9; font-weight: 600;">Precio sin IVA</th>
-                <th style="padding: 12px 15px; border-bottom: 1px solid #ddd; background-color: #D9D9D9; font-weight: 600;">Imágenes</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for producto in productos %}
-            <tr style="border-bottom: 1px solid #ddd;">
-                <td style="padding: 12px 15px;">{{ producto.sku }}</td>
-                <td style="padding: 12px 15px;">{{ producto.descripcion }}</td>
-                <td style="padding: 12px 15px;">{{ producto.sbu }}</td>
-                <td style="padding: 12px 15px;">{{ producto.categoria }}</td>
-                <td style="padding: 12px 15px;">{{ producto.precio_sin_iva }}</td>
-                <td style="padding: 12px 15px;">
-                    {% for img in producto.imagenes.all %}
-                        <img src="{{ img.imagen.url }}" alt="Imagen" style="max-width: 50px; max-height: 50px; border-radius: 4px;">
-                    {% endfor %}
-                </td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
+    <!-- Tabla de productos -->
+<table style="width: 100%; border-collapse: collapse; background: white; border-radius: 10px; overflow: hidden; box-shadow: 0 4px 8px rgba(0,0,0,0.1);">
+    <thead>
+        <tr>
+            <th style="padding: 12px 15px; border-bottom: 1px solid #ddd; background-color: #D9D9D9; font-weight: 600;">SKU</th>
+            <th style="padding: 12px 15px; border-bottom: 1px solid #ddd; background-color: #D9D9D9; font-weight: 600;">Descripción</th>
+            <th style="padding: 12px 15px; border-bottom: 1px solid #ddd; background-color: #D9D9D9; font-weight: 600;">SBU</th>
+            <th style="padding: 12px 15px; border-bottom: 1px solid #ddd; background-color: #D9D9D9; font-weight: 600;">Categoría</th>
+            <th style="padding: 12px 15px; border-bottom: 1px solid #ddd; background-color: #D9D9D9; font-weight: 600;">Precio sin IVA</th>
+            <th style="padding: 12px 15px; border-bottom: 1px solid #ddd; background-color: #D9D9D9; font-weight: 600;">Unidad mínima</th> <!-- 👈 NUEVO -->
+            <th style="padding: 12px 15px; border-bottom: 1px solid #ddd; background-color: #D9D9D9; font-weight: 600;">Imágenes</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for producto in productos %}
+        <tr style="border-bottom: 1px solid #ddd;">
+            <td style="padding: 12px 15px;">{{ producto.sku }}</td>
+            <td style="padding: 12px 15px;">{{ producto.descripcion }}</td>
+            <td style="padding: 12px 15px;">{{ producto.sbu }}</td>
+            <td style="padding: 12px 15px;">{{ producto.categoria }}</td>
+            <td style="padding: 12px 15px;">{{ producto.precio_sin_iva }}</td>
+            <td style="padding: 12px 15px;">{{ producto.minimo_pedido }}</td> <!-- 👈 NUEVO -->
+            <td style="padding: 12px 15px;">
+                {% for img in producto.imagenes.all %}
+                    <img src="{{ img.imagen.url }}" alt="Imagen" style="max-width: 50px; max-height: 50px; border-radius: 4px;">
+                {% endfor %}
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
 </div>
 {% endblock %}
