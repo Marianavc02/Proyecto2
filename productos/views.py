@@ -1,16 +1,16 @@
 # views.py
 from decimal import Decimal
+
 import pandas as pd
 from django.contrib import messages
 from django.db import models
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 
-
 from .forms import ExcelUploadForm, ImagenUploadForm
 
 # from django.urls import reverse
-from .models import Producto, ProductoImagen
+from .models import Pedido, PedidoItem, Producto, ProductoImagen
 
 
 def cargar_excel(request):
@@ -368,9 +368,6 @@ def buscar_productos(request):
             pass
     return render(request, "productos/buscar_productos.html", {"productos": productos, "query": query})
 
-from .models import Pedido, PedidoItem
-
-from .models import Pedido, PedidoItem
 
 def enviar_pedido(request):
     cart = _get_cart(request)
@@ -378,13 +375,11 @@ def enviar_pedido(request):
         messages.error(request, "Tu carrito está vacío.")
         return redirect("carrito_ver")
 
-
-
     # Crear el pedido
     if request.user.is_authenticated:
         pedido = Pedido.objects.create(usuario=request.user)
     else:
-        pedido = Pedido.objects.create() 
+        pedido = Pedido.objects.create()
 
     # Crear los items
     for sku, data in cart.items():
@@ -400,5 +395,3 @@ def enviar_pedido(request):
 
     messages.success(request, f"Tu pedido #{pedido.id} ha sido enviado correctamente.")
     return redirect("administrador:reporte_pedidos")
-
-

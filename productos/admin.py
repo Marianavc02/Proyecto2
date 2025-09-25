@@ -1,9 +1,7 @@
 from django.contrib import admin
 from django.utils.html import format_html
-from django.contrib import admin
-from .models import Pedido
 
-from .models import Producto, ProductoImagen
+from .models import Pedido, Producto, ProductoImagen
 
 
 # Para mostrar las imágenes relacionadas dentro del producto
@@ -39,5 +37,6 @@ class ProductoAdmin(admin.ModelAdmin):
 @admin.register(ProductoImagen)
 class ProductoImagenAdmin(admin.ModelAdmin):
     list_display = ("producto", "fecha_creacion", "imagen")
+
 
 admin.site.register(Pedido)
