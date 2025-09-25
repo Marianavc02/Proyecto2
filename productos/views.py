@@ -71,8 +71,6 @@ def cargar_excel(request):
                             "minimo_pedido": minimo_pedido,  # 👈 ya controlado
                         },
                     )
-
-
                 messages.success(request, "Productos cargados exitosamente")
                 return redirect("lista_productos")
 
@@ -83,7 +81,6 @@ def cargar_excel(request):
         form = ExcelUploadForm()
 
     return render(request, "productos/cargar_excel.html", {"form": form})
-
 
 
 def lista_productos(request):
