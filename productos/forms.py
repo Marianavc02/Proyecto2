@@ -11,10 +11,15 @@ class ActualizarStockMinimoForm(forms.Form):
 
 
 class ExcelUploadForm(forms.Form):
-    archivo = forms.FileField(
-        label="Seleccione archivo Excel",
-        help_text="Formatos soportados: XLSX",
-        widget=forms.FileInput(attrs={"accept": ".xlsx"}),
+    archivo1 = forms.FileField(
+        label="Archivo Excel 1 (Productos)",
+        help_text="Debe contener: SKU, DESCRICIÓN, SBU, CATEGORÍA, PRECIO ANTES DE IVA",
+        widget=forms.FileInput(attrs={"accept": ".xlsx,.xls"}),
+    )
+    archivo2 = forms.FileField(
+        label="Archivo Excel 2 (Empaque)",
+        help_text="Debe contener: SKU, UND EMPAQUE",
+        widget=forms.FileInput(attrs={"accept": ".xlsx,.xls"}),
     )
 
 
