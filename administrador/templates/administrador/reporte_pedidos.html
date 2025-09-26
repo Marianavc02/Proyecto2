@@ -1,0 +1,35 @@
+{% extends "administrador/base_admin.html" %}
+{% block title %}Reporte de Pedidos{% endblock %}
+
+{% block admin_content %}
+
+
+<div style="margin: 20px; margin-top: 100px; background-color: #f9f9f9; font-family: 'Montserrat', sans-serif;">
+
+    <h2 style="margin-bottom: 20px; font-weight: 600;"> Reporte de Pedidos por Producto</h2>
+
+    <!-- Tabla de reporte -->
+    <table style="width: 100%; border-collapse: collapse; background: white; border-radius: 10px; overflow: hidden; box-shadow: 0 4px 8px rgba(0,0,0,0.1);">
+        <thead>
+            <tr>
+                <th style="padding: 12px 15px; border-bottom: 1px solid #ddd; background-color: #D9D9D9; font-weight: 600;">SKU</th>
+                <th style="padding: 12px 15px; border-bottom: 1px solid #ddd; background-color: #D9D9D9; font-weight: 600;">Producto</th>
+                <th style="padding: 12px 15px; border-bottom: 1px solid #ddd; background-color: #D9D9D9; font-weight: 600;">Veces Pedido</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for r in reporte %}
+            <tr style="border-bottom: 1px solid #ddd;">
+                <td style="padding: 12px 15px; text-align: center; font-weight: 600;">{{ r.producto__sku }}</td>
+                <td style="padding: 12px 15px;">{{ r.producto__descripcion }}</td>
+                <td style="padding: 12px 15px; text-align: center; color: #007BFF; font-weight: bold;">{{ r.num_pedidos }}</td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="3" style="padding: 15px; text-align: center; color: #777;">📭 No hay pedidos registrados aún</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

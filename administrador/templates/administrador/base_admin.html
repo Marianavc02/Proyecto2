@@ -52,7 +52,8 @@
         <div>Reporte pedidos<br>empleados</div>
       </a>
 
-      <a class="admin-item disabled" href="#">
+      <a class="admin-item {% if request.resolver_match.url_name == 'reporte_pedidos' %}active{% endif %}"
+         href="{% url 'administrador:reporte_pedidos' %}">
         <div class="admin-ico"><span class="material-icons">analytics</span></div>
         <div>Análisis de<br>Pedidos</div>
       </a>

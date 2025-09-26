@@ -10,7 +10,7 @@ from django.shortcuts import get_object_or_404, redirect, render
 from .forms import ExcelUploadForm, ImagenUploadForm
 
 # from django.urls import reverse
-from .models import Producto, ProductoImagen
+from .models import Pedido, PedidoItem, Producto, ProductoImagen
 
 
 def cargar_excel(request):
@@ -367,3 +367,31 @@ def buscar_productos(request):
         except ValueError:
             pass
     return render(request, "productos/buscar_productos.html", {"productos": productos, "query": query})
+
+
+def enviar_pedido(request):
+    cart = _get_cart(request)
+    if not cart:
+        messages.error(request, "Tu carrito está vacío.")
+        return redirect("carrito_ver")
+
+    # Crear el pedido
+    if request.user.is_authenticated:
+        pedido = Pedido.objects.create(usuario=request.user)
+    else:
+        pedido = Pedido.objects.create()
+
+    # Crear los items
+    for sku, data in cart.items():
+        try:
+            producto = Producto.objects.get(sku=sku)
+            PedidoItem.objects.create(pedido=pedido, producto=producto, cantidad=1)
+        except Producto.DoesNotExist:
+            continue
+
+    # Vaciar carrito
+    request.session[SESSION_KEY] = {}
+    request.session.modified = True
+
+    messages.success(request, f"Tu pedido #{pedido.id} ha sido enviado correctamente.")
+    return redirect("administrador:reporte_pedidos")

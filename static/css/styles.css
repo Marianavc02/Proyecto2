@@ -343,11 +343,18 @@ body {
   border-radius:10px;
   background: var(--sbd-yellow);
   color:#000;
-  cursor:not-allowed;  /* deshabilitado por ahora */
+  cursor:pointer;        /* ← cambio importante */
   transition: filter .2s ease;
 }
-.btn-yellow:hover{ filter: brightness(0.98); }
-.btn-yellow:focus{ outline:2px solid #000; outline-offset:2px; }
+
+.btn-yellow:hover{ 
+  filter: brightness(0.98); 
+}
+.btn-yellow:focus{ 
+  outline:2px solid #000; 
+  outline-offset:2px; 
+}
+
 
 .summary-note{
   font-size:12px;
