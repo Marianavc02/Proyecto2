@@ -2,7 +2,8 @@ from django.contrib import messages
 from django.db.models import Count
 from django.shortcuts import redirect, render
 from django.utils import timezone
-
+import openpyxl
+from django.http import HttpResponse
 from productos.models import PedidoItem
 
 from .forms import CampaniaForm
@@ -57,3 +58,43 @@ def reporte_pedidos(request):
         .order_by("-num_pedidos")
     )
     return render(request, "administrador/reporte_pedidos.html", {"reporte": reporte})
+
+
+
+def exportar_reporte_excel(request):
+    # Creamos un nuevo libro Excel
+    wb = openpyxl.Workbook()
+    ws = wb.active
+    ws.title = "Pedidos"
+
+    # Encabezados
+    ws.append([
+        "ID Pedido", 
+        "Usuario", 
+        "Fecha", 
+        "Producto SKU", 
+        "Producto Descripción", 
+        "Cantidad"
+    ])
+
+    # Traemos los datos de PedidoItem (con joins)
+    items = PedidoItem.objects.select_related("pedido", "producto").all()
+
+    for item in items:
+        ws.append([
+            item.pedido.id,
+            item.pedido.usuario.username if item.pedido.usuario else "Anónimo",
+            item.pedido.fecha.strftime("%Y-%m-%d %H:%M"),
+            item.producto.sku,
+            item.producto.descripcion,
+            item.cantidad,
+        ])
+
+    # Respuesta HTTP con Excel
+    response = HttpResponse(
+        content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+    )
+    response["Content-Disposition"] = 'attachment; filename="reporte_pedidos.xlsx"'
+    wb.save(response)
+
+    return response
