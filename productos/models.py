@@ -1,5 +1,6 @@
 from django.contrib.auth.models import User
 from django.db import models
+from django.utils import timezone
 
 from .utils import clasificar_empresa
 
@@ -22,6 +23,9 @@ class Producto(models.Model):
         "Mínimo para pedido", default=1, help_text="Cantidad mínima para que el producto sea factible de enviar."
     )
     # save para que siempre que se guarde en la base de datos se le ponga empresa
+    # === IA ===
+    descripcion_ai = models.TextField("Descripción IA", null=True, blank=True)
+    descripcion_ai_updated = models.DateTimeField("Descripción IA actualizada", null=True, blank=True)
 
     def save(self, *args, **kwargs):
         self.empresa = clasificar_empresa(self.sku)

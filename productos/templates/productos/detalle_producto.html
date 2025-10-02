@@ -5,6 +5,7 @@
 {% block content %}
 <div class="detalle-container">
     <div class="detalle-imagen">
+        {# Mantengo tu lógica tal cual #}
         {% if producto.imagen %}
             <img src="{{ producto.imagen.url }}" alt="{{ producto.descripcion }}">
         {% else %}
@@ -16,21 +17,16 @@
         <h2>{{ producto.descripcion }}</h2>
         <p class="precio">Precio Empleado: ${{ producto.precio_sin_iva }}</p>
 
-
-
-    
-            <form method="post" action="{% url 'carrito_agregar' producto.sku %}" style="display:inline;">
-                {% csrf_token %}
-                <button type="submit" class="btn-carrito">Añadir al carrito</button>
-            </form>
-            
-
-
+        <form method="post" action="{% url 'carrito_agregar' producto.sku %}" style="display:inline;">
+            {% csrf_token %}
+            <button type="submit" class="btn-carrito">Añadir al carrito</button>
+        </form>
 
         <p><strong>Referencia:</strong> {{ producto.sku }}</p>
         <p><strong>SBU:</strong> {{ producto.sbu|default:"No disponible" }}</p>
         <p><strong>Pedido mínimo:</strong> {{ producto.minimo_pedido|default:"N/A" }}</p>
         <p><strong>Se han pedido:</strong> <span id="pedidos-count">{{ pedidos }}</span></p>
+
         <p id="estado-minimo">
             {% if cumplido %}
                 <span style="color:green; font-weight:bold;">¡Se cumplió el pedido mínimo!</span>
@@ -38,9 +34,22 @@
                 <span style="color:orange;">Faltan <span id="faltan-count">{{ faltan }}</span> para cumplir el mínimo.</span>
             {% endif %}
         </p>
-        <h4>Descripción:</h4>
-        <p>{{ producto.descripcion }}</p>
-        <p><strong>Categoría</strong> {{ producto.categoria|default:"sin categoria" }}</p>
+
+        <h4>Descripción</h4>
+        {# 1) Descripción original (si existe) #}
+        {% if producto.descripcion %}
+            <p>{{ producto.descripcion }}</p>
+        {% endif %}
+
+        {# 2) Descripción generada con IA (solo si existe) #}
+        {% if producto.descripcion_ai %}
+            <p style="opacity:.95">{{ producto.descripcion_ai }}</p>
+            <small style="opacity:.7">✨ Descripción generada con IA</small>
+        {% endif %}
+
+        <p><strong>Categoría:</strong> {{ producto.categoria|default:"sin categoria" }}</p>
+    </div>
+</div>
 
 <script>
 // Actualización periódica del estado del pedido mínimo
@@ -50,16 +59,16 @@ function actualizarEstadoMinimo() {
         .then(data => {
             document.getElementById('pedidos-count').textContent = data.pedidos;
             if (data.cumplido) {
-                document.getElementById('estado-minimo').innerHTML = '<span style="color:green; font-weight:bold;">¡Se cumplió el pedido mínimo!</span>';
+                document.getElementById('estado-minimo').innerHTML =
+                    '<span style="color:green; font-weight:bold;">¡Se cumplió el pedido mínimo!</span>';
             } else {
-                document.getElementById('estado-minimo').innerHTML = '<span style="color:orange;">Faltan <span id="faltan-count">' + data.faltan + '</span> para cumplir el mínimo.</span>';
+                document.getElementById('estado-minimo').innerHTML =
+                    '<span style="color:orange;">Faltan <span id="faltan-count">' + data.faltan + '</span> para cumplir el mínimo.</span>';
             }
         });
 }
 setInterval(actualizarEstadoMinimo, 5000);
 </script>
-    </div>
-</div>
 
 <style>
 .detalle-container {
@@ -74,32 +83,16 @@ setInterval(actualizarEstadoMinimo, 5000);
     width: 400px;
     border-radius: 10px;
 }
-.detalle-info {
-    flex: 1;
-}
-.precio {
-    font-size: 1.5rem;
-    font-weight: bold;
-    color: #333;
-}
+.detalle-info { flex: 1; }
+.precio { font-size: 1.5rem; font-weight: bold; color: #333; }
 .cantidad-carrito {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    margin: 15px 0;
+    display: flex; align-items: center; gap: 10px; margin: 15px 0;
 }
 .btn-cantidad {
-    padding: 5px 10px;
-    border: 1px solid #ccc;
-    background: white;
-    cursor: pointer;
+    padding: 5px 10px; border: 1px solid #ccc; background: white; cursor: pointer;
 }
 .btn-carrito {
-    background: #FFD700;
-    border: none;
-    padding: 10px 15px;
-    cursor: pointer;
-    font-weight: bold;
+    background: #FFD700; border: none; padding: 10px 15px; cursor: pointer; font-weight: bold;
 }
 </style>
 {% endblock %}
