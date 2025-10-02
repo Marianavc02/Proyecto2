@@ -5,7 +5,7 @@ from django.utils import timezone
 import openpyxl
 from django.http import HttpResponse
 from productos.models import PedidoItem
-
+from django.db.models import Count, Q
 from .forms import CampaniaForm
 from .utils import obtener_config
 
@@ -50,14 +50,27 @@ def estado_campania(request):
     }
     return render(request, "administrador/estado_campania.html", contexto)
 
-
 def reporte_pedidos(request):
+    query = request.GET.get("q", "")  # texto buscado
     reporte = (
         PedidoItem.objects.values("producto__sku", "producto__descripcion")
-        .annotate(num_pedidos=Count("pedido", distinct=True))  # 👈 aquí el cambio
-        .order_by("-num_pedidos")
+        .annotate(num_pedidos=Count("pedido", distinct=True))
     )
-    return render(request, "administrador/reporte_pedidos.html", {"reporte": reporte})
+
+    # si hay búsqueda, filtramos
+    if query:
+        reporte = reporte.filter(
+            Q(producto__sku__icontains=query) |
+            Q(producto__descripcion__icontains=query)
+        )
+
+    reporte = reporte.order_by("-num_pedidos")
+
+    return render(
+        request,
+        "administrador/reporte_pedidos.html",
+        {"reporte": reporte, "query": query}  # pasamos el query al template
+    )
 
 
 
