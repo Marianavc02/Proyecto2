@@ -15,5 +15,4 @@ urlpatterns = [
     path("carrito/eliminar/<str:sku>/", views.carrito_eliminar, name="carrito_eliminar"),
     path("buscar/", views.buscar_productos, name="buscar_productos"),
     path("enviar-pedido/", views.enviar_pedido, name="enviar_pedido"),
-    
 ]

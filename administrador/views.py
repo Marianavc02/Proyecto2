@@ -1,11 +1,12 @@
+import openpyxl
 from django.contrib import messages
-from django.db.models import Count
+from django.db.models import Count, Q
+from django.http import HttpResponse
 from django.shortcuts import redirect, render
 from django.utils import timezone
-import openpyxl
-from django.http import HttpResponse
+
 from productos.models import PedidoItem
-from django.db.models import Count, Q
+
 from .forms import CampaniaForm
 from .utils import obtener_config
 
@@ -50,28 +51,24 @@ def estado_campania(request):
     }
     return render(request, "administrador/estado_campania.html", contexto)
 
+
 def reporte_pedidos(request):
     query = request.GET.get("q", "")  # texto buscado
-    reporte = (
-        PedidoItem.objects.values("producto__sku", "producto__descripcion")
-        .annotate(num_pedidos=Count("pedido", distinct=True))
+    reporte = PedidoItem.objects.values("producto__sku", "producto__descripcion").annotate(
+        num_pedidos=Count("pedido", distinct=True)
     )
 
     # si hay búsqueda, filtramos
     if query:
-        reporte = reporte.filter(
-            Q(producto__sku__icontains=query) |
-            Q(producto__descripcion__icontains=query)
-        )
+        reporte = reporte.filter(Q(producto__sku__icontains=query) | Q(producto__descripcion__icontains=query))
 
     reporte = reporte.order_by("-num_pedidos")
 
     return render(
         request,
         "administrador/reporte_pedidos.html",
-        {"reporte": reporte, "query": query}  # pasamos el query al template
+        {"reporte": reporte, "query": query},  # pasamos el query al template
     )
-
 
 
 def exportar_reporte_excel(request):
@@ -81,32 +78,25 @@ def exportar_reporte_excel(request):
     ws.title = "Pedidos"
 
     # Encabezados
-    ws.append([
-        "ID Pedido", 
-        "Usuario", 
-        "Fecha", 
-        "Producto SKU", 
-        "Producto Descripción", 
-        "Cantidad"
-    ])
+    ws.append(["ID Pedido", "Usuario", "Fecha", "Producto SKU", "Producto Descripción", "Cantidad"])
 
     # Traemos los datos de PedidoItem (con joins)
     items = PedidoItem.objects.select_related("pedido", "producto").all()
 
     for item in items:
-        ws.append([
-            item.pedido.id,
-            item.pedido.usuario.username if item.pedido.usuario else "Anónimo",
-            item.pedido.fecha.strftime("%Y-%m-%d %H:%M"),
-            item.producto.sku,
-            item.producto.descripcion,
-            item.cantidad,
-        ])
+        ws.append(
+            [
+                item.pedido.id,
+                item.pedido.usuario.username if item.pedido.usuario else "Anónimo",
+                item.pedido.fecha.strftime("%Y-%m-%d %H:%M"),
+                item.producto.sku,
+                item.producto.descripcion,
+                item.cantidad,
+            ]
+        )
 
     # Respuesta HTTP con Excel
-    response = HttpResponse(
-        content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-    )
+    response = HttpResponse(content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
     response["Content-Disposition"] = 'attachment; filename="reporte_pedidos.xlsx"'
     wb.save(response)
 

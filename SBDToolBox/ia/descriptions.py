@@ -1,5 +1,4 @@
 # SBDToolBox/ai/descriptions.py
-import os
 import textwrap
 
 import requests
