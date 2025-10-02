@@ -2,10 +2,14 @@
 from decimal import Decimal
 
 import pandas as pd
+from django.conf import settings
 from django.contrib import messages
 from django.db import models
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
+from django.utils import timezone
+
+from SBDToolBox.ia.descriptions import generate_product_blurb
 
 from .forms import ExcelUploadForm, ImagenUploadForm
 
@@ -144,6 +148,20 @@ def productos_por_empresa(request, empresa):
 # View para mostrar detalle producto
 def detalle_producto(request, pk):
     producto = get_object_or_404(Producto, pk=pk)
+
+    # Generar on-demand si no hay descripcion_ai y hay API key
+    if not producto.descripcion_ai and getattr(settings, "GROQ_API_KEY", ""):
+        desc = generate_product_blurb(
+            nombre=producto.descripcion,  # en tu modelo, "descripcion" es el texto base
+            sku=producto.sku,
+            empresa=producto.empresa,
+            categoria=producto.categoria,
+        )
+        if desc:
+            producto.descripcion_ai = desc
+            producto.descripcion_ai_updated = timezone.now()
+            producto.save(update_fields=["descripcion_ai", "descripcion_ai_updated"])
+
     # Contar cuántos hay en el carrito de este usuario (por sesión)
     pedidos = 0
     cart = request.session.get("carrito", {})
