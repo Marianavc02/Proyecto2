@@ -1,5 +1,7 @@
+import openpyxl
 from django.contrib import messages
-from django.db.models import Count
+from django.db.models import Count, Q
+from django.http import HttpResponse
 from django.shortcuts import redirect, render
 from django.utils import timezone
 
@@ -51,9 +53,51 @@ def estado_campania(request):
 
 
 def reporte_pedidos(request):
-    reporte = (
-        PedidoItem.objects.values("producto__sku", "producto__descripcion")
-        .annotate(num_pedidos=Count("pedido", distinct=True))  # 👈 aquí el cambio
-        .order_by("-num_pedidos")
+    query = request.GET.get("q", "")  # texto buscado
+    reporte = PedidoItem.objects.values("producto__sku", "producto__descripcion").annotate(
+        num_pedidos=Count("pedido", distinct=True)
     )
-    return render(request, "administrador/reporte_pedidos.html", {"reporte": reporte})
+
+    # si hay búsqueda, filtramos
+    if query:
+        reporte = reporte.filter(Q(producto__sku__icontains=query) | Q(producto__descripcion__icontains=query))
+
+    reporte = reporte.order_by("-num_pedidos")
+
+    return render(
+        request,
+        "administrador/reporte_pedidos.html",
+        {"reporte": reporte, "query": query},  # pasamos el query al template
+    )
+
+
+def exportar_reporte_excel(request):
+    # Creamos un nuevo libro Excel
+    wb = openpyxl.Workbook()
+    ws = wb.active
+    ws.title = "Pedidos"
+
+    # Encabezados
+    ws.append(["ID Pedido", "Usuario", "Fecha", "Producto SKU", "Producto Descripción", "Cantidad"])
+
+    # Traemos los datos de PedidoItem (con joins)
+    items = PedidoItem.objects.select_related("pedido", "producto").all()
+
+    for item in items:
+        ws.append(
+            [
+                item.pedido.id,
+                item.pedido.usuario.username if item.pedido.usuario else "Anónimo",
+                item.pedido.fecha.strftime("%Y-%m-%d %H:%M"),
+                item.producto.sku,
+                item.producto.descripcion,
+                item.cantidad,
+            ]
+        )
+
+    # Respuesta HTTP con Excel
+    response = HttpResponse(content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+    response["Content-Disposition"] = 'attachment; filename="reporte_pedidos.xlsx"'
+    wb.save(response)
+
+    return response
