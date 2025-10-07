@@ -21,6 +21,8 @@ from django.contrib import admin
 from django.urls import include, path
 
 from SBDToolBox.views import home
+from users.views import MicrosoftCallbackView
+
 
 urlpatterns = [
     path("admin/", admin.site.urls),
@@ -28,4 +30,7 @@ urlpatterns = [
     path("productos/", include("productos.urls")),
     path("", home, name="home"),
     path("administrador/", include("administrador.urls")),
+    path('', include('users.urls')),
+    path('accounts/', include('allauth.urls')),
+    path('accounts/microsoft/login/callback/', MicrosoftCallbackView.as_view(), name='microsoft_callback'),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

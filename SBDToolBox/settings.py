@@ -11,9 +11,12 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 """
 
 from pathlib import Path
+from dotenv import load_dotenv
 import os
 from decouple import config
 import dj_database_url
+
+load_dotenv()
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -28,7 +31,11 @@ SECRET_KEY = "django-insecure-p%0h0+r!_@j$lzf%9aek%npwrxh3=xdl8&ce#k=c-8f=-%4e*3
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = [
+    "localhost",
+    "127.0.0.1",
+    "nononerous-unboding-chadwick.ngrok-free.dev"
+]
 
 
 # Application definition
@@ -40,10 +47,76 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    'django.contrib.sites',
     "empleados",
     "productos",
     "administrador",
+    "users",
+    'allauth',
+    'allauth.account',
+    'allauth.socialaccount',
+    'allauth.socialaccount.providers.microsoft',
 ]
+
+##-----------------Api de microsoft-------------------------
+SOCIALACCOUNT_PROVIDERS = {
+    "microsoft": {
+        "APP": {
+            "client_id": os.getenv("MICROSOFT_CLIENT_ID"),
+            "secret": os.getenv("MICROSOFT_SECRET"),
+            "key": "",
+        },
+        # (Opcional) si usas Entra ID empresarial:
+        "TENANT": os.getenv("MICROSOFT_TENANT_ID", "common"),
+        "SCOPE": [
+            "User.Read",
+            "email",
+            "openid",
+            "profile"
+        ],
+        "AUTH_PARAMS":{"response_mode": "form_post"},
+    }
+}
+
+
+SITE_ID = 1
+LOGIN_REDIRECT_URL = '/'
+LOGOUT_REDIRECT_URL = '/'
+ACCOUNT_LOGOUT_REDIRECT_URL = '/'
+ACCOUNT_SIGNUP_ENABLED = False
+ACCOUNT_SIGNUP_ALLOWED = False
+ACCOUNT_EMAIL_REQUIRED = True
+ACCOUNT_EMAIL_VERIFICATION = 'none'
+ACCOUNT_USERNAME_REQUIRED = False
+ACCOUNT_AUTHENTICATION_METHOD = "email"
+ACCOUNT_LOGIN_METHODS = {"email"}
+ACCOUNT_SIGNUP_FIELDS = [
+    "email*",      # Campo obligatorio (el asterisco indica requerido)
+    "password1*",  # Campo obligatorio
+    "password2*",  # Campo obligatorio
+]
+ACCOUNT_FORMS = {}
+AUTHENTICATION_BACKENDS = (
+    'django.contrib.auth.backends.ModelBackend',
+    'allauth.account.auth_backends.AuthenticationBackend',
+)
+
+SOCIALACCOUNT_ONLY = True
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+
+CSRF_TRUSTED_ORIGINS = [
+    "https://nononerous-unboding-chadwick.ngrok-free.dev",
+    "https://login.microsoftonline.com",
+
+]
+##!!para produccción unicamente, debido a que no se tiene https
+
+CSRF_COOKIE_SECURE = False
+SESSION_COOKIE_SECURE = False
+
+CSRF_COOKIE_SAMESITE = None
+SESSION_COOKIE_SAMESITE = None
+
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
@@ -53,6 +126,7 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    'allauth.account.middleware.AccountMiddleware',
 ]
 
 ROOT_URLCONF = "SBDToolBox.urls"
