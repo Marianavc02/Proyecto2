@@ -11,9 +11,12 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 """
 
 from pathlib import Path
+from dotenv import load_dotenv
 import os
 from decouple import config
 import dj_database_url
+
+load_dotenv()
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -28,7 +31,7 @@ SECRET_KEY = "django-insecure-p%0h0+r!_@j$lzf%9aek%npwrxh3=xdl8&ce#k=c-8f=-%4e*3
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ["localhost", "127.0.0.1", "nononerous-unboding-chadwick.ngrok-free.dev"]
 
 
 # Application definition
@@ -40,10 +43,94 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    "django.contrib.sites",
     "empleados",
     "productos",
     "administrador",
+    "users",
+    "allauth",
+    "allauth.account",
+    "allauth.socialaccount",
+    "allauth.socialaccount.providers.microsoft",
 ]
+
+##-----------------Api de microsoft-------------------------
+SOCIALACCOUNT_PROVIDERS = {
+    "microsoft": {
+        "APP": {
+            "client_id": os.getenv("MICROSOFT_CLIENT_ID"),
+            "secret": os.getenv("MICROSOFT_SECRET"),
+            "key": "",
+        },
+        # (Opcional) si usas Entra ID empresarial:
+        "TENANT": os.getenv("MICROSOFT_TENANT_ID", "common"),
+        "SCOPE": ["User.Read", "email", "openid", "profile"],
+        # Usamos response_mode=query para evitar POST y problemas CSRF en callback local
+        "AUTH_PARAMS": {"response_mode": "query"},
+    }
+}
+
+
+SITE_ID = 1
+LOGIN_REDIRECT_URL = "/"
+LOGOUT_REDIRECT_URL = "/"
+ACCOUNT_LOGOUT_REDIRECT_URL = "/"
+
+# --------------------------------------------------------------------
+# Ajustes de django-allauth
+# Desactivamos las banderas personalizadas que bloqueaban registro porque
+# impedían el auto-provisioning del usuario social (provocaba Account Inactive)
+# Mantenerlas comentadas para que no interfieran con SOCIALACCOUNT_AUTO_SIGNUP.
+# --------------------------------------------------------------------
+# ACCOUNT_SIGNUP_ENABLED = False   # (Se deja comentado para permitir auto signup)
+# ACCOUNT_SIGNUP_ALLOWED = False   # (Se deja comentado)
+
+ACCOUNT_EMAIL_REQUIRED = True
+ACCOUNT_EMAIL_VERIFICATION = "none"  # En producción puedes cambiar a 'mandatory'
+ACCOUNT_USERNAME_REQUIRED = False
+ACCOUNT_AUTHENTICATION_METHOD = "email"
+ACCOUNT_LOGIN_METHODS = {"email"}
+
+# En este flujo no necesitamos exponer campos manuales de signup porque
+# llegará vía Microsoft; si más adelante permites registro manual, revisa esto.
+ACCOUNT_SIGNUP_FIELDS = []
+ACCOUNT_FORMS = {}
+
+# Garantiza que no se creen dos usuarios con el mismo email.
+ACCOUNT_UNIQUE_EMAIL = True
+
+# Permite que al retornar de Microsoft se cree (o se conecte) automáticamente
+# el usuario sin pasar por pantalla intermedia de signup.
+SOCIALACCOUNT_AUTO_SIGNUP = True
+
+# Estrategia para manejar conflicto de email existente: 'connect' intenta
+# vincular al usuario ya autenticado; otras opciones: 'ask', 'login'
+SOCIALACCOUNT_EMAIL_VERIFICATION = "none"
+
+# Función para mostrar en templates y mensajes el email (o nombre derivado) en lugar del username creado por defecto.
+ACCOUNT_USER_DISPLAY = "users.utils.user_display"
+AUTHENTICATION_BACKENDS = (
+    "django.contrib.auth.backends.ModelBackend",
+    "allauth.account.auth_backends.AuthenticationBackend",
+)
+
+SOCIALACCOUNT_ONLY = True
+SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
+
+CSRF_TRUSTED_ORIGINS = [
+    "https://nononerous-unboding-chadwick.ngrok-free.dev",
+    "https://login.microsoftonline.com",
+    "http://localhost:8000",
+    "http://127.0.0.1:8000",
+]
+##!!para produccción unicamente, debido a que no se tiene https
+
+CSRF_COOKIE_SECURE = False
+SESSION_COOKIE_SECURE = False
+
+CSRF_COOKIE_SAMESITE = None
+SESSION_COOKIE_SAMESITE = None
+
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
@@ -53,6 +140,7 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    "allauth.account.middleware.AccountMiddleware",
 ]
 
 ROOT_URLCONF = "SBDToolBox.urls"
@@ -128,3 +216,7 @@ STATICFILES_DIRS = [os.path.join(BASE_DIR, "static")]
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 GROQ_API_KEY = config("GROQ_API_KEY", default="")
+
+# Política interna: exigir que el email exista en Empleado para permitir login.
+# En desarrollo puedes poner False para no bloquear mientras pruebas OAuth.
+SBD_REQUIRE_EMPLEADO = False
