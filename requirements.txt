@@ -12,10 +12,12 @@ whitenoise>=6.5
 flake8>=7.0.0
 black>=24.0.0
 isort>=5.13.0     
-pytest
 requests   
 dj-database-url
 psycopg2-binary
 python-decouple
 django-allauth
 dotenv
+# Testing
+pytest==8.3.3
+pytest-django==4.9.0
