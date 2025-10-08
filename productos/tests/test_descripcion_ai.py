@@ -43,10 +43,10 @@ class TestDescripcionAI:
         contenido_largo = " ".join(["Palabra"] * 200)
         mock_post.return_value.json.return_value = {"choices": [{"message": {"content": contenido_largo}}]}
         mock_post.return_value.raise_for_status = lambda: None
-
+    
         descripcion = generate_product_blurb(nombre="Taladro", sku="SKU000", empresa="DeWalt", categoria="Construcción")
-        # productos/tests/test_descripcion_ai.py
-
-        assert len(descripcion) <= 600  # nosec B101: permitido en tests
-        assert "  " not in descripcion   # nosec B101: permitido en tests
+    
+        assert len(descripcion) <= 600  # nosec B101
+        assert "  " not in descripcion  # nosec B101
+    
 
