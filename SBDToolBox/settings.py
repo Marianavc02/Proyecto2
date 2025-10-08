@@ -220,3 +220,12 @@ GROQ_API_KEY = config("GROQ_API_KEY", default="")
 # Política interna: exigir que el email exista en Empleado para permitir login.
 # En desarrollo puedes poner False para no bloquear mientras pruebas OAuth.
 SBD_REQUIRE_EMPLEADO = False
+# Ajuste especial para tests con pytest-django: usa SQLite en memoria
+if os.getenv("PYTEST_CURRENT_TEST"):
+    DATABASES = {
+        "default": {
+            "ENGINE": "django.db.backends.sqlite3",
+            "NAME": ":memory:",
+            "TEST": {"NAME": ":memory:", "SERIALIZE": False},
+        }
+    }
