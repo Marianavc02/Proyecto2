@@ -1,3 +1,3 @@
-from django.contrib import admin
+"""Admin registrations for users app (currently none)."""
 
-# Register your models here.
+# If in future you add models here, import admin and register them.

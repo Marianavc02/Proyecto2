@@ -1,5 +1,5 @@
 [flake8]
 max-line-length = 120
-exclude = env, migrations, manage.py, settings.py, __pycache__, .git
+exclude = env, migrations, manage.py, settings.py, __pycache__, .git,venv
 jobs = 1
 extend-ignore = E203, W503

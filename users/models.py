@@ -1,3 +1,3 @@
-from django.db import models
+"""Users app models placeholder (no custom models yet)."""
 
-# Create your models here.
+# Add custom user-related models here if needed in future.

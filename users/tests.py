@@ -1,3 +1,3 @@
-from django.test import TestCase
+"""Users app tests placeholder."""
 
-# Create your tests here.
+# Add tests for users app when functionality is added.
