@@ -45,5 +45,8 @@ class TestDescripcionAI:
         mock_post.return_value.raise_for_status = lambda: None
 
         descripcion = generate_product_blurb(nombre="Taladro", sku="SKU000", empresa="DeWalt", categoria="Construcción")
-        assert len(descripcion) <= 600
-        assert "  " not in descripcion
+        # productos/tests/test_descripcion_ai.py
+
+        assert len(descripcion) <= 600  # nosec B101: permitido en tests
+        assert "  " not in descripcion   # nosec B101: permitido en tests
+
