@@ -107,6 +107,9 @@ SOCIALACCOUNT_AUTO_SIGNUP = True
 # vincular al usuario ya autenticado; otras opciones: 'ask', 'login'
 SOCIALACCOUNT_EMAIL_VERIFICATION = "none"
 
+# Inicia el flujo social directamente en GET (evita pantallas intermedias de allauth)
+SOCIALACCOUNT_LOGIN_ON_GET = True
+
 # Función para mostrar en templates y mensajes el email (o nombre derivado) en lugar del username creado por defecto.
 ACCOUNT_USER_DISPLAY = "users.utils.user_display"
 AUTHENTICATION_BACKENDS = (
