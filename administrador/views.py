@@ -84,34 +84,40 @@ def reporte_pedidos(request):
 
 
 def exportar_reporte_excel(request):
-    # Creamos un nuevo libro Excel
+    # Obtener los productos con su conteo de pedidos
+    query = request.GET.get("q", "")
+    reporte = PedidoItem.objects.values("producto__sku", "producto__descripcion").annotate(
+        num_pedidos=Count("pedido", distinct=True)
+    )
+
+    # Filtrar si hay búsqueda
+    if query:
+        reporte = reporte.filter(Q(producto__sku__icontains=query) | Q(producto__descripcion__icontains=query))
+
+    reporte = reporte.order_by("-num_pedidos")
+
+    # Crear archivo Excel
     wb = openpyxl.Workbook()
     ws = wb.active
-    ws.title = "Pedidos"
+    ws.title = "Reporte de Productos"
 
     # Encabezados
-    ws.append(["ID Pedido", "Usuario", "Fecha", "Producto SKU", "Producto Descripción", "Cantidad"])
+    ws.append(["SKU", "Nombre del Producto", "Veces Pedido"])
 
-    # Traemos los datos de PedidoItem (con joins)
-    items = PedidoItem.objects.select_related("pedido", "producto").all()
-
-    for item in items:
+    # Agregar datos
+    for item in reporte:
         ws.append(
             [
-                item.pedido.id,
-                item.pedido.usuario.username if item.pedido.usuario else "Anónimo",
-                item.pedido.fecha.strftime("%Y-%m-%d %H:%M"),
-                item.producto.sku,
-                item.producto.descripcion,
-                item.cantidad,
+                item["producto__sku"],
+                item["producto__descripcion"],
+                item["num_pedidos"],
             ]
         )
 
-    # Respuesta HTTP con Excel
+    # Respuesta HTTP con el Excel
     response = HttpResponse(content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
-    response["Content-Disposition"] = 'attachment; filename="reporte_pedidos.xlsx"'
+    response["Content-Disposition"] = 'attachment; filename="reporte_productos.xlsx"'
     wb.save(response)
-
     return response
 
 
@@ -144,5 +150,53 @@ def reporte_pedidos_empleado(request, empleado_id):
 
 
 def lista_empleados_reporte(request):
+    query = request.GET.get("q", "")  # Capturamos el texto de búsqueda
+
+    # Filtramos por nombre o correo si hay búsqueda
     empleados = Empleado.objects.all()
-    return render(request, "administrador/lista_empleados_reporte.html", {"empleados": empleados})
+    if query:
+        empleados = empleados.filter(Q(preferred_name__icontains=query) | Q(sbd_email__icontains=query))
+
+    return render(
+        request,
+        "administrador/lista_empleados_reporte.html",
+        {"empleados": empleados, "query": query},
+    )
+
+
+def exportar_reporte_empleado_excel(request, empleado_id):
+    empleado = get_object_or_404(Empleado, id=empleado_id)
+
+    # Obtener los pedidos del empleado y sus productos
+    pedidos = Pedido.objects.filter(empleado=empleado).prefetch_related("items__producto")
+
+    # Crear libro de Excel
+    wb = openpyxl.Workbook()
+    ws = wb.active
+    ws.title = f"Pedidos de {empleado.preferred_name}"
+
+    # Encabezados
+    ws.append(["ID Pedido", "Fecha", "SKU Producto", "Descripción", "Cantidad", "Precio Unitario", "Subtotal"])
+
+    # Agregar filas
+    for pedido in pedidos:
+        for item in pedido.items.all():
+            subtotal = item.cantidad * item.producto.precio
+            ws.append(
+                [
+                    pedido.id,
+                    pedido.fecha.strftime("%Y-%m-%d %H:%M"),
+                    item.producto.sku,
+                    item.producto.descripcion,
+                    item.cantidad,
+                    item.producto.precio,
+                    subtotal,
+                ]
+            )
+
+    # Configurar la respuesta HTTP
+    response = HttpResponse(content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+    filename = f"reporte_empleado_{empleado.preferred_name}.xlsx".replace(" ", "_")
+    response["Content-Disposition"] = f'attachment; filename="{filename}"'
+    wb.save(response)
+    return response

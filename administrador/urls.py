@@ -11,5 +11,10 @@ urlpatterns = [
     path("reporte-pedidos/", views.reporte_pedidos, name="reporte_pedidos"),
     path("exportar_reporte_excel/", views.exportar_reporte_excel, name="exportar_reporte_excel"),
     path("empleados-reporte/", views.lista_empleados_reporte, name="lista_empleados_reporte"),
+    path(
+        "reporte-empleado/<int:empleado_id>/exportar/",
+        views.exportar_reporte_empleado_excel,
+        name="exportar_reporte_empleado_excel",
+    ),
     path("empleados/<int:empleado_id>/reporte/", views.reporte_pedidos_empleado, name="reporte_pedidos_empleado"),
 ]

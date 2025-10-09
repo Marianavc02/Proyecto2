@@ -2,35 +2,63 @@
 {% block admin_title %}Reporte por Empleado{% endblock %}
 {% block admin_content %}
 
-<h2 style="margin-bottom: 25px; color: #333; font-weight: 700;">Empleados - Reporte de Pedidos</h2>
+<div style="margin: 20px; margin-top: 80px; background-color: #f9f9f9; font-family: 'Montserrat', sans-serif;">
 
-<!-- Tabla de reporte -->
-<table style="width: 100%; border-collapse: collapse; background: white; border-radius: 10px; overflow: hidden; box-shadow: 0 4px 8px rgba(0,0,0,0.1);">
-  <thead>
-    <tr>
-      <th style="padding: 12px 15px; border-bottom: 1px solid #ddd; background-color: #D9D9D9; font-weight: 600;">Nombre</th>
-      <th style="padding: 12px 15px; border-bottom: 1px solid #ddd; background-color: #D9D9D9; font-weight: 600;">Email</th>
-      <th style="padding: 12px 15px; border-bottom: 1px solid #ddd; background-color: #D9D9D9; font-weight: 600; text-align: center;">Acción</th>
-    </tr>
-  </thead>
-  <tbody>
-    {% for empleado in empleados %}
-    <tr style="border-bottom: 1px solid #ddd;">
-      <td style="padding: 12px 15px;">{{ empleado.preferred_name }}</td>
-      <td style="padding: 12px 15px;">{{ empleado.sbd_email }}</td>
-      <td style="padding: 12px 15px; text-align: center;">
-        <a href="{% url 'administrador:reporte_pedidos_empleado' empleado.id %}" 
-           style="padding: 8px 16px; background-color: #007BFF; color: white; border-radius: 5px; text-decoration: none; font-weight: 600;">
-          Ver pedidos
-        </a>
-      </td>
-    </tr>
-    {% empty %}
-    <tr>
-      <td colspan="3" style="padding: 15px; text-align: center; color: #777;">📭 No hay empleados registrados.</td>
-    </tr>
-    {% endfor %}
-  </tbody>
-</table>
+  <h2 style="margin-bottom: 20px; font-weight: 600;">Empleados - Reporte de Pedidos</h2>
+
+  <!-- 🔍 Barra de búsqueda -->
+  <form method="get" style="margin-bottom: 20px; display: flex; gap: 10px;">
+      <input 
+          type="text" 
+          name="q" 
+          placeholder="Buscar por nombre o correo..."
+          value="{{ query }}" 
+          style="flex: 1; max-width: 400px; padding: 10px; border: 1px solid #ccc; border-radius: 5px;"
+      />
+      <button type="submit" 
+              style="padding: 10px 20px; background-color: #f4dc00e8; color: black; border: none; border-radius: 5px; font-weight: 600;">
+          Buscar
+      </button>
+      {% if query %}
+      <a href="{% url 'administrador:lista_empleados_reporte' %}" 
+         style="padding: 10px 20px; background-color: #6c757d; color: white; border-radius: 5px; text-decoration: none; font-weight: 600;">
+          Limpiar
+      </a>
+      {% endif %}
+  </form>
+
+  <!-- Tabla de empleados -->
+  <table style="width: 100%; border-collapse: collapse; background: white; border-radius: 10px; overflow: hidden; box-shadow: 0 4px 8px rgba(0,0,0,0.1);">
+    <thead>
+      <tr>
+        <th style="padding: 12px 15px; border-bottom: 1px solid #ddd; background-color: #D9D9D9; font-weight: 600;">Nombre</th>
+        <th style="padding: 12px 15px; border-bottom: 1px solid #ddd; background-color: #D9D9D9; font-weight: 600;">Email</th>
+        <th style="padding: 12px 15px; border-bottom: 1px solid #ddd; background-color: #D9D9D9; font-weight: 600; text-align: center;">Acción</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for empleado in empleados %}
+      <tr style="border-bottom: 1px solid #ddd;">
+        <td style="padding: 12px 15px;">{{ empleado.preferred_name }}</td>
+        <td style="padding: 12px 15px;">{{ empleado.sbd_email }}</td>
+        <td style="padding: 12px 15px; text-align: center; display: flex; justify-content: center; gap: 10px;">
+          <a href="{% url 'administrador:reporte_pedidos_empleado' empleado.id %}" 
+             style="padding: 8px 16px; background-color: #a9aeb2ff; color: white; border-radius: 5px; text-decoration: none; font-weight: 600;">
+            Ver pedidos
+          </a>
+          <a href="{% url 'administrador:exportar_reporte_empleado_excel' empleado.id %}" 
+             style="padding: 8px 16px; background-color: #f4dc00e8; color: black; border-radius: 5px; text-decoration: none; font-weight: 600;">
+            Exportar Excel
+          </a>
+        </td>
+      </tr>
+      {% empty %}
+      <tr>
+        <td colspan="3" style="padding: 15px; text-align: center; color: #777;">📭 No hay empleados registrados.</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
 
 {% endblock %}
