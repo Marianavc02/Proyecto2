@@ -110,7 +110,7 @@ def reporte_pedidos_empleado(request, empleado_id):
     total_general = 0
 
     for pedido in pedidos:
-        subtotal = sum(item.cantidad * item.producto.precio for item in pedido.items.all())
+        subtotal = sum(item.cantidad * item.producto.precio_sin_iva for item in pedido.items.all())
         pedidos_data.append(
             {
                 "pedido": pedido,
