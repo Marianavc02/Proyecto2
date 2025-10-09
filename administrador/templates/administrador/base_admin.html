@@ -47,7 +47,8 @@
   <aside class="admin-side">
     <nav class="admin-menu">
 
-      <a class="admin-item disabled" href="#">
+      <a class="admin-item {% if request.resolver_match.url_name == 'lista_empleados_reporte' %}active{% endif %}"
+         href="{% url 'administrador:lista_empleados_reporte' %}">
         <div class="admin-ico"><span class="material-icons">assignment</span></div>
         <div>Reporte pedidos<br>empleados</div>
       </a>

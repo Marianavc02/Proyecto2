@@ -1,5 +1,6 @@
 from django.contrib.auth.models import User
 from django.db import models
+from empleados.models import Empleado  
 
 from .utils import clasificar_empresa
 
@@ -41,11 +42,12 @@ class ProductoImagen(models.Model):
 
 
 class Pedido(models.Model):
-    usuario = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True)
+    usuario = models.ForeignKey(User, on_delete=models.CASCADE)
+    empleado = models.ForeignKey('empleados.Empleado', on_delete=models.CASCADE, related_name='pedidos')
     fecha = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return f"Pedido {self.id} - {self.usuario or 'Anónimo'}"
+        return f"Pedido {self.id} - {self.empleado or self.usuario}"
 
 
 class PedidoItem(models.Model):
