@@ -181,7 +181,7 @@ def exportar_reporte_empleado_excel(request, empleado_id):
     # Agregar filas
     for pedido in pedidos:
         for item in pedido.items.all():
-            subtotal = item.cantidad * item.producto.precio
+            subtotal = item.cantidad * item.producto.precio_sin_iva
             ws.append(
                 [
                     pedido.id,
@@ -189,7 +189,7 @@ def exportar_reporte_empleado_excel(request, empleado_id):
                     item.producto.sku,
                     item.producto.descripcion,
                     item.cantidad,
-                    item.producto.precio,
+                    item.producto.precio_sin_iva,
                     subtotal,
                 ]
             )
