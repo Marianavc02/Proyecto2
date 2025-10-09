@@ -2,13 +2,11 @@ import openpyxl
 from django.contrib import messages
 from django.db.models import Count, Q
 from django.http import HttpResponse
-from django.shortcuts import redirect, render
+from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
-from django.shortcuts import  get_object_or_404
+
 from empleados.models import Empleado
 from productos.models import Pedido, PedidoItem
-
-from productos.models import PedidoItem
 
 from .forms import CampaniaForm
 from .utils import obtener_config
@@ -27,7 +25,6 @@ def programar_fechas(request):
             cfg.save()
             messages.success(request, "Campaña eliminada. No hay campaña programada.")
             return redirect("administrador:programar_fechas")
-
         # Acción: confirmar (guardar fechas)
         form = CampaniaForm(request.POST, instance=cfg)
         if form.is_valid():
@@ -106,29 +103,34 @@ def exportar_reporte_excel(request):
     return response
 
 
-
 def reporte_pedidos_empleado(request, empleado_id):
     empleado = get_object_or_404(Empleado, id=empleado_id)
     pedidos = Pedido.objects.filter(empleado=empleado).prefetch_related("items__producto")
-
     pedidos_data = []
     total_general = 0
 
     for pedido in pedidos:
         subtotal = sum(item.cantidad * item.producto.precio for item in pedido.items.all())
-        pedidos_data.append({
-            "pedido": pedido,
-            "items": pedido.items.all(),
-            "subtotal": subtotal,
-        })
+        pedidos_data.append(
+            {
+                "pedido": pedido,
+                "items": pedido.items.all(),
+                "subtotal": subtotal,
+            }
+        )
         total_general += subtotal
 
-    return render(request, "administrador/reporte_pedidos_empleado.html", {
-        "empleado": empleado,
-        "pedidos_data": pedidos_data,
-        "total_general": total_general,
-    })
-    
+    return render(
+        request,
+        "administrador/reporte_pedidos_empleado.html",
+        {
+            "empleado": empleado,
+            "pedidos_data": pedidos_data,
+            "total_general": total_general,
+        },
+    )
+
+
 def lista_empleados_reporte(request):
     empleados = Empleado.objects.all()
     return render(request, "administrador/lista_empleados_reporte.html", {"empleados": empleados})
