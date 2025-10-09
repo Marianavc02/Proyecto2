@@ -1,19 +1,20 @@
 # views.py
 from decimal import Decimal
+
 import pandas as pd
 from django.conf import settings
 from django.contrib import messages
+from django.contrib.auth.decorators import login_required
 from django.db import models
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
-from SBDToolBox.ia.descriptions import generate_product_blurb
-from .forms import ExcelUploadForm, ImagenUploadForm
-from django.shortcuts import redirect
-from django.utils import timezone
-from django.contrib.auth.decorators import login_required
-from django.contrib.auth.models import User
+
 from empleados.models import Empleado
+from SBDToolBox.ia.descriptions import generate_product_blurb
+
+from .forms import ExcelUploadForm, ImagenUploadForm
+
 # from django.urls import reverse
 from .models import Pedido, PedidoItem, Producto, ProductoImagen
 
@@ -387,6 +388,7 @@ def buscar_productos(request):
             pass
     return render(request, "productos/buscar_productos.html", {"productos": productos, "query": query})
 
+
 @login_required
 def enviar_pedido(request):
     if request.method == "POST":
@@ -412,9 +414,7 @@ def enviar_pedido(request):
             try:
                 producto = Producto.objects.get(sku=sku)
                 PedidoItem.objects.create(
-                    pedido=pedido,
-                    producto=producto,
-                    cantidad=1  # en tu carrito cada producto es único
+                    pedido=pedido, producto=producto, cantidad=1  # en tu carrito cada producto es único
                 )
             except Producto.DoesNotExist:
                 continue
@@ -428,7 +428,8 @@ def enviar_pedido(request):
 
     return redirect("carrito_ver")
 
+
 @login_required
 def lista_pedidos(request):
-    pedidos = Pedido.objects.filter(usuario=request.user).order_by('-fecha')
-    return render(request, 'productos/lista_pedidos.html', {'pedidos': pedidos})
+    pedidos = Pedido.objects.filter(usuario=request.user).order_by("-fecha")
+    return render(request, "productos/lista_pedidos.html", {"pedidos": pedidos})
