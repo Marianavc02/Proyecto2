@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-4">
+  <h2>Mis pedidos</h2>
+
+  {% if pedidos %}
+    <table class="table table-bordered mt-3">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Fecha</th>
+          <th>Productos</th>
+          <th>Total</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for pedido in pedidos %}
+        <tr>
+          <td>{{ pedido.id }}</td>
+          <td>{{ pedido.fecha|date:"d/m/Y H:i" }}</td>
+          <td>
+            <ul>
+              {% for item in pedido.items.all %}
+                <li>{{ item.producto.descripcion }} (x{{ item.cantidad }})</li>
+              {% endfor %}
+            </ul>
+          </td>
+          <td>${{ pedido.total|floatformat:2 }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  {% else %}
+    <p>No tienes pedidos registrados.</p>
+  {% endif %}
+</div>
+{% endblock %}

@@ -1,6 +1,5 @@
 # views.py
 from decimal import Decimal
-
 import pandas as pd
 from django.conf import settings
 from django.contrib import messages
@@ -8,11 +7,13 @@ from django.db import models
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
-
 from SBDToolBox.ia.descriptions import generate_product_blurb
-
 from .forms import ExcelUploadForm, ImagenUploadForm
-
+from django.shortcuts import redirect
+from django.utils import timezone
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth.models import User
+from empleados.models import Empleado
 # from django.urls import reverse
 from .models import Pedido, PedidoItem, Producto, ProductoImagen
 
@@ -386,30 +387,48 @@ def buscar_productos(request):
             pass
     return render(request, "productos/buscar_productos.html", {"productos": productos, "query": query})
 
-
+@login_required
 def enviar_pedido(request):
-    cart = _get_cart(request)
-    if not cart:
-        messages.error(request, "Tu carrito está vacío.")
-        return redirect("carrito_ver")
+    if request.method == "POST":
+        usuario = request.user
 
-    # Crear el pedido
-    if request.user.is_authenticated:
-        pedido = Pedido.objects.create(usuario=request.user)
-    else:
-        pedido = Pedido.objects.create()
+        # Buscar o crear el empleado asociado
+        empleado, _ = Empleado.objects.get_or_create(
+            sbd_email=usuario.email,
+            defaults={"preferred_name": usuario.get_full_name() or usuario.username},
+        )
 
-    # Crear los items
-    for sku, data in cart.items():
-        try:
-            producto = Producto.objects.get(sku=sku)
-            PedidoItem.objects.create(pedido=pedido, producto=producto, cantidad=1)
-        except Producto.DoesNotExist:
-            continue
+        # Crear pedido
+        pedido = Pedido.objects.create(usuario=usuario, empleado=empleado)
 
-    # Vaciar carrito
-    request.session[SESSION_KEY] = {}
-    request.session.modified = True
+        # Obtener carrito desde la sesión
+        cart = request.session.get("carrito", {})
 
-    messages.success(request, f"Tu pedido #{pedido.id} ha sido enviado correctamente.")
-    return redirect("administrador:reporte_pedidos")
+        if not cart:
+            messages.warning(request, "⚠ Tu carrito está vacío, no se puede crear el pedido.")
+            return redirect("carrito_ver")
+
+        for sku, data in cart.items():
+            try:
+                producto = Producto.objects.get(sku=sku)
+                PedidoItem.objects.create(
+                    pedido=pedido,
+                    producto=producto,
+                    cantidad=1  # en tu carrito cada producto es único
+                )
+            except Producto.DoesNotExist:
+                continue
+
+        # Vaciar carrito después de enviar
+        request.session["carrito"] = {}
+        request.session.modified = True
+
+        messages.success(request, f"✅ Pedido #{pedido.id} enviado correctamente.")
+        return redirect("lista_pedidos")
+
+    return redirect("carrito_ver")
+
+@login_required
+def lista_pedidos(request):
+    pedidos = Pedido.objects.filter(usuario=request.user).order_by('-fecha')
+    return render(request, 'productos/lista_pedidos.html', {'pedidos': pedidos})
