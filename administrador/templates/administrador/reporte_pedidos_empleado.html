@@ -1,0 +1,41 @@
+{% extends "administrador/base_admin.html" %}
+{% block admin_title %}Pedidos de {{ empleado.preferred_name }}{% endblock %}
+{% block admin_content %}
+
+<h2>Pedidos realizados por {{ empleado.preferred_name }}</h2>
+
+{% if pedidos_data %}
+  {% for data in pedidos_data %}
+  <div class="card mb-4 p-3 shadow-sm">
+    <h5>Pedido #{{ data.pedido.id }} - {{ data.pedido.fecha|date:"d/m/Y H:i" }}</h5>
+    <table class="table table-striped">
+      <thead>
+        <tr>
+          <th>Producto</th>
+          <th>Cantidad</th>
+          <th>Precio Unitario</th>
+          <th>Subtotal</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for item in data.items %}
+        <tr>
+          <td>{{ item.producto.descripcion }}</td>
+          <td>{{ item.cantidad }}</td>
+          <td>${{ item.producto.precio }}</td>
+          <td>${{ item.cantidad|floatformat:0|add:"0"|floatformat:0 }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    <p><strong>Total pedido:</strong> ${{ data.subtotal }}</p>
+  </div>
+  {% endfor %}
+  <h4>Total general gastado: ${{ total_general }}</h4>
+{% else %}
+  <p>Este empleado no tiene pedidos registrados.</p>
+{% endif %}
+
+<a href="{% url 'administrador:lista_empleados_reporte' %}" class="btn btn-secondary mt-3">Volver a empleados</a>
+
+{% endblock %}

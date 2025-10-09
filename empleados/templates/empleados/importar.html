@@ -5,30 +5,75 @@
 
 {% block admin_content %}
 <style>
-  /* Centrar la tarjeta dentro del área de contenido del admin */
-  .upload-wrap{
+  /* Contenedor general centrado */
+  .upload-wrap {
     min-height: calc(100vh - 220px);
-    display:flex; align-items:center; justify-content:center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     padding: 16px;
   }
-  .upload-btn{
-    display:flex; flex-direction:column; align-items:center; justify-content:center;
-    width:320px; height:320px; background:#FFD20A; color:#000;
-    border:none; border-radius:12px; cursor:pointer;
-    font-family:'Montserrat',sans-serif; font-weight:600; font-size:20px; text-align:center;
-    transition: transform .2s ease, box-shadow .2s ease;
-    box-shadow:0 6px 20px rgba(0,0,0,.08);
+
+  /* Contenedor de los dos botones */
+  .btn-container {
+    display: flex;
+    gap: 40px;
+    flex-wrap: wrap;
+    justify-content: center;
   }
-  .upload-btn:hover{ transform:scale(1.05); box-shadow:0 10px 26px rgba(0,0,0,.15); }
-  .upload-btn i{ font-size:50px; margin-bottom:14px; }
-  input[type="file"]{ display:none; }
-  .msgs{ display:flex; flex-direction:column; gap:10px; margin-bottom:16px; }
-  .alert{ padding:10px 12px; border-radius:10px; border:1px solid #ddd; background:#fff; }
+
+  /* Estilos comunes de los botones */
+  .upload-btn {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 320px;
+    height: 320px;
+    background: #FFD20A;
+    color: #000;
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 600;
+    font-size: 20px;
+    text-align: center;
+    transition: transform .2s ease, box-shadow .2s ease;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, .08);
+  }
+
+  .upload-btn:hover {
+    transform: scale(1.05);
+    box-shadow: 0 10px 26px rgba(0, 0, 0, .15);
+  }
+
+  .upload-btn i {
+    font-size: 50px;
+    margin-bottom: 14px;
+  }
+
+  input[type="file"] {
+    display: none;
+  }
+
+  .msgs {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: 16px;
+  }
+
+  .alert {
+    padding: 10px 12px;
+    border-radius: 10px;
+    border: 1px solid #ddd;
+    background: #fff;
+  }
 </style>
 
 <div class="upload-wrap">
   <div>
-    <!-- Mensajes (opcionales) -->
     {% if messages %}
       <div class="msgs">
         {% for message in messages %}
@@ -37,18 +82,26 @@
       </div>
     {% endif %}
 
-    <!-- Formulario: mismo endpoint (POST al view actual) -->
-    <form method="post" enctype="multipart/form-data">
-      {% csrf_token %}
-      <label for="file" class="upload-btn">
-        <i class="fas fa-upload"></i>
-        Subir Datos empleados<br>desde Excel
-      </label>
-      <input type="file" name="file" id="file" onchange="this.form.submit()">
-    </form>
+    <div class="btn-container">
+      <!-- Botón para subir Excel -->
+      <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        <label for="file" class="upload-btn">
+          <i class="fas fa-upload"></i>
+          Subir datos empleados<br>desde Excel
+        </label>
+        <input type="file" name="file" id="file" onchange="this.form.submit()">
+      </form>
+
+      <!-- Botón para ir a la lista -->
+      <a href="{% url 'lista_empleados' %}" class="upload-btn" style="text-decoration: none;">
+        <i class="fas fa-list"></i>
+        Lista de empleados
+      </a>
+    </div>
   </div>
 </div>
 
-<!-- Iconos (para el ícono de subir) -->
+<!-- Iconos FontAwesome -->
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 {% endblock %}
