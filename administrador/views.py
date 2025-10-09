@@ -1,5 +1,6 @@
 import openpyxl
 from django.contrib import messages
+from django.contrib.auth.decorators import login_required
 from django.db.models import Count, Q
 from django.http import HttpResponse
 from django.shortcuts import redirect, render
@@ -9,6 +10,17 @@ from productos.models import PedidoItem
 
 from .forms import CampaniaForm
 from .utils import obtener_config
+
+
+@login_required
+def base_admin(request):
+    """Renderiza la plantilla base del panel de administrador.
+
+    Protegido para usuarios autenticados; si no es staff, redirige al inicio.
+    """
+    if not request.user.is_staff:
+        return redirect("/")
+    return render(request, "administrador/base_admin.html")
 
 
 def programar_fechas(request):

@@ -110,7 +110,7 @@
           <button type="submit" title="Buscar" class="icon-btn"><i class="material-icons">search</i></button>
         </form>
       </div>
-      {% if user.is_authenticated %}
+  {% if user.is_authenticated %}
         <div class="user-menu" style="position:relative;">
           <button type="button" class="icon-btn" id="userMenuToggle" aria-haspopup="true" aria-expanded="false" title="Cuenta">
             <span class="material-icons">person</span>
@@ -118,13 +118,16 @@
           <div id="userMenuPanel" style="display:none; position:absolute; right:0; top:42px; background:#fff; border:1px solid var(--sbd-gray); border-radius:10px; padding:10px; min-width:200px; box-shadow:0 8px 24px rgba(0,0,0,.12); font-size:14px;">
             <div style="margin-bottom:8px; font-weight:600; word-break:break-all;">{{ user.email }}</div>
             <ul style="list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:6px;">
-              <li><a href="{% url 'perfil' %}" style="text-decoration:none; color:#111;">Perfil</a></li>
+              {% if user.is_staff %}
+                <li><a href="{% url 'administrador:base_admin' %}" style="text-decoration:none; color:#111;">Funciones admin</a></li>
+              {% endif %}
               <li><a href="{% url 'logout' %}" style="text-decoration:none; color:#c00;">Cerrar sesión</a></li>
             </ul>
           </div>
         </div>
       {% else %}
-        <a href="{%url 'account_login'%}" class="icon-btn" title="Usuario"><span class="material-icons">person</span></a>
+        {% load socialaccount %}
+        <a href="{% provider_login_url 'microsoft' %}" class="icon-btn" title="Usuario"><span class="material-icons">person</span></a>
       {% endif %}
       <a href="{% url 'carrito_ver' %}" class="icon-btn cart-link" title="Carrito"><span class="material-icons">shopping_cart</span></a>
     </div>
