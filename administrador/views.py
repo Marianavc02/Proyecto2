@@ -9,11 +9,13 @@ from django.utils import timezone
 from empleados.models import Empleado
 from productos.models import Pedido, PedidoItem
 
+from .decorators import staff_required
 from .forms import CampaniaForm
 from .utils import obtener_config
 
 
 @login_required
+@staff_required()
 def base_admin(request):
     """Renderiza la plantilla base del panel de administrador.
 
@@ -24,6 +26,8 @@ def base_admin(request):
     return render(request, "administrador/base_admin.html")
 
 
+@login_required
+@staff_required()
 def programar_fechas(request):
     cfg = obtener_config()
 
@@ -49,6 +53,8 @@ def programar_fechas(request):
     return render(request, "administrador/programar_fechas.html", {"form": form, "cfg": cfg})
 
 
+@login_required
+@staff_required()
 def estado_campania(request):
     cfg = obtener_config()
     ahora = timezone.now()
@@ -64,6 +70,8 @@ def estado_campania(request):
     return render(request, "administrador/estado_campania.html", contexto)
 
 
+@login_required
+@staff_required()
 def reporte_pedidos(request):
     query = request.GET.get("q", "")  # texto buscado
     reporte = PedidoItem.objects.values("producto__sku", "producto__descripcion").annotate(
@@ -83,6 +91,8 @@ def reporte_pedidos(request):
     )
 
 
+@login_required
+@staff_required()
 def exportar_reporte_excel(request):
     # Obtener los productos con su conteo de pedidos
     query = request.GET.get("q", "")
@@ -121,6 +131,8 @@ def exportar_reporte_excel(request):
     return response
 
 
+@login_required
+@staff_required()
 def reporte_pedidos_empleado(request, empleado_id):
     empleado = get_object_or_404(Empleado, id=empleado_id)
     pedidos = Pedido.objects.filter(empleado=empleado).prefetch_related("items__producto")
@@ -149,6 +161,8 @@ def reporte_pedidos_empleado(request, empleado_id):
     )
 
 
+@login_required
+@staff_required()
 def lista_empleados_reporte(request):
     query = request.GET.get("q", "")  # Capturamos el texto de búsqueda
 
@@ -164,6 +178,8 @@ def lista_empleados_reporte(request):
     )
 
 
+@login_required
+@staff_required()
 def exportar_reporte_empleado_excel(request, empleado_id):
     empleado = get_object_or_404(Empleado, id=empleado_id)
 
@@ -200,3 +216,22 @@ def exportar_reporte_empleado_excel(request, empleado_id):
     response["Content-Disposition"] = f'attachment; filename="{filename}"'
     wb.save(response)
     return response
+
+
+@login_required
+@staff_required()
+def modificar_pedido(request, pedido_id):
+    pedido = get_object_or_404(Pedido, id=pedido_id)
+    items = pedido.items.all()  # Ajusta si el nombre del related_name es distinto
+
+    if request.method == "POST":
+        item_id = request.POST.get("item_id")
+        item = get_object_or_404(PedidoItem, id=item_id, pedido=pedido)
+        item.delete()
+        return redirect("administrador:modificar_pedido", pedido_id=pedido.id)
+
+    context = {
+        "pedido": pedido,
+        "items": items,
+    }
+    return render(request, "administrador/modificar_pedido.html", context)

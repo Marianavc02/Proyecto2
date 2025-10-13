@@ -1,6 +1,8 @@
 import pytest
 from django.urls import reverse
+
 from productos.models import Producto
+
 
 @pytest.mark.django_db
 def test_filtrar_productos_por_marca(client, monkeypatch):

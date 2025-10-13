@@ -17,4 +17,5 @@ urlpatterns = [
         name="exportar_reporte_empleado_excel",
     ),
     path("empleados/<int:empleado_id>/reporte/", views.reporte_pedidos_empleado, name="reporte_pedidos_empleado"),
+    path("modificar-pedido/<int:pedido_id>/", views.modificar_pedido, name="modificar_pedido"),
 ]
