@@ -10,6 +10,10 @@
   <div style="border: 2px solid #ced4da; border-radius: 8px; padding: 15px; margin-bottom: 20px; box-shadow: 2px 2px 8px rgba(0,0,0,0.05); background-color: #f8f9fa;">
     <h4 style="background-color: #dee2e6; color: #495057; padding: 8px; border-radius: 5px; margin-bottom: 10px;">
       Pedido #{{ data.pedido.id }} - {{ data.pedido.fecha|date:"d/m/Y H:i" }}
+      <a href="{% url 'administrador:modificar_pedido' data.pedido.id %}" 
+        style="background-color: #6c757d; color: white; padding: 6px 12px; border-radius: 5px; text-decoration: none; font-size: 0.9em;">
+        Modificar
+      </a>
     </h4>
     <table style="width: 100%; border-collapse: collapse;">
       <thead>

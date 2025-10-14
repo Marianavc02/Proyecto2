@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.utils.html import format_html
 
-from .models import Pedido, Producto, ProductoImagen
+from .models import Pedido, PedidoItem, Producto, ProductoImagen
 
 
 # Para mostrar las imágenes relacionadas dentro del producto
@@ -39,4 +39,13 @@ class ProductoImagenAdmin(admin.ModelAdmin):
     list_display = ("producto", "fecha_creacion", "imagen")
 
 
-admin.site.register(Pedido)
+class PedidoItemInline(admin.TabularInline):  # o admin.StackedInline si prefieres estilo en bloques
+    model = PedidoItem
+    extra = 0  # no agrega filas vacías adicionales
+    readonly_fields = ["producto", "cantidad"]
+
+
+@admin.register(Pedido)
+class PedidoAdmin(admin.ModelAdmin):
+    list_display = ("id", "empleado", "usuario", "fecha", "total")
+    inlines = [PedidoItemInline]
