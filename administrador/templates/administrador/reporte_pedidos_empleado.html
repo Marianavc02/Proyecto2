@@ -5,6 +5,24 @@
 
 <h2 style="margin-bottom: 20px;">Pedidos realizados por {{ empleado.preferred_name }}</h2>
 
+<!-- 🔍 Barra de búsqueda agregada -->
+<form method="get" action="" style="margin-bottom: 20px;">
+  <input
+    type="text"
+    name="q"
+    value="{{ request.GET.q }}"
+    placeholder="Buscar empleado o producto..."
+    style="padding: 6px; width: 280px; border: 1px solid #ccc; border-radius: 4px;"
+  >
+  <button type="submit" style="padding: 6px 12px; border-radius: 4px; background-color: #6c757d; color: white;">
+    Buscar
+  </button>
+</form>
+
+{% if query %}
+  <p>Resultados de búsqueda para: <strong>{{ query }}</strong></p>
+{% endif %}
+
 {% if pedidos_data %}
   {% for data in pedidos_data %}
   <div style="border: 2px solid #ced4da; border-radius: 8px; padding: 15px; margin-bottom: 20px; box-shadow: 2px 2px 8px rgba(0,0,0,0.05); background-color: #f8f9fa;">

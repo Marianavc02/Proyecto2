@@ -35,3 +35,38 @@ class ImagenUploadForm(forms.ModelForm):
         if not Producto.objects.filter(sku=sku).exists():
             raise forms.ValidationError("El SKU no existe en la base de datos")
         return sku
+
+
+class FiltroProductosForm(forms.Form):
+    q = forms.CharField(
+        required=False,
+        label="Buscar",
+        widget=forms.TextInput(attrs={"placeholder": "Buscar productos...", "class": "search-input"}),
+    )
+
+    categoria = forms.ChoiceField(
+        required=False, label="Categoría", widget=forms.Select(attrs={"class": "filter-select"})
+    )
+    min_precio = forms.DecimalField(
+        required=False,
+        min_value=0,
+        label="Precio mínimo",
+        widget=forms.NumberInput(attrs={"placeholder": "Mínimo", "class": "price-input"}),
+    )
+
+    max_precio = forms.DecimalField(
+        required=False,
+        min_value=0,
+        label="Precio máximo",
+        widget=forms.NumberInput(attrs={"placeholder": "Máximo", "class": "price-input"}),
+    )
+
+    def __init__(self, *args, **kwargs):
+        categorias = kwargs.pop("categorias", [])
+        super().__init__(*args, **kwargs)
+        # Opciones para el campo categoría
+        opciones_categorias = [("", "Todas las categorías")]
+        for cat in categorias:
+            if cat:  # Solo agregar categorías no vacías
+                opciones_categorias.append((cat, cat))
+        self.fields["categoria"].choices = opciones_categorias

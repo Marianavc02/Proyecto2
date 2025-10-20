@@ -1,4 +1,4 @@
-'''
+"""
 import pytest
 from django.urls import reverse
 
@@ -27,4 +27,4 @@ def test_filtrar_productos_por_marca(client, monkeypatch):
     assert len(productos) == 2
     for p in productos:
         assert "MarcaA" in p.empresa
-        '''
+"""

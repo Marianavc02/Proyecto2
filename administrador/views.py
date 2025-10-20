@@ -164,12 +164,23 @@ def reporte_pedidos_empleado(request, empleado_id):
 @login_required
 @staff_required()
 def lista_empleados_reporte(request):
-    query = request.GET.get("q", "")  # Capturamos el texto de búsqueda
+    query = request.GET.get("q", "").strip()
 
-    # Filtramos por nombre o correo si hay búsqueda
     empleados = Empleado.objects.all()
+
     if query:
-        empleados = empleados.filter(Q(preferred_name__icontains=query) | Q(sbd_email__icontains=query))
+        # 🔹 Buscar empleados por nombre o correo
+        empleados_por_nombre = Empleado.objects.filter(
+            Q(preferred_name__icontains=query) | Q(sbd_email__icontains=query)
+        )
+
+        # 🔹 Buscar empleados que tengan pedidos con productos que coincidan con el texto buscado
+        empleados_por_producto = Empleado.objects.filter(
+            pedidos__items__producto__descripcion__icontains=query
+        ) | Empleado.objects.filter(pedidos__items__producto__sku__icontains=query)
+
+        # 🔹 Unir ambos conjuntos y eliminar duplicados
+        empleados = (empleados_por_nombre | empleados_por_producto).distinct()
 
     return render(
         request,
