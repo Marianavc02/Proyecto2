@@ -12,8 +12,18 @@
             </h3>
             <form method="get">
                 <input type="hidden" name="q" value="{{ query }}">
-                <label>Categoría:</label><br>
-                <input type="text" name="categoria" value="{{ request.GET.categoria }}" placeholder="Ej: Taladro" style="width: 100%; margin-bottom: 10px;">
+                
+                <!-- 🔽 Select dinámico de categorías -->
+                <label for="categoria">Categoría:</label><br>
+                <select name="categoria" id="categoria" style="width: 100%; margin-bottom: 10px;">
+                    <option value="">Todas</option>
+                    {% for cat in categorias %}
+                        {% if cat %}
+                            <option value="{{ cat }}" {% if request.GET.categoria == cat %}selected{% endif %}>{{ cat }}</option>
+                        {% endif %}
+                    {% endfor %}
+                </select>
+
                 <div style="display: flex; gap: 10px; margin-bottom: 10px;">
                     <div style="flex: 1;">
                         <label>Precio mínimo:</label>
@@ -24,10 +34,12 @@
                         <input type="number" name="max_precio" value="{{ request.GET.max_precio }}" style="width: 100%;">
                     </div>
                 </div>
+
                 <button type="submit" style="background: #f4dc00e8; color: black; border: none; padding: 10px; border-radius: 5px; width: 100%; cursor: pointer;">Filtrar</button>
                 <a href="?q={{ query|urlencode }}" style="display:block; text-align:center; margin-top:10px; text-decoration:none; color:red;">Limpiar</a>
             </form>
         </div>
+
         <!-- Grid de Productos -->
         <div>
             <h2>Resultados de búsqueda{% if query %} para "{{ query }}"{% endif %}</h2>
@@ -47,32 +59,20 @@
                     <a href="{% url 'detalle_producto' producto.id %}" style="text-decoration: none; color: black;">
                         <div style="border: 2px solid #ccc; border-radius: 0; overflow: hidden; text-align: center; background: #fff;">
                             {% if producto.imagenes.first %}
- 
                                 <img src="{{ producto.imagenes.first.imagen.url }}" 
                                     alt="{{ producto.descripcion }}" 
                                     style="width:100%; height:110px; object-fit:contain;">
-                                {% else %}
-
+                            {% else %}
                                 {% if producto.empresa == "Stanley" %}
-                                    <img src="{% static 'img/stanley.jpg' %}" 
-                                        alt="Imagen Stanley" 
-                                        style="width:100%; height:110px; object-fit:contain;">
+                                    <img src="{% static 'img/stanley.jpg' %}" alt="Imagen Stanley" style="width:100%; height:110px; object-fit:contain;">
                                 {% elif producto.empresa == "Black&Decker" %}
-                                    <img src="{% static 'img/blackdecker.jpg' %}" 
-                                        alt="Imagen Black&Decker" 
-                                        style="width:100%; height:110px; object-fit:contain;">
+                                    <img src="{% static 'img/blackdecker.jpg' %}" alt="Imagen Black&Decker" style="width:100%; height:110px; object-fit:contain;">
                                 {% elif producto.empresa == "Irwin" %}
-                                    <img src="{% static 'img/irwin.jpg' %}" 
-                                        alt="Imagen Irwin" 
-                                        style="width:100%; height:110px; object-fit:contain;">
+                                    <img src="{% static 'img/irwin.jpg' %}" alt="Imagen Irwin" style="width:100%; height:110px; object-fit:contain;">
                                 {% elif producto.empresa == "DeWalt" %}
-                                    <img src="{% static 'img/dewalt.jpg' %}" 
-                                        alt="Imagen Dewalt" 
-                                        style="width:100%; height:110px; object-fit:contain;">
+                                    <img src="{% static 'img/dewalt.jpg' %}" alt="Imagen Dewalt" style="width:100%; height:110px; object-fit:contain;">
                                 {% else %}
-                                    <img src="{% static 'img/logo.png' %}" 
-                                        alt="Imagen no disponible" 
-                                        style="width:100%; height:110px; object-fit:contain;">
+                                    <img src="{% static 'img/logo.png' %}" alt="Imagen no disponible" style="width:100%; height:110px; object-fit:contain;">
                                 {% endif %}
                             {% endif %}
                             <div style="background: #f5f4f2ff; padding: 10px; font-weight: bold;">{{ producto.descripcion }}</div>

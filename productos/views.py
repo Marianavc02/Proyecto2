@@ -118,6 +118,16 @@ def cargar_imagen(request):
 def productos_por_empresa(request, empresa):
     productos = Producto.objects.filter(empresa__iexact=empresa)
 
+    # 🔹 Obtener lista de categorías únicas desde la BD
+    categorias = (
+        Producto.objects.filter(empresa__iexact=empresa)
+        .exclude(categoria__isnull=True)
+        .exclude(categoria__exact="")
+        .values_list("categoria", flat=True)
+        .distinct()
+        .order_by("categoria")
+    )
+
     # Obtener filtros de GET
     marca = request.GET.get("marca")
     categoria = request.GET.get("categoria")
@@ -143,7 +153,11 @@ def productos_por_empresa(request, empresa):
     return render(
         request,
         "productos/productos_por_empresa.html",
-        {"productos": productos, "empresa": empresa},
+        {
+            "productos": productos,
+            "empresa": empresa,
+            "categorias": categorias,  # enviamos las categorías al template
+        },
     )
 
 
@@ -367,26 +381,48 @@ def buscar_productos(request):
     categoria = request.GET.get("categoria", "")
     min_precio = request.GET.get("min_precio", "")
     max_precio = request.GET.get("max_precio", "")
+
+    # Obtener TODAS las categorías antes de aplicar filtros
+    todas_categorias = (
+        Producto.objects.exclude(categoria__isnull=True)
+        .exclude(categoria__exact="")
+        .values_list("categoria", flat=True)
+        .distinct()
+        .order_by("categoria")
+    )
+
+    # Luego filtrar los productos
     productos = Producto.objects.all()
+
     if query:
         productos = productos.filter(
             models.Q(descripcion__icontains=query)
             | models.Q(sku__icontains=query)
             | models.Q(categoria__icontains=query)
         )
-    if categoria:
-        productos = productos.filter(categoria__icontains=categoria)
+
+    if categoria and categoria != "Todas":
+        productos = productos.filter(categoria__iexact=categoria)
+
     if min_precio:
         try:
             productos = productos.filter(precio_sin_iva__gte=float(min_precio))
         except ValueError:
             pass
+
     if max_precio:
         try:
             productos = productos.filter(precio_sin_iva__lte=float(max_precio))
         except ValueError:
             pass
-    return render(request, "productos/buscar_productos.html", {"productos": productos, "query": query})
+
+    context = {
+        "productos": productos,
+        "query": query,
+        "categorias": todas_categorias,
+        "categoria_filtro": categoria,
+    }
+    return render(request, "productos/buscar_productos.html", context)
 
 
 @login_required
