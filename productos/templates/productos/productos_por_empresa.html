@@ -14,53 +14,19 @@
             </h3>
 
             <form method="get">
-                <!-- Campo de categoría -->
+                <!-- Campo de categoría dinámico -->
                 <div style="margin-bottom: 20px;">
-                    <label for="categoria" style="display: block; margin-bottom: 8px; font-weight: 600; color: #555;">Categoría:</label>
-                    <select name="categoria" id="categoria" 
+                    <label for="categoria" style="display: block; margin-bottom: 8px; font-weight: 600; color: #555;">
+                        Categoría:
+                    </label>
+                    <select name="categoria" id="categoria"
                             style="width: 100%; padding: 10px; border: 1px solid #ddd; font-size: 14px; background: white;">
                         <option value="">Todas las categorías</option>
-                        <option value="EQUIPMENT">EQUIPMENT</option>
-                        <option value="DRILLS">DRILLS</option>
-                        <option value="CORDLESS">CORDLESS</option>
-                        <option value="ANCHORING AND FIXING">ANCHORING AND FIXING</option>
-                        <option value="CUTTING AND SAWS">CUTTING AND SAWS</option>
-                        <option value="WOODWORKING">WOODWORKING</option>
-                        <option value="HAMMERS-WOOD">HAMMERS-WOOD</option>
-                        <option value="HEX KEYS">HEX KEYS</option>
-                        <option value="SAGS">SAGS</option>
-                        <option value="A&E">A&E</option>
-                        <option value="HAMMER DRILLS">HAMMER DRILLS</option>
-                        <option value="VACUUMS">VACUUMS</option>
-                        <option value="WOODW">WOODW</option>
-                        <option value="AUTOMOTIVE">AUTOMOTIVE</option>
-                        <option value="CLAMPS">CLAMPS</option>
-                        <option value="CUTTING">CUTTING</option>
-                        <option value="HAMMER AND DEMOLITION">HAMMER AND DEMOLITION</option>
-                        <option value="LOCKING PLIERS">LOCKING PLIERS</option>
-                        <option value="MEASUREMENT & LEVELS">MEASUREMENT & LEVELS</option>
-                        <option value="PLIERS">PLIERS</option>
-                        <option value="PLIERS AND MULTI-TOOLS">PLIERS AND MULTI-TOOLS</option>
-                        <option value="RATCHETS & SOCKETS">RATCHETS & SOCKETS</option>
-                        <option value="SCREWDRIVERS & FIXING">SCREWDRIVERS & FIXING</option>
-                        <option value="STORAGE">STORAGE</option>
-                        <option value="WRENCHES">WRENCHES</option>
-                        <option value="Garden B+D">Garden B+D</option>
-                        <option value="Pressure Washer">Pressure Washer</option>
-                        <option value="CONCRETE">CONCRETE</option>
-                        <option value="FASTENING">FASTENING</option>
-                        <option value="LASERS">LASERS</option>
-                        <option value="METALWORKING">METALWORKING</option>
-                        <option value="SAWS">SAWS</option>
-                        <option value="ABRASIVES">ABRASIVES</option>
-                        <option value="CSB">CSB</option>
-                        <option value="DIAMOND">DIAMOND</option>
-                        <option value="DRILLING">DRILLING</option>
-                        <option value="LINEAR EDGE">LINEAR EDGE</option>
-                        <option value="WIREBRUSH">WIREBRUSH</option>
-                        <option value="OTHERS IR">OTHERS IR</option>
-                        <option value="OTHERS ST">OTHERS ST</option>
-                        <option value="OTHERS">OTHERS</option>
+                        {% for cat in categorias %}
+                            <option value="{{ cat }}" {% if request.GET.categoria == cat %}selected{% endif %}>
+                                {{ cat }}
+                            </option>
+                        {% endfor %}
                     </select>
                 </div>
 
