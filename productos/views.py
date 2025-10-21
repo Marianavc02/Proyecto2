@@ -10,12 +10,11 @@ from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
 
+from administrador.models import CampaniaConfig
 from empleados.models import Empleado
 from SBDToolBox.ia.descriptions import generate_product_blurb
 
 from .forms import ExcelUploadForm, ImagenUploadForm
-
-# from django.urls import reverse
 from .models import Pedido, PedidoItem, Producto, ProductoImagen
 
 
@@ -416,14 +415,24 @@ def enviar_pedido(request):
     if request.method == "POST":
         usuario = request.user
 
+        # Buscar campaña activa
+        now = timezone.now()
+        campania_activa = CampaniaConfig.objects.filter(habilitada=True, inicio__lte=now, fin__gte=now).first()
+
+        if not campania_activa:
+            messages.warning(request, "⚠ No hay una campaña activa en este momento.")
+            return redirect("carrito_ver")
+
+        # Verificar si ya existe un pedido del usuario en esta campaña
+        if Pedido.objects.filter(usuario=usuario, campania=campania_activa).exists():
+            messages.warning(request, "⚠ Solo puedes hacer un pedido por campaña.")
+            return redirect("carrito_ver")
+
         # Buscar o crear el empleado asociado
         empleado, _ = Empleado.objects.get_or_create(
             sbd_email=usuario.email,
             defaults={"preferred_name": usuario.get_full_name() or usuario.username},
         )
-
-        # Crear pedido
-        pedido = Pedido.objects.create(usuario=usuario, empleado=empleado)
 
         # Obtener carrito desde la sesión
         cart = request.session.get("carrito", {})
@@ -432,12 +441,13 @@ def enviar_pedido(request):
             messages.warning(request, "⚠ Tu carrito está vacío, no se puede crear el pedido.")
             return redirect("carrito_ver")
 
+        # Crear pedido con la campaña activa
+        pedido = Pedido.objects.create(usuario=usuario, empleado=empleado, campania=campania_activa)
+
         for sku, data in cart.items():
             try:
                 producto = Producto.objects.get(sku=sku)
-                PedidoItem.objects.create(
-                    pedido=pedido, producto=producto, cantidad=1  # en tu carrito cada producto es único
-                )
+                PedidoItem.objects.create(pedido=pedido, producto=producto, cantidad=1)
             except Producto.DoesNotExist:
                 continue
 
