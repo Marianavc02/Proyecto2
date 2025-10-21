@@ -5,20 +5,6 @@
 
 <h2 style="margin-bottom: 20px;">Pedidos realizados por {{ empleado.preferred_name }}</h2>
 
-<!-- 🔍 Barra de búsqueda agregada -->
-<form method="get" action="" style="margin-bottom: 20px;">
-  <input
-    type="text"
-    name="q"
-    value="{{ request.GET.q }}"
-    placeholder="Buscar empleado o producto..."
-    style="padding: 6px; width: 280px; border: 1px solid #ccc; border-radius: 4px;"
-  >
-  <button type="submit" style="padding: 6px 12px; border-radius: 4px; background-color: #6c757d; color: white;">
-    Buscar
-  </button>
-</form>
-
 {% if query %}
   <p>Resultados de búsqueda para: <strong>{{ query }}</strong></p>
 {% endif %}
@@ -36,6 +22,7 @@
     <table style="width: 100%; border-collapse: collapse;">
       <thead>
         <tr style="background-color: #e9ecef;">
+          <th style="text-align: left; padding: 6px; border-bottom: 1px solid #dee2e6;">SKU</th>
           <th style="text-align: left; padding: 6px; border-bottom: 1px solid #dee2e6;">Producto</th>
           <th style="text-align: left; padding: 6px; border-bottom: 1px solid #dee2e6;">Cantidad</th>
           <th style="text-align: left; padding: 6px; border-bottom: 1px solid #dee2e6;">Precio Unitario</th>
@@ -44,6 +31,7 @@
       <tbody>
         {% for item in data.items %}
         <tr>
+          <td style="padding: 6px; border-bottom: 1px solid #dee2e6;">{{ item.producto.sku }}</td>
           <td style="padding: 6px; border-bottom: 1px solid #dee2e6;">{{ item.producto.descripcion }}</td>
           <td style="padding: 6px; border-bottom: 1px solid #dee2e6;">{{ item.cantidad }}</td>
           <td style="padding: 6px; border-bottom: 1px solid #dee2e6;">${{ item.producto.precio_sin_iva }}</td>

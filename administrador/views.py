@@ -169,17 +169,18 @@ def lista_empleados_reporte(request):
     empleados = Empleado.objects.all()
 
     if query:
-        # 🔹 Buscar empleados por nombre o correo
+        # 🔹 Filtrar empleados por nombre o correo
         empleados_por_nombre = Empleado.objects.filter(
             Q(preferred_name__icontains=query) | Q(sbd_email__icontains=query)
         )
 
-        # 🔹 Buscar empleados que tengan pedidos con productos que coincidan con el texto buscado
+        # 🔹 Filtrar empleados que tengan pedidos con productos que coincidan por nombre o SKU
         empleados_por_producto = Empleado.objects.filter(
-            pedidos__items__producto__descripcion__icontains=query
-        ) | Empleado.objects.filter(pedidos__items__producto__sku__icontains=query)
+            Q(pedidos__items__producto__descripcion__icontains=query)
+            | Q(pedidos__items__producto__sku__icontains=query)
+        )
 
-        # 🔹 Unir ambos conjuntos y eliminar duplicados
+        # 🔹 Unir ambos resultados y eliminar duplicados
         empleados = (empleados_por_nombre | empleados_por_producto).distinct()
 
     return render(
