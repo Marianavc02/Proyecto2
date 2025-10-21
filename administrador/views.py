@@ -1,3 +1,5 @@
+from datetime import datetime
+
 import openpyxl
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
@@ -5,6 +7,8 @@ from django.db.models import Count, Q
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
+from reportlab.lib.pagesizes import A4
+from reportlab.pdfgen import canvas
 
 from empleados.models import Empleado
 from productos.models import Pedido, PedidoItem
@@ -247,3 +251,102 @@ def modificar_pedido(request, pedido_id):
         "items": items,
     }
     return render(request, "administrador/modificar_pedido.html", context)
+
+
+def generar_acta_entrega(request, pedido_id):
+    """
+    Genera un acta de constancia de entrega en formato PDF
+    para un pedido específico realizado por un empleado.
+    """
+
+    # Buscar el pedido o mostrar error si no existe
+    pedido = get_object_or_404(Pedido, id=pedido_id)
+    empleado = pedido.empleado
+    items = pedido.items.all()
+
+    # Crear la respuesta HTTP con tipo de contenido PDF
+    response = HttpResponse(content_type="application/pdf")
+    response["Content-Disposition"] = f'attachment; filename="acta_entrega_pedido_{pedido.id}.pdf"'
+
+    # Crear el documento PDF
+    pdf = canvas.Canvas(response, pagesize=A4)
+    width, height = A4
+
+    # === ENCABEZADO ===
+    pdf.setFont("Helvetica-Bold", 14)
+    pdf.drawCentredString(width / 2, height - 50, "ACTA DE CONSTANCIA DE ENTREGA DE HERRAMIENTAS")
+    pdf.setFont("Helvetica", 10)
+    pdf.drawCentredString(width / 2, height - 70, "Ciudad de Medellín — Empresa Stanley Black & Decker Colombia S.A.S")
+
+    # === DATOS DEL EMPLEADO ===
+    y = height - 120
+    pdf.setFont("Helvetica-Bold", 11)
+    pdf.drawString(50, y, "Datos del empleado:")
+    y -= 20
+    pdf.setFont("Helvetica", 10)
+    pdf.drawString(70, y, f"Nombre: {empleado.preferred_name}")
+    y -= 15
+    pdf.drawString(70, y, f"Correo: {empleado.sbd_email}")
+    y -= 15
+    pdf.drawString(70, y, f"ID interno: {empleado.id}")
+    y -= 30
+
+    # === TEXTO DE CONSTANCIA ===
+    pdf.setFont("Helvetica", 10)
+    texto = (
+        f"Se hace constancia de la entrega del pedido al empleado {empleado.preferred_name}, "
+        f"identificado con cédula de ciudadanía __________________, con ID {empleado.id}, "
+        f"de los siguientes ítems por el valor correspondiente, el día {pedido.fecha.strftime('%d/%m/%Y')}."
+    )
+    pdf.drawString(50, y, texto)
+    y -= 40
+
+    # === TABLA DE PRODUCTOS ENTREGADOS ===
+    pdf.setFont("Helvetica-Bold", 10)
+    pdf.drawString(50, y, "Ítems entregados:")
+    y -= 20
+    pdf.setFont("Helvetica", 10)
+    pdf.drawString(60, y, "Descripción")
+    pdf.drawString(300, y, "Referencia (SKU)")
+    pdf.drawString(450, y, "Cantidad")
+    y -= 15
+    pdf.line(50, y, 550, y)
+    y -= 10
+
+    total = 0
+    for item in items:
+        if y < 100:  # salto de página si no cabe
+            pdf.showPage()
+            y = height - 100
+        pdf.drawString(60, y, item.producto.descripcion[:40])  # corta descripción larga
+        pdf.drawString(300, y, item.producto.sku)
+        pdf.drawString(470, y, str(item.cantidad))
+        if item.producto.precio_sin_iva:
+            total += float(item.producto.precio_sin_iva) * item.cantidad
+        y -= 15
+
+    # === TOTAL ===
+    y -= 10
+    pdf.line(50, y, 550, y)
+    y -= 20
+    pdf.setFont("Helvetica-Bold", 10)
+    pdf.drawString(400, y, f"Valor total: ${total:,.2f}")
+    y -= 40
+
+    # === FIRMAS ===
+    pdf.setFont("Helvetica", 10)
+    pdf.drawString(100, y, "_________________________")
+    pdf.drawString(370, y, "_________________________")
+    y -= 15
+    pdf.drawString(120, y, "Firma del Empleado")
+    pdf.drawString(390, y, "Firma de quien entrega")
+
+    # === FECHA Y CIERRE ===
+    y -= 40
+    pdf.setFont("Helvetica-Oblique", 9)
+    pdf.drawString(50, y, f"Generado automáticamente el {datetime.now().strftime('%d/%m/%Y %H:%M:%S')}")
+
+    pdf.showPage()
+    pdf.save()
+
+    return response
