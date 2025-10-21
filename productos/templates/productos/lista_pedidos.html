@@ -5,34 +5,38 @@
   <h2>Mis pedidos</h2>
 
   {% if pedidos %}
-    <table class="table table-bordered mt-3">
-      <thead>
-        <tr>
-          <th>ID</th>
-          <th>Fecha</th>
-          <th>Productos</th>
-          <th>Total</th>
-        </tr>
-      </thead>
-      <tbody>
-        {% for pedido in pedidos %}
-        <tr>
-          <td>{{ pedido.id }}</td>
-          <td>{{ pedido.fecha|date:"d/m/Y H:i" }}</td>
-          <td>
-            <ul>
-              {% for item in pedido.items.all %}
-                <li>{{ item.producto.descripcion }} (x{{ item.cantidad }})</li>
-              {% endfor %}
-            </ul>
-          </td>
-          <td>${{ pedido.total|floatformat:2 }}</td>
-        </tr>
-        {% endfor %}
-      </tbody>
-    </table>
+    <div class="table-responsive">
+      <table class="table table-bordered table-hover mt-3" style="background-color: #f8f9fa; color: #495057;">
+        <thead style="background-color: #b1b9c0ff; color: white;">
+          <tr>
+            <th>ID</th>
+            <th>Fecha</th>
+            <th>Productos</th>
+            <th>Total</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for pedido in pedidos %}
+          <tr style="background-color: #e9ecef;">
+            <td>{{ pedido.id }}</td>
+            <td>{{ pedido.fecha|date:"d/m/Y H:i" }}</td>
+            <td>
+              <ul class="list-unstyled mb-0">
+                {% for item in pedido.items.all %}
+                  <li>{{ item.producto.descripcion }} (x{{ item.cantidad }})</li>
+                {% endfor %}
+              </ul>
+            </td>
+            <td style="font-weight: bold;">${{ pedido.total|floatformat:2 }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
   {% else %}
-    <p>No tienes pedidos registrados.</p>
+    <div class="alert alert-secondary mt-3" role="alert">
+      No tienes pedidos registrados.
+    </div>
   {% endif %}
 </div>
 {% endblock %}
