@@ -1,0 +1,31 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Ingreso Empleado</title>
+  <style>
+    body{margin:0;display:flex;height:100vh;background:#1a1a1a;font-family:Montserrat,system-ui,Arial}
+    .left{flex:1;background:url("{% static 'img/imgLogin.jpg' %}") center/cover no-repeat}
+    .right{width:40%;min-width:340px;background:#fff;display:flex;flex-direction:column;justify-content:center;align-items:center;padding:40px}
+    h1{margin:0 0 18px;font-size:28px}
+    p{margin:0 0 28px;color:#777}
+    .btn{background:#FFD20A;color:#000;border:none;border-radius:28px;padding:14px 28px;font-weight:700;cursor:pointer}
+    .btn:hover{filter:brightness(.98)}
+    @media(max-width:900px){.right{width:100%}}
+  </style>
+</head>
+<body>
+  <div class="left"></div>
+  <div class="right">
+    <h1>Ingresa</h1>
+    <p>Accede con tu cuenta Microsoft para continuar</p>
+
+    <!-- Usa el login de allauth que ya redirige a Microsoft -->
+    <form action="{% url 'account_login' %}" method="get">
+      <button type="submit" class="btn">Iniciar sesión con Microsoft</button>
+    </form>
+  </div>
+</body>
+</html>

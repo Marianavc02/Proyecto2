@@ -423,7 +423,7 @@ def buscar_productos(request):
             pass
 
     if filtros_aplicados and not productos.exists():
-        messages.info(request, f"No se encontraron productos para la búsqueda.")
+        messages.info(request, "No se encontraron productos para la búsqueda.")
     elif filtros_aplicados:
         messages.success(request, f"Encontramos {productos.count()} producto(s).")
 
