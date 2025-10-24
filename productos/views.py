@@ -113,11 +113,9 @@ def cargar_imagen(request):
     return render(request, "productos/cargar_imagen.html", {"form": form})
 
 
-# View para mostrar productos según empresa
 def productos_por_empresa(request, empresa):
     productos = Producto.objects.filter(empresa__iexact=empresa)
 
-    # 🔹 Obtener lista de categorías únicas desde la BD
     categorias = (
         Producto.objects.filter(empresa__iexact=empresa)
         .exclude(categoria__isnull=True)
@@ -127,27 +125,34 @@ def productos_por_empresa(request, empresa):
         .order_by("categoria")
     )
 
-    # Obtener filtros de GET
     marca = request.GET.get("marca")
     categoria = request.GET.get("categoria")
     min_precio = request.GET.get("min_precio")
     max_precio = request.GET.get("max_precio")
 
     # Filtros dinámicos
+    filtros_aplicados = False
     if marca and marca.strip():
+        filtros_aplicados = True
         productos = productos.filter(empresa__icontains=marca.strip())
     if categoria and categoria.strip():
+        filtros_aplicados = True
         productos = productos.filter(categoria__icontains=categoria.strip())
     if min_precio:
+        filtros_aplicados = True
         try:
             productos = productos.filter(precio_sin_iva__gte=float(min_precio))
         except ValueError:
             pass
     if max_precio:
+        filtros_aplicados = True
         try:
             productos = productos.filter(precio_sin_iva__lte=float(max_precio))
         except ValueError:
             pass
+
+    if filtros_aplicados and not productos.exists():
+        messages.info(request, "No se encontraron productos con los filtros aplicados.")
 
     return render(
         request,
@@ -281,26 +286,21 @@ def carrito_eliminar(request, sku):
 
 
 def carrito_ver(request):
-    """
-    RF_14: Ver carrito + resumen (subtotal/total).
-    """
     cart = _get_cart(request)
     items = []
     total = Decimal("0")
-
     productos_no_cumplen = []
+
     for sku, data in cart.items():
         precio = Decimal(data.get("precio", "0"))
         subtotal = precio  # cantidad fija = 1 (no repetidos)
         total += subtotal
 
-        # Buscar el producto real para validar el mínimo
         try:
             producto = Producto.objects.get(sku=sku)
             cantidad_en_carrito = 1  # si implementas cantidades, cámbialo aquí
-            cumple_minimo = cantidad_en_carrito >= producto.minimo_pedido
-            if not cumple_minimo:
-                faltan = producto.minimo_pedido - cantidad_en_carrito
+            if cantidad_en_carrito < (producto.minimo_pedido or 0):
+                faltan = (producto.minimo_pedido or 0) - cantidad_en_carrito
                 productos_no_cumplen.append(
                     {
                         "sku": sku,
@@ -321,6 +321,12 @@ def carrito_ver(request):
                 "categoria": data.get("categoria", ""),
                 "imagen_url": data.get("imagen_url", ""),
             }
+        )
+
+    if productos_no_cumplen:
+        messages.info(
+            request,
+            "Algunos productos en tu carrito no cumplen el pedido mínimo requerido.",
         )
 
     contexto = {
@@ -392,6 +398,7 @@ def buscar_productos(request):
 
     # Luego filtrar los productos
     productos = Producto.objects.all()
+    filtros_aplicados = False
 
     if query:
         productos = productos.filter(
@@ -415,6 +422,11 @@ def buscar_productos(request):
         except ValueError:
             pass
 
+    if filtros_aplicados and not productos.exists():
+        messages.info(request, f"No se encontraron productos para la búsqueda.")
+    elif filtros_aplicados:
+        messages.success(request, f"Encontramos {productos.count()} producto(s).")
+
     context = {
         "productos": productos,
         "query": query,
@@ -434,12 +446,12 @@ def enviar_pedido(request):
         campania_activa = CampaniaConfig.objects.filter(habilitada=True, inicio__lte=now, fin__gte=now).first()
 
         if not campania_activa:
-            messages.warning(request, "⚠ No hay una campaña activa en este momento.")
+            messages.warning(request, "No hay una campaña activa en este momento.")
             return redirect("carrito_ver")
 
         # Verificar si ya existe un pedido del usuario en esta campaña
         if Pedido.objects.filter(usuario=usuario, campania=campania_activa).exists():
-            messages.warning(request, "⚠ Solo puedes hacer un pedido por campaña.")
+            messages.warning(request, " Solo puedes hacer un pedido por campaña.")
             return redirect("carrito_ver")
 
         # Buscar o crear el empleado asociado
@@ -469,7 +481,7 @@ def enviar_pedido(request):
         request.session["carrito"] = {}
         request.session.modified = True
 
-        messages.success(request, f"✅ Pedido #{pedido.id} enviado correctamente.")
+        messages.success(request, f" Pedido #{pedido.id} enviado correctamente.")
         return redirect("lista_pedidos")
 
     return redirect("carrito_ver")
