@@ -78,7 +78,8 @@
   <section class="ad-card">
     <h1 class="ad-title">Programar nueva campaña</h1>
 
-    <form method="post" class="ad-form" id="form-campania">
+    <!-- 🔹 agregado enctype para permitir subir imagen -->
+    <form method="post" class="ad-form" id="form-campania" enctype="multipart/form-data">
       {% csrf_token %}
 
       <div class="field">
@@ -100,6 +101,8 @@
         <label>Hora de fin (24h)</label>
         {{ form.hora_fin }}
       </div>
+
+      
 
       <div class="help">
         <span class="bang">!</span>
@@ -156,6 +159,54 @@
   </aside>
   
 </div>
+
+<!--  CARD SEPARADA SOLO PARA EL BANNER -->
+<section class="ad-card" style="grid-column: span 2;">
+  <h2 class="ad-title">Imagen del banner</h2>
+
+  <!-- Formulario para subir o eliminar banner -->
+  <form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    <div class="field">
+      <label for="banner">Seleccionar imagen</label>
+      <input type="file" name="banner" id="banner" accept="image/*" class="input-sm">
+    </div>
+
+    {% if cfg.banner %}
+      <!-- Si hay banner guardado -->
+      <div style="margin-top:10px;">
+        <p><strong>Banner actual:</strong></p>
+        <img src="{{ cfg.banner.url }}" alt="Banner actual"
+             style="max-width:320px;border-radius:10px;border:1px solid var(--sbd-gray);">
+      </div>
+
+      <!-- Botón de eliminar rojo -->
+      <div style="margin-top: 16px; display: flex; flex-direction: column; gap: 10px; max-width: 260px;">
+        <button type="submit" name="eliminar_banner"
+                style="background: #e74c3c; color: #fff; font-weight: 800; border: none; border-radius: 1000px; padding: 13px 24px; cursor: pointer;"
+                onclick="return confirm('¿Eliminar banner actual y volver al logo por defecto?')">
+          Eliminar banner
+        </button>
+      </div>
+
+    {% else %}
+      <!-- Si NO hay banner -->
+      <div style="margin-top:10px;">
+        <p><strong>Sin banner:</strong> se mostrará el logo por defecto.</p>
+      </div>
+
+      <!-- Botón de guardar amarillo -->
+      <div style="margin-top: 16px; display: flex; flex-direction: column; gap: 10px; max-width: 260px;">
+        <button type="submit" name="guardar_banner" 
+                class="btn btn-primary"
+                style="background: var(--sbd-yellow); color: #000; font-weight: 800; border: none; border-radius: 1000px; padding: 13px 24px; cursor: pointer;">
+          Guardar banner
+        </button>
+      </div>
+    {% endif %}
+  </form>
+</section>
+
 
 <script>
   // === Countdown (máx 999 días, 0–23 h, 0–59 m/s) ===

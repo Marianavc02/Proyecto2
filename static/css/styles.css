@@ -437,3 +437,85 @@ body {
 @media (max-width: 700px){
   .navbar .nav-timer .tlabel{ display:none; }
 }
+
+/* ===== Toasts globales (SBD brand) ===== */
+.toast-stack{
+  position: fixed;
+  top: 76px;               /* justo bajo tu navbar fija */
+  right: 16px;
+  display: grid;
+  gap: 10px;
+  z-index: 3000;           /* por encima de cards/aside */
+}
+
+.toast{
+  min-width: 280px;
+  max-width: 420px;
+  background: #fff;
+  border: 2px solid #000;                  /* marco negro */
+  border-radius: 14px;
+  box-shadow: 0 10px 24px rgba(0,0,0,.18);
+  padding: 10px 12px;
+  display: flex; align-items:center; justify-content: space-between;
+  gap: 12px;
+  animation: toast-down .18s ease-out;
+}
+
+/* Cinta superior amarilla (marca) */
+.toast::before{
+  content:"";
+  position:absolute;
+  top:-2px; left:-2px; right:-2px;
+  height:8px;
+  border-radius:14px 14px 0 0;
+  background: var(--sbd-yellow);
+}
+
+.toast-content{ display:flex; align-items:center; gap:10px; }
+.toast-icon{
+  font-size: 22px;
+  background: var(--sbd-yellow);
+  color:#000;
+  border:1.5px solid #000;
+  width:28px; height:28px; border-radius:999px;
+  display:flex; align-items:center; justify-content:center;
+}
+.toast-text{ color:#111; font-size: 14px; line-height: 1.35; margin-right:6px; }
+
+/* Botón cerrar redondito, sin borde cuadrado */
+.toast-close{
+  border: 1.5px solid #000;
+  background: #fff;
+  color:#000;
+  border-radius: 10px;
+  padding: 2px 4px;
+  cursor: pointer;
+  line-height: 1;
+}
+.toast-close .material-icons{ font-size: 18px; }
+
+/* Variantes por tipo: SIN azules */
+.toast-success .toast-icon{ background: #FFD20A; }     /* mismo amarillo marca */
+.toast-info    .toast-icon{ background: #FFD20A; }     /* info también amarillo */
+.toast-warning .toast-icon{ background: #F1B000; }     /* ámbar más oscuro */
+.toast-error   .toast-icon{ background: #E53935; color:#fff; } /* rojo para error */
+
+@keyframes toast-down{
+  from{ transform: translateY(-6px); opacity: 0; }
+  to  { transform: translateY(0); opacity: 1; }
+}
+.toast.hide{
+  animation: toast-up .12s ease-in forwards;
+}
+@keyframes toast-up{
+  to { transform: translateY(-6px); opacity: 0; }
+}
+
+/* En móviles: centrado arriba y ancho fluido */
+@media (max-width: 600px){
+  .toast-stack{
+    left: 12px; right: 12px;
+    top: 70px;
+  }
+  .toast{ max-width: 100%; min-width: auto; }
+}

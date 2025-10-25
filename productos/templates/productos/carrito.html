@@ -12,15 +12,7 @@
       <div class="cart-max">Máximo {{ max_items }} productos</div>
     </div>
 
-    {# --- BLOQUE DE MENSAJES (solo HTML, sin cambiar estilos) --- #}
-    {% if messages %}
-      <div class="cart-messages" aria-live="polite">
-        {% for message in messages %}
-          <div class="cart-alert cart-{{ message.tags }}">{{ message }}</div>
-        {% endfor %}
-      </div>
-    {% endif %}
-    {# ----------------------------------------------------------- #}
+    
 
     {% if items %}
       {% for it in items %}

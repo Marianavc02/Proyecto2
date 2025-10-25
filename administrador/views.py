@@ -36,21 +36,47 @@ def programar_fechas(request):
     cfg = obtener_config()
 
     if request.method == "POST":
-        # Acción: eliminar (deja todo en “no programado” y contador en 0)
+
+        # Acción: eliminar campaña completa
         if "eliminar" in request.POST:
             ahora = timezone.now()
             cfg.inicio = ahora
             cfg.fin = ahora
             cfg.habilitada = False
+            cfg.banner = None
             cfg.save()
             messages.success(request, "Campaña eliminada. No hay campaña programada.")
             return redirect("administrador:programar_fechas")
-        # Acción: confirmar (guardar fechas)
-        form = CampaniaForm(request.POST, instance=cfg)
+
+        # Acción: guardar banner
+        if "guardar_banner" in request.POST:
+            banner = request.FILES.get("banner")
+            if banner:
+                cfg.banner = banner
+                cfg.save()
+                messages.success(request, "Banner actualizado correctamente.")
+            else:
+                messages.warning(request, "No seleccionaste ninguna imagen.")
+            return redirect("administrador:programar_fechas")
+
+        # Acción: eliminar solo el banner
+        if "eliminar_banner" in request.POST:
+            if cfg.banner:
+                cfg.banner.delete(save=False)
+                cfg.banner = None
+                cfg.save()
+                messages.success(request, "Banner eliminado. Se mostrará el logo por defecto.")
+            else:
+                messages.warning(request, "No hay ningún banner para eliminar.")
+            return redirect("administrador:programar_fechas")
+
+        # Acción: guardar fechas de campaña
+        form = CampaniaForm(request.POST, request.FILES, instance=cfg)
         if form.is_valid():
             form.save()
-            messages.success(request, "¡Fechas de campaña guardadas!")
+            messages.success(request, "¡Fechas de campaña guardadas correctamente!")
             return redirect("administrador:programar_fechas")
+
     else:
         form = CampaniaForm(instance=cfg)
 

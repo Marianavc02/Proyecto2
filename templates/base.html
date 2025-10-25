@@ -132,6 +132,29 @@
       <a href="{% url 'carrito_ver' %}" class="icon-btn cart-link" title="Carrito"><span class="material-icons">shopping_cart</span></a>
     </div>
   </nav>
+  {# === MENSAJES GLOBALES (TOASTS) === #}
+{% if messages %}
+  <div class="toast-stack" aria-live="polite" aria-atomic="true">
+    {% for message in messages %}
+      <div class="toast toast-{{ message.tags }}">
+        <div class="toast-content">
+          <span class="toast-icon material-icons" aria-hidden="true">
+            {% if 'success' in message.tags %}check_circle
+            {% elif 'warning' in message.tags %}warning
+            {% elif 'error' in message.tags %}error
+            {% else %}info
+            {% endif %}
+          </span>
+          <div class="toast-text">{{ message|safe }}</div>
+        </div>
+        <button type="button" class="toast-close" aria-label="Cerrar">
+          <span class="material-icons">close</span>
+        </button>
+      </div>
+    {% endfor %}
+  </div>
+{% endif %}
+
 
   {% block content %}{% endblock %}
 
@@ -230,5 +253,33 @@
       document.addEventListener('keydown', function(e){ if(e.key==='Escape') close(); });
     })();
   </script>
+
+  <script>
+  (function(){
+    const stack = document.querySelector('.toast-stack');
+    if(!stack) return;
+
+    // Autocerrar a los 10s y permitir cerrar manualmente
+    stack.querySelectorAll('.toast').forEach(function(toast){
+      const closeBtn = toast.querySelector('.toast-close');
+
+      // Cerrar manual
+      if(closeBtn){
+        closeBtn.addEventListener('click', function(){
+          toast.classList.add('hide');
+          setTimeout(()=> toast.remove(), 150);
+        });
+      }
+
+      // Autocerrar a los 10s
+      setTimeout(function(){
+        if(!toast.isConnected) return;
+        toast.classList.add('hide');
+        setTimeout(()=> toast.remove(), 150);
+      }, 10000);
+    });
+  })();
+</script>
+
 </body>
 </html>
