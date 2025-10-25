@@ -7,28 +7,34 @@ from .models import CampaniaConfig
 
 
 class CampaniaForm(forms.Form):
-    fecha_inicio = forms.DateField(label="Fecha de inicio", widget=forms.DateInput(attrs={"type": "date"}))
+    fecha_inicio = forms.DateField(
+        label="Fecha de inicio",
+        widget=forms.DateInput(attrs={"type": "date"}),
+    )
     hora_inicio = forms.TimeField(
-        label="Hora de inicio (24h)", widget=forms.TimeInput(attrs={"type": "time"}), initial=time(8, 0)
+        label="Hora de inicio (24h)",
+        widget=forms.TimeInput(attrs={"type": "time"}),
+        initial=time(8, 0),
     )
-    fecha_fin = forms.DateField(label="Fecha de fin", widget=forms.DateInput(attrs={"type": "date"}))
+    fecha_fin = forms.DateField(
+        label="Fecha de fin",
+        widget=forms.DateInput(attrs={"type": "date"}),
+    )
     hora_fin = forms.TimeField(
-        label="Hora de fin (24h)", widget=forms.TimeInput(attrs={"type": "time"}), initial=time(20, 30)
+        label="Hora de fin (24h)",
+        widget=forms.TimeInput(attrs={"type": "time"}),
+        initial=time(20, 30),
     )
+    banner = forms.ImageField(label="Banner (opcional)", required=False)
 
     def __init__(self, *args, instance: CampaniaConfig | None = None, **kwargs):
         super().__init__(*args, **kwargs)
         self.instance = instance
 
-        # 👉 Aplica clase y ancho a los widgets (ya no usamos filtros en el template)
-        for name in ["fecha_inicio", "fecha_fin", "hora_inicio", "hora_fin"]:
-            self.fields[name].widget.attrs.update(
-                {
-                    "class": "input-sm",
-                }
-            )
+        for name in ["fecha_inicio", "fecha_fin", "hora_inicio", "hora_fin", "banner"]:
+            if name in self.fields:
+                self.fields[name].widget.attrs.update({"class": "input-sm"})
 
-        # precargar valores si hay instancia
         if instance and not self.is_bound:
             tz = timezone.get_current_timezone()
             ini = timezone.localtime(instance.inicio, tz)
@@ -49,7 +55,6 @@ class CampaniaForm(forms.Form):
 
         ini = datetime.combine(fi, hi)
         fin = datetime.combine(ff, hf)
-
         if fin <= ini:
             raise forms.ValidationError("La fecha/hora de fin debe ser posterior a la de inicio.")
 
@@ -57,7 +62,6 @@ class CampaniaForm(forms.Form):
         if delta.days > 999:
             raise forms.ValidationError("La campaña no puede exceder 999 días.")
 
-        # límites de reloj
         for t, nombre in [(hi, "inicio"), (hf, "fin")]:
             if not (0 <= t.hour <= 23):
                 raise forms.ValidationError(f"La hora de {nombre} debe estar entre 0 y 23.")
@@ -71,12 +75,18 @@ class CampaniaForm(forms.Form):
         cleaned["fin_dt"] = timezone.make_aware(fin, tz)
         return cleaned
 
-    def save(self, commit=True):
+    def save(self, commit: bool = True) -> CampaniaConfig:
         if not self.instance:
             self.instance = CampaniaConfig()
         self.instance.inicio = self.cleaned_data["inicio_dt"]
         self.instance.fin = self.cleaned_data["fin_dt"]
         self.instance.habilitada = True
+
+        # Si el admin sube una imagen, la guardamos
+        banner = self.cleaned_data.get("banner")
+        if banner is not None:
+            self.instance.banner = banner
+
         if commit:
             self.instance.save()
         return self.instance
