@@ -6,27 +6,27 @@ from administrador.models import CampaniaConfig
 
 class CampaniaMiddleware:
     """Reglas:
-    - Usuarios NO autenticados -> pasan siempre (ven login/portada).
+    - No autenticados -> pasan (login/portada).
     - is_staff -> pasan siempre.
-    - Se dejan libres /admin, /accounts, /static, /media.
-    - Autenticados NO admin -> si no hay campaña activa, mostrar página bloqueada.
+    - Libres: /admin, /accounts, /static/, /media/, /favicon.ico
+    - Autenticados NO admin -> exigir campaña activa.
     """
 
     def __init__(self, get_response):
         self.get_response = get_response
 
     def _path_libre(self, path: str) -> bool:
-        libres = ("/admin", "/accounts", "/static", "/media")
+        libres = ("/admin", "/accounts", "/static/", "/media/", "/favicon.ico")
         return path.startswith(libres)
 
     def __call__(self, request):
         path = request.path
 
-        # 1) SIEMPRE dejar pasar a no autenticados (que puedan llegar a login, portada, etc.)
+        # 1) No autenticados -> dejan pasar (para ver login/portada)
         if not request.user.is_authenticated:
             return self.get_response(request)
 
-        # 2) Rutas libres (por si un autenticado navega a ellas)
+        # 2) Rutas libres (incluye /media/ para PDFs, imágenes, etc.)
         if self._path_libre(path):
             return self.get_response(request)
 
@@ -41,11 +41,10 @@ class CampaniaMiddleware:
             .order_by("-inicio")
             .first()
         )
-
         if campania:
             return self.get_response(request)
 
-        # 5) Sin campaña -> banner si existe
+        # 5) Sin campaña -> página de bloqueo + banner si existe
         banner_url = None
         cfg = CampaniaConfig.objects.order_by("-actualizado").first()
         if cfg and cfg.banner:

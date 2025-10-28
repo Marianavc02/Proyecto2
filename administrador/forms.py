@@ -1,9 +1,11 @@
+from __future__ import annotations
+
 from datetime import datetime, time
 
 from django import forms
 from django.utils import timezone
 
-from .models import CampaniaConfig
+from .models import CampaniaConfig, MasInfo, PoliticaCompra
 
 
 class CampaniaForm(forms.Form):
@@ -82,7 +84,6 @@ class CampaniaForm(forms.Form):
         self.instance.fin = self.cleaned_data["fin_dt"]
         self.instance.habilitada = True
 
-        # Si el admin sube una imagen, la guardamos
         banner = self.cleaned_data.get("banner")
         if banner is not None:
             self.instance.banner = banner
@@ -90,3 +91,44 @@ class CampaniaForm(forms.Form):
         if commit:
             self.instance.save()
         return self.instance
+
+
+class PoliticaCompraForm(forms.ModelForm):
+    class Meta:
+        model = PoliticaCompra
+        fields = ["titulo", "pdf", "enlace", "activo"]
+        widgets = {
+            "titulo": forms.TextInput(attrs={"class": "input-sm"}),
+            "enlace": forms.URLInput(attrs={"class": "input-sm"}),
+        }
+
+    def clean_pdf(self):
+        pdf = self.cleaned_data.get("pdf")
+        if pdf and pdf.content_type not in ("application/pdf",):
+            raise forms.ValidationError("Solo se permite subir archivos PDF.")
+        return pdf
+
+    def clean(self):
+        cleaned = super().clean()
+        pdf = cleaned.get("pdf")
+        enlace = cleaned.get("enlace")
+        activo = cleaned.get("activo")
+
+        if activo and not (pdf or enlace):
+            raise forms.ValidationError("Si la política está activa, debes subir un PDF y/o proporcionar un enlace.")
+        return cleaned
+
+
+class MasInfoForm(forms.ModelForm):
+    class Meta:
+        model = MasInfo
+        fields = ["titulo", "imagen", "activo"]
+        widgets = {
+            "titulo": forms.TextInput(attrs={"class": "input-sm"}),
+        }
+
+    def clean_imagen(self):
+        img = self.cleaned_data.get("imagen")
+        if img and img.content_type not in ("image/png", "image/jpeg", "image/webp"):
+            raise forms.ValidationError("Formatos permitidos: PNG, JPG/JPEG o WEBP.")
+        return img

@@ -1,10 +1,12 @@
+from __future__ import annotations
+
 from datetime import datetime
 
 import openpyxl
 from django.contrib import messages
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import login_required, user_passes_test
 from django.db.models import Count, Q
-from django.http import HttpResponse
+from django.http import HttpRequest, HttpResponse, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
 from reportlab.lib.pagesizes import A4
@@ -14,7 +16,8 @@ from empleados.models import Empleado
 from productos.models import Pedido, PedidoItem
 
 from .decorators import staff_required
-from .forms import CampaniaForm
+from .forms import CampaniaForm, MasInfoForm, PoliticaCompraForm
+from .models import MasInfo, PoliticaCompra
 from .utils import obtener_config
 
 
@@ -376,3 +379,97 @@ def generar_acta_entrega(request, pedido_id):
     pdf.save()
 
     return response
+
+
+def staff_required():
+    return user_passes_test(lambda u: u.is_staff)
+
+
+@login_required
+@staff_required()
+def editar_politica_compra(request: HttpRequest) -> HttpResponse:
+    """
+    Pantalla para administrar la política de compra:
+    - Subir/actualizar PDF
+    - Agregar/editar enlace externo
+    - Activar/desactivar
+    """
+    instancia = PoliticaCompra.objects.order_by("-actualizado").first()
+    if not instancia:
+        instancia = PoliticaCompra.objects.create(titulo="Política de compra de herramientas")
+
+    if request.method == "POST":
+        if "eliminar_pdf" in request.POST:
+            if instancia.pdf:
+                instancia.pdf.delete(save=False)
+                instancia.pdf = None
+                instancia.save()
+                messages.success(request, "PDF eliminado. Puedes subir uno nuevo o usar solo el enlace.")
+            else:
+                messages.info(request, "No había PDF para eliminar.")
+            return redirect("administrador:editar_politica_compra")
+
+        form = PoliticaCompraForm(request.POST, request.FILES, instance=instancia)
+        if form.is_valid():
+            form.save()
+            messages.success(request, "Política actualizada correctamente.")
+            return redirect("administrador:editar_politica_compra")
+    else:
+        form = PoliticaCompraForm(instance=instancia)
+
+    return render(
+        request,
+        "administrador/editar_politica_compra.html",
+        {"form": form, "politica": instancia},
+    )
+
+
+@login_required
+def dismiss_policy(request: HttpRequest) -> JsonResponse:
+    """
+    Marca en la sesión que ya se mostró el modal de política.
+    (Si estás usando la versión con clave por versión en context processor,
+     cambia esto por ese mecanismo.)
+    """
+    request.session["policy_shown"] = True
+    request.session.modified = True
+    return JsonResponse({"ok": True})
+
+
+def _masinfo_singleton() -> MasInfo:
+    obj = MasInfo.objects.order_by("-actualizado").first()
+    if not obj:
+        obj = MasInfo.objects.create(titulo="Más información")
+    return obj
+
+
+def masinfo_page(request):
+    obj = MasInfo.objects.filter(activo=True).order_by("-actualizado").first()
+    # Si no hay imagen activa, puedes renderizar un fallback o una página simple
+    return render(request, "masinfo.html", {"masinfo": obj})
+
+
+@login_required
+@staff_required()
+def editar_masinfo(request):
+    obj = _masinfo_singleton()
+
+    if request.method == "POST":
+        if "eliminar_imagen" in request.POST:
+            if obj.imagen:
+                obj.imagen.delete(save=False)
+                obj.imagen = None
+                obj.save()
+                messages.success(request, "Imagen eliminada. Puedes subir una nueva.")
+            else:
+                messages.info(request, "No había imagen para eliminar.")
+            return redirect("administrador:editar_masinfo")
+
+        form = MasInfoForm(request.POST, request.FILES, instance=obj)
+        if form.is_valid():
+            form.save()
+            messages.success(request, "MásInfo actualizada correctamente.")
+            return redirect("administrador:editar_masinfo")
+    else:
+        form = MasInfoForm(instance=obj)
+    return render(request, "administrador/editar_masinfo.html", {"form": form, "masinfo": obj})

@@ -1,9 +1,9 @@
 from django.conf import settings
-from django.conf.urls.static import static
 from django.contrib import admin
-from django.urls import include, path
+from django.urls import include, path, re_path
 
 from SBDToolBox.views import home
+from SBDToolBox.views_media import serve_media_noframeblock
 
 urlpatterns = [
     path("admin/", admin.site.urls),
@@ -16,4 +16,6 @@ urlpatterns = [
 ]
 
 if settings.DEBUG:
-    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+    urlpatterns += [
+        re_path(r"^media/(?P<path>.*)$", serve_media_noframeblock),
+    ]
