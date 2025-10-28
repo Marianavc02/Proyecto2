@@ -1,6 +1,8 @@
 from django.contrib.auth.models import User
 from django.db import models
 
+from administrador.models import CampaniaConfig
+
 from .utils import clasificar_empresa
 
 
@@ -44,6 +46,7 @@ class Pedido(models.Model):
     usuario = models.ForeignKey(User, on_delete=models.CASCADE)
     empleado = models.ForeignKey("empleados.Empleado", on_delete=models.CASCADE, related_name="pedidos")
     fecha = models.DateTimeField(auto_now_add=True)
+    campania = models.ForeignKey(CampaniaConfig, on_delete=models.CASCADE, null=True, blank=True)
 
     def __str__(self):
         return f"Pedido {self.id} - {self.empleado or self.usuario}"
@@ -61,3 +64,10 @@ class PedidoItem(models.Model):
 
     def __str__(self):
         return f"{self.producto.descripcion} x {self.cantidad}"
+
+
+class Categoria(models.Model):
+    nombre = models.CharField(max_length=100)
+
+    def __str__(self):
+        return self.nombre

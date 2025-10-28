@@ -1,92 +1,90 @@
 {% extends "base.html" %}
 {% load static %}
 
-
-
 {% block content %}
 <div style="margin-top: 100px;">
 
     <div style="display: grid; grid-template-columns: 250px 1fr; gap: 20px; max-width: 1400px; margin: auto; margin-top: 30px;">
         
         <!-- Sidebar de Filtros -->
-        <div style="background: #fff; padding: 20px; border-radius: 10px; box-shadow: 0px 2px 5px rgba(0,0,0,0.1); height: fit-content;">
-            <h3 style="margin-bottom: 15px; display: flex; align-items: center; gap: 8px;">
-                <img src="{% static 'img/filtro.jpg' %}" alt="Filtro" width="20" height="20">
-                Filtros
+        <div style="background: #fff; padding: 25px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); height: fit-content; position: sticky; top: 120px;">
+            <h3 style="margin-bottom: 20px; display: flex; align-items: center; gap: 10px; color: #333; border-bottom: 2px solid #f4bb00e1; padding-bottom: 10px;">
+                <img src="{% static 'img/filtro.jpg' %}" alt="Filtro" width="24" height="24">
+                Filtros de Búsqueda
             </h3>
 
             <form method="get">
-                <label>Categoría:</label><br>
-                <input type="text" name="categoria" value="{{ request.GET.categoria }}" placeholder="Ej: Taladro" style="width: 100%; margin-bottom: 10px;">
+                <!-- Campo de categoría dinámico -->
+                <div style="margin-bottom: 20px;">
+                    <label for="categoria" style="display: block; margin-bottom: 8px; font-weight: 600; color: #555;">
+                        Categoría:
+                    </label>
+                    <select name="categoria" id="categoria"
+                            style="width: 100%; padding: 10px; border: 1px solid #ddd; font-size: 14px; background: white;">
+                        <option value="">Todas las categorías</option>
+                        {% for cat in categorias %}
+                            <option value="{{ cat }}" {% if request.GET.categoria == cat %}selected{% endif %}>
+                                {{ cat }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
 
-                <!-- Contenedor en flex para los precios -->
-                <div style="display: flex; gap: 10px; margin-bottom: 10px;">
-                    <div style="flex: 1;">
-                        <label>Precio mínimo:</label>
-                        <input type="number" name="min_precio" value="{{ request.GET.min_precio }}" style="width: 100%;">
-                    </div>
-                    <div style="flex: 1;">
-                        <label>Precio máximo:</label>
-                        <input type="number" name="max_precio" value="{{ request.GET.max_precio }}" style="width: 100%;">
+                <!-- Rango de precios -->
+                <div style="margin-bottom: 25px;">
+                    <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #555;">Rango de precios:</label>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                        <div>
+                            <input type="number" name="min_precio" value="{{ request.GET.min_precio }}" 
+                                   placeholder="Mínimo" min="0"
+                                   style="width: 100%; padding: 10px; border: 1px solid #ddd; font-size: 14px;">
+                        </div>
+                        <div>
+                            <input type="number" name="max_precio" value="{{ request.GET.max_precio }}" 
+                                   placeholder="Máximo" min="0"
+                                   style="width: 100%; padding: 10px; border: 1px solid #ddd; font-size: 14px;">
+                        </div>
                     </div>
                 </div>
 
-                <button type="submit" style="background: #f4dc00e8; color: black; border: none; padding: 10px; border-radius: 5px; width: 100%; cursor: pointer;">Filtrar</button>
-                <a href="{% url 'productos_por_empresa' empresa %}" style="display:block; text-align:center; margin-top:10px; text-decoration:none; color:red;">Limpiar</a>
+                <!-- Botones -->
+                <div style="display: flex; flex-direction: column; gap: 10px;">
+                    <button type="submit" 
+                            style="background: #f4bb00e1; color: black; border: none; padding: 12px; font-weight: 600; cursor: pointer;">
+                         Aplicar filtros
+                    </button>
+                    
+                    <a href="{% url 'productos_por_empresa' empresa %}" 
+                       style="background: #6c757d; color: white; text-align: center; padding: 12px; text-decoration: none; font-weight: 600;">
+                         Limpiar filtros
+                    </a>
+                </div>
             </form>
-
         </div>
 
         <!-- Grid de Productos -->
         <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 20px;">
             {% for producto in productos %}
                 <a href="{% url 'detalle_producto' producto.id %}" style="text-decoration: none; color: black;">
-                    <div style="border: 2px solid #ccc; border-radius: 0; overflow: hidden; text-align: center; background: #fff; display: flex; flex-direction: column; height: 200px;">
+                    <div style="border: 2px solid #ccc; overflow: hidden; text-align: center; background: #fff; display: flex; flex-direction: column; height: 200px;">
+                        
                         {% if producto.imagenes.first %}
- 
-                            <img src="{{ producto.imagenes.first.imagen.url }}" 
-                                alt="{{ producto.descripcion }}" 
-                                style="width:100%; height:110px; object-fit:contain;">
-                            {% else %}
-
+                            <img src="{{ producto.imagenes.first.imagen.url }}" alt="{{ producto.descripcion }}" style="width:100%; height:110px; object-fit:contain;">
+                        {% else %}
                             {% if producto.empresa == "Stanley" %}
-                                <img src="{% static 'img/stanley.jpg' %}" 
-                                    alt="Imagen Stanley" 
-                                    style="width:100%; height:110px; object-fit:contain;">
+                                <img src="{% static 'img/stanley.jpg' %}" alt="Stanley" style="width:100%; height:110px; object-fit:contain;">
                             {% elif producto.empresa == "Black&Decker" %}
-                                <img src="{% static 'img/blackdecker.jpg' %}" 
-                                    alt="Imagen Black&Decker" 
-                                    style="width:100%; height:110px; object-fit:contain;">
+                                <img src="{% static 'img/blackdecker.jpg' %}" alt="Black&Decker" style="width:100%; height:110px; object-fit:contain;">
                             {% elif producto.empresa == "Irwin" %}
-                                <img src="{% static 'img/irwin.jpg' %}" 
-                                    alt="Imagen Irwin" 
-                                    style="width:100%; height:110px; object-fit:contain;">
+                                <img src="{% static 'img/irwin.jpg' %}" alt="Irwin" style="width:100%; height:110px; object-fit:contain;">
                             {% elif producto.empresa == "DeWalt" %}
-                                <img src="{% static 'img/dewalt.jpg' %}" 
-                                    alt="Imagen Dewalt" 
-                                    style="width:100%; height:110px; object-fit:contain;">
+                                <img src="{% static 'img/dewalt.jpg' %}" alt="Dewalt" style="width:100%; height:110px; object-fit:contain;">
                             {% else %}
-                                <img src="{% static 'img/logo.png' %}" 
-                                    alt="Imagen no disponible" 
-                                    style="width:100%; height:110px; object-fit:contain;">
+                                <img src="{% static 'img/logo.png' %}" alt="Sin imagen" style="width:100%; height:110px; object-fit:contain;">
                             {% endif %}
                         {% endif %}
-                        <div style="
-                            background: #f5f4f2ff;
-                            padding: 4px;
-                            font-weight: bold;
-                            flex-grow: 0;
-                            height: auto;
-                            display: -webkit-box;
-                            -webkit-line-clamp: 2;
-                            line-clamp: 2;
-                            -webkit-box-orient: vertical;
-                            overflow: hidden;
-                            text-overflow: ellipsis;
-                            text-align: center;
-                            font-size: 14px;
-                            line-height: 1.15em;
-                        ">
+
+                        <div style="background: #f5f4f2ff; padding: 4px; font-weight: bold; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; text-align: center; font-size: 14px; line-height: 1.15em;">
                             {{ producto.descripcion }}
                         </div>
                         <p style="margin: 6px 0 8px 0; font-size: 14px;">Precio: ${{ producto.precio_sin_iva }}</p>
@@ -99,5 +97,5 @@
             {% endfor %}
         </div>
     </div>
-    {% endblock %}
 </div>
+{% endblock %}

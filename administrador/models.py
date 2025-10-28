@@ -9,7 +9,17 @@ class CampaniaConfig(models.Model):
 
     inicio = models.DateTimeField(help_text="Fecha y hora de inicio (UTC por defecto si USE_TZ=True)")
     fin = models.DateTimeField(help_text="Fecha y hora de fin (debe ser posterior a inicio)")
-    habilitada = models.BooleanField(default=True, help_text="Permite desactivar la ventana temporal sin borrar fechas")
+    habilitada = models.BooleanField(
+        default=True,
+        help_text="Permite desactivar la ventana temporal sin borrar fechas",
+    )
+
+    banner = models.ImageField(
+        upload_to="banners/",
+        blank=True,
+        null=True,
+        help_text="Imagen para mostrar cuando la aplicación no esté disponible",
+    )
 
     actualizado = models.DateTimeField(auto_now=True)
 

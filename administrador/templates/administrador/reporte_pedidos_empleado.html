@@ -1,47 +1,58 @@
-{% extends "administrador/base_admin.html" %}
-{% block admin_title %}Pedidos de {{ empleado.preferred_name }}{% endblock %}
-
-{% block admin_content %}
-
-<h2 style="margin-bottom: 20px;">Pedidos realizados por {{ empleado.preferred_name }}</h2>
-
 {% if pedidos_data %}
   {% for data in pedidos_data %}
-  <div style="border: 2px solid #ced4da; border-radius: 8px; padding: 15px; margin-bottom: 20px; box-shadow: 2px 2px 8px rgba(0,0,0,0.05); background-color: #f8f9fa;">
-    <h4 style="background-color: #dee2e6; color: #495057; padding: 8px; border-radius: 5px; margin-bottom: 10px;">
-      Pedido #{{ data.pedido.id }} - {{ data.pedido.fecha|date:"d/m/Y H:i" }}
-      <a href="{% url 'administrador:modificar_pedido' data.pedido.id %}" 
-        style="background-color: #6c757d; color: white; padding: 6px 12px; border-radius: 5px; text-decoration: none; font-size: 0.9em;">
-        Modificar
-      </a>
-    </h4>
-    <table style="width: 100%; border-collapse: collapse;">
-      <thead>
-        <tr style="background-color: #e9ecef;">
-          <th style="text-align: left; padding: 6px; border-bottom: 1px solid #dee2e6;">Producto</th>
-          <th style="text-align: left; padding: 6px; border-bottom: 1px solid #dee2e6;">Cantidad</th>
-          <th style="text-align: left; padding: 6px; border-bottom: 1px solid #dee2e6;">Precio Unitario</th>
-        </tr>
-      </thead>
-      <tbody>
-        {% for item in data.items %}
-        <tr>
-          <td style="padding: 6px; border-bottom: 1px solid #dee2e6;">{{ item.producto.descripcion }}</td>
-          <td style="padding: 6px; border-bottom: 1px solid #dee2e6;">{{ item.cantidad }}</td>
-          <td style="padding: 6px; border-bottom: 1px solid #dee2e6;">${{ item.producto.precio_sin_iva }}</td>
-        </tr>
-        {% endfor %}
-      </tbody>
-    </table>
-  </div>
+    <div style="font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; border: 2px solid #ced4da; border-radius: 10px; padding: 20px; margin-bottom: 25px; box-shadow: 0 2px 10px rgba(0,0,0,0.08); background-color: #f8f9fa;">
+      <h4 style="background-color: #dee2e6; color: #343a40; padding: 10px 14px; border-radius: 8px; margin-bottom: 15px; display: flex; align-items: center; justify-content: space-between; font-weight: 600;">
+        <span>Pedido #{{ data.pedido.id }} — {{ data.pedido.fecha|date:"d/m/Y H:i" }}</span>
+
+        <div>
+          <!-- Botón de Modificar -->
+          <a href="{% url 'administrador:modificar_pedido' data.pedido.id %}" 
+            style="background-color: #6c757d; color: white; padding: 7px 14px; border-radius: 6px; text-decoration: none; font-size: 0.9em; margin-left: 8px; font-weight: 500;">
+            Modificar
+          </a>
+
+          <!-- Botón de Descargar Acta (ahora amarillo elegante) -->
+          <a href="{% url 'administrador:generar_acta_entrega' data.pedido.id %}" 
+            style="background-color: #ffc107; color: #212529; padding: 7px 14px; border-radius: 6px; text-decoration: none; font-size: 0.9em; margin-left: 8px; font-weight: 500; box-shadow: 0 1px 3px rgba(0,0,0,0.1);"
+            target="_blank">
+            Descargar acta
+          </a>
+        </div>
+      </h4>
+
+      <!-- Tabla moderna y elegante -->
+      <table style="width: 100%; border-collapse: collapse; font-size: 0.95em; color: #343a40;">
+        <thead>
+          <tr style="background-color: #e9ecef; color: #212529; text-transform: uppercase; letter-spacing: 0.03em;">
+            <th style="text-align: left; padding: 10px; border-bottom: 2px solid #dee2e6;">SKU</th>
+            <th style="text-align: left; padding: 10px; border-bottom: 2px solid #dee2e6;">Producto</th>
+            <th style="text-align: left; padding: 10px; border-bottom: 2px solid #dee2e6;">Cantidad</th>
+            <th style="text-align: left; padding: 10px; border-bottom: 2px solid #dee2e6;">Precio Unitario</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for item in data.items %}
+          <tr style="background-color: {% cycle '#ffffff' '#f6f7f8' %}; transition: background-color 0.2s ease;">
+            <td style="padding: 10px; border-bottom: 1px solid #dee2e6;">{{ item.producto.sku }}</td>
+            <td style="padding: 10px; border-bottom: 1px solid #dee2e6;">{{ item.producto.descripcion }}</td>
+            <td style="padding: 10px; border-bottom: 1px solid #dee2e6;">{{ item.cantidad }}</td>
+            <td style="padding: 10px; border-bottom: 1px solid #dee2e6;">${{ item.producto.precio_sin_iva }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
   {% endfor %}
-
-  <h4>Total general gastado: ${{ total_general }}</h4>
-
 {% else %}
-  <p>Este empleado no tiene pedidos registrados.</p>
+  <!-- Card elegante cuando no hay pedidos -->
+  <div style="font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; background-color: #f1f3f5; border: 1px solid #d6d8db; border-radius: 12px; padding: 30px; text-align: center; color: #495057; box-shadow: 0 2px 6px rgba(0,0,0,0.05); margin-top: 20px;">
+    <svg xmlns="http://www.w3.org/2000/svg" width="44" height="44" fill="#6c757d" class="bi bi-inbox" viewBox="0 0 16 16" style="margin-bottom: 10px;">
+      <path d="M4.98 0a1 1 0 0 0-.979.804L2.89 5H.5A.5.5 0 0 0 0 5.5v5a.5.5 0 0 0 .146.354l3 3A.5.5 0 0 0 3.5 14h9a.5.5 0 0 0 .354-.146l3-3A.5.5 0 0 0 16 10.5v-5a.5.5 0 0 0-.5-.5h-2.39l-1.11-4.196A1 1 0 0 0 11.02 0H4.98zM4.98 1h6.04l1 3.8H3.98l1-3.8zM1 6h3.293l.853 1.707A.5.5 0 0 0 5.5 8h5a.5.5 0 0 0 .354-.146L11.707 6H15v4.293l-2.646 2.647A.5.5 0 0 1 12 13H4a.5.5 0 0 1-.354-.146L1 10.293V6z"/>
+    </svg>
+    <h4 style="margin-bottom: 10px; font-weight: 600; font-size: 1.2em;">Este empleado no tiene pedidos registrados</h4>
+    <p style="max-width: 520px; margin: 0 auto; font-size: 0.95em; line-height: 1.4;">
+      Aún no se han realizado pedidos por este empleado. Cuando se genere un pedido, podrás visualizar los detalles aquí
+      y descargar el acta de constancia de entrega.
+    </p>
+  </div>
 {% endif %}
-
-<a href="{% url 'administrador:lista_empleados_reporte' %}" style="display: inline-block; padding: 8px 15px; background-color: #6c757d; color: white; border-radius: 5px; text-decoration: none; margin-top: 15px;">Volver a empleados</a>
-
-{% endblock %}
