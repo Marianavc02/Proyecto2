@@ -43,3 +43,31 @@ class CampaniaConfig(models.Model):
     def ya_finalizo(self, ahora=None):
         ahora = ahora or timezone.now()
         return self.habilitada and ahora > self.fin
+
+
+def politica_upload_to(instance, filename):
+    # Guarda el PDF en media/politicas/<id>/<filename>
+    return f"politicas/{instance.id or 'tmp'}/{filename}"
+
+
+class PoliticaCompra(models.Model):
+    """
+    Configuración de la política de compra a mostrar en el modal.
+    Provee un PDF opcional y/o un enlace externo.
+    """
+
+    titulo = models.CharField(max_length=150, default="Política de compra de herramientas")
+    pdf = models.FileField(upload_to=politica_upload_to, blank=True, null=True)
+    enlace = models.URLField(blank=True, null=True, help_text="Enlace externo (Drive, SharePoint, etc.)")
+    activo = models.BooleanField(default=True)
+    actualizado = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        verbose_name = "Política de compra"
+        verbose_name_plural = "Política de compra"
+
+    def __str__(self):
+        return f"{self.titulo} (activo={self.activo})"
+
+    def tiene_contenido(self) -> bool:
+        return bool(self.pdf or self.enlace)

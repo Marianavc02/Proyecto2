@@ -80,6 +80,14 @@
         <div>Subir datos<br>Productos</div>
       </a>
 
+      <!-- NUEVO: Editar Política de compra -->
+      
+        <a class="admin-item {% if request.resolver_match.url_name == 'editar_politica_compra' %}active{% endif %}"
+   href="{% url 'administrador:editar_politica_compra' %}">
+        <div class="admin-ico"><span class="material-icons">policy</span></div>
+        <div>Política de compra<br>(PDF / Enlace)</div>
+      </a>
+
     </nav>
 
     <!-- Cerrar sesión -->

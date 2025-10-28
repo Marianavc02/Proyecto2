@@ -162,6 +162,7 @@ TEMPLATES = [
                 "django.contrib.messages.context_processors.messages",
                 "productos.context_processors.cart",
                 "administrador.context_processors.campania_nav",
+                "administrador.context_processors.politica_compra_ctx",
             ],
         },
     },
@@ -223,6 +224,9 @@ GROQ_API_KEY = config("GROQ_API_KEY", default="")
 
 MEDIA_URL = "/media/"
 MEDIA_ROOT = os.path.join(BASE_DIR, "media")
+# Permitir que páginas del MISMO origen (localhost) se emboquen en iframes/objects
+X_FRAME_OPTIONS = "SAMEORIGIN"
+
 
 # Política interna: exigir que el email exista en Empleado para permitir login.
 # En desarrollo puedes poner False para no bloquear mientras pruebas OAuth.

@@ -1,10 +1,12 @@
+from __future__ import annotations
+
 from datetime import datetime
 
 import openpyxl
 from django.contrib import messages
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import login_required, user_passes_test
 from django.db.models import Count, Q
-from django.http import HttpResponse
+from django.http import HttpRequest, HttpResponse, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
 from reportlab.lib.pagesizes import A4
@@ -14,7 +16,8 @@ from empleados.models import Empleado
 from productos.models import Pedido, PedidoItem
 
 from .decorators import staff_required
-from .forms import CampaniaForm
+from .forms import CampaniaForm, PoliticaCompraForm
+from .models import PoliticaCompra
 from .utils import obtener_config
 
 
@@ -376,3 +379,58 @@ def generar_acta_entrega(request, pedido_id):
     pdf.save()
 
     return response
+
+
+def staff_required():
+    return user_passes_test(lambda u: u.is_staff)
+
+
+@login_required
+@staff_required()
+def editar_politica_compra(request: HttpRequest) -> HttpResponse:
+    """
+    Pantalla para administrar la política de compra:
+    - Subir/actualizar PDF
+    - Agregar/editar enlace externo
+    - Activar/desactivar
+    """
+    instancia = PoliticaCompra.objects.order_by("-actualizado").first()
+    if not instancia:
+        instancia = PoliticaCompra.objects.create(titulo="Política de compra de herramientas")
+
+    if request.method == "POST":
+        if "eliminar_pdf" in request.POST:
+            if instancia.pdf:
+                instancia.pdf.delete(save=False)
+                instancia.pdf = None
+                instancia.save()
+                messages.success(request, "PDF eliminado. Puedes subir uno nuevo o usar solo el enlace.")
+            else:
+                messages.info(request, "No había PDF para eliminar.")
+            return redirect("administrador:editar_politica_compra")
+
+        form = PoliticaCompraForm(request.POST, request.FILES, instance=instancia)
+        if form.is_valid():
+            form.save()
+            messages.success(request, "Política actualizada correctamente.")
+            return redirect("administrador:editar_politica_compra")
+    else:
+        form = PoliticaCompraForm(instance=instancia)
+
+    return render(
+        request,
+        "administrador/editar_politica_compra.html",
+        {"form": form, "politica": instancia},
+    )
+
+
+@login_required
+def dismiss_policy(request: HttpRequest) -> JsonResponse:
+    """
+    Marca en la sesión que ya se mostró el modal de política.
+    (Si estás usando la versión con clave por versión en context processor,
+     cambia esto por ese mecanismo.)
+    """
+    request.session["policy_shown"] = True
+    request.session.modified = True
+    return JsonResponse({"ok": True})
