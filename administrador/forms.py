@@ -5,7 +5,7 @@ from datetime import datetime, time
 from django import forms
 from django.utils import timezone
 
-from .models import CampaniaConfig, PoliticaCompra
+from .models import CampaniaConfig, MasInfo, PoliticaCompra
 
 
 class CampaniaForm(forms.Form):
@@ -117,3 +117,18 @@ class PoliticaCompraForm(forms.ModelForm):
         if activo and not (pdf or enlace):
             raise forms.ValidationError("Si la política está activa, debes subir un PDF y/o proporcionar un enlace.")
         return cleaned
+
+
+class MasInfoForm(forms.ModelForm):
+    class Meta:
+        model = MasInfo
+        fields = ["titulo", "imagen", "activo"]
+        widgets = {
+            "titulo": forms.TextInput(attrs={"class": "input-sm"}),
+        }
+
+    def clean_imagen(self):
+        img = self.cleaned_data.get("imagen")
+        if img and img.content_type not in ("image/png", "image/jpeg", "image/webp"):
+            raise forms.ValidationError("Formatos permitidos: PNG, JPG/JPEG o WEBP.")
+        return img

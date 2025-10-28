@@ -101,8 +101,9 @@
       <a href="/productos/empresa/Stanley/"><img src="{% static 'img/stanley.jpg' %}" alt="Stanley"></a>
     </div>
     <div class="info-text">
-      <p>¿Tienes preguntas?<br>Haz clic en <strong>“Más info”</strong> arriba y entérate de todo.</p>
-    </div>
+      <p>¿Tienes preguntas?<br>
+Haz clic en <strong><a href="{% url 'administrador:masinfo' %}">Más info</a></strong> arriba y entérate de todo.</p>
+
   </div>
 </div>
 

@@ -16,8 +16,8 @@ from empleados.models import Empleado
 from productos.models import Pedido, PedidoItem
 
 from .decorators import staff_required
-from .forms import CampaniaForm, PoliticaCompraForm
-from .models import PoliticaCompra
+from .forms import CampaniaForm, MasInfoForm, PoliticaCompraForm
+from .models import MasInfo, PoliticaCompra
 from .utils import obtener_config
 
 
@@ -434,3 +434,42 @@ def dismiss_policy(request: HttpRequest) -> JsonResponse:
     request.session["policy_shown"] = True
     request.session.modified = True
     return JsonResponse({"ok": True})
+
+
+def _masinfo_singleton() -> MasInfo:
+    obj = MasInfo.objects.order_by("-actualizado").first()
+    if not obj:
+        obj = MasInfo.objects.create(titulo="Más información")
+    return obj
+
+
+def masinfo_page(request):
+    obj = MasInfo.objects.filter(activo=True).order_by("-actualizado").first()
+    # Si no hay imagen activa, puedes renderizar un fallback o una página simple
+    return render(request, "masinfo.html", {"masinfo": obj})
+
+
+@login_required
+@staff_required()
+def editar_masinfo(request):
+    obj = _masinfo_singleton()
+
+    if request.method == "POST":
+        if "eliminar_imagen" in request.POST:
+            if obj.imagen:
+                obj.imagen.delete(save=False)
+                obj.imagen = None
+                obj.save()
+                messages.success(request, "Imagen eliminada. Puedes subir una nueva.")
+            else:
+                messages.info(request, "No había imagen para eliminar.")
+            return redirect("administrador:editar_masinfo")
+
+        form = MasInfoForm(request.POST, request.FILES, instance=obj)
+        if form.is_valid():
+            form.save()
+            messages.success(request, "MásInfo actualizada correctamente.")
+            return redirect("administrador:editar_masinfo")
+    else:
+        form = MasInfoForm(instance=obj)
+    return render(request, "administrador/editar_masinfo.html", {"form": form, "masinfo": obj})

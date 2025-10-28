@@ -71,3 +71,24 @@ class PoliticaCompra(models.Model):
 
     def tiene_contenido(self) -> bool:
         return bool(self.pdf or self.enlace)
+
+
+def masinfo_upload_to(instance, filename):
+    return f"masinfo/{instance.id or 'tmp'}/{filename}"
+
+
+class MasInfo(models.Model):
+    titulo = models.CharField(max_length=150, default="Más información")
+    imagen = models.ImageField(upload_to=masinfo_upload_to, blank=True, null=True)
+    activo = models.BooleanField(default=True)
+    actualizado = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        verbose_name = "Más info"
+        verbose_name_plural = "Más info"
+
+    def __str__(self) -> str:
+        return f"{self.titulo} (activo={self.activo})"
+
+    def tiene_imagen(self) -> bool:
+        return bool(self.imagen)

@@ -73,19 +73,25 @@
         <div>Crear Fecha y<br>duración de campaña</div>
       </a>
 
-      <!-- NUEVO: Subir datos PRODUCTOS -->
+      <!-- Subir datos PRODUCTOS -->
       <a class="admin-item {% if request.resolver_match.url_name == 'cargar_excel' %}active{% endif %}"
          href="{% url 'cargar_excel' %}">
         <div class="admin-ico"><span class="material-icons">table_view</span></div>
         <div>Subir datos<br>Productos</div>
       </a>
 
-      <!-- NUEVO: Editar Política de compra -->
+      <!-- Editar Política de compra -->
       
         <a class="admin-item {% if request.resolver_match.url_name == 'editar_politica_compra' %}active{% endif %}"
    href="{% url 'administrador:editar_politica_compra' %}">
         <div class="admin-ico"><span class="material-icons">policy</span></div>
         <div>Política de compra<br>(PDF / Enlace)</div>
+      </a>
+      <!-- Editar MásInfo -->
+      <a class="admin-item {% if request.resolver_match.url_name == 'editar_masinfo' %}active{% endif %}"
+        href="{% url 'administrador:editar_masinfo' %}">
+        <div class="admin-ico"><span class="material-icons">image</span></div>
+        <div>MásInfo (imagen)</div>
       </a>
 
     </nav>
