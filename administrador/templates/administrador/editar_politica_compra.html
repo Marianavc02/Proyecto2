@@ -1,0 +1,105 @@
+{% extends "administrador/base_admin.html" %}
+
+{% block title %}Política de compra{% endblock %}
+
+{% block admin_content %}
+<style>
+  .pc-grid{
+    display:grid; grid-template-columns: 1.2fr 1fr; gap:24px; align-items:start;
+    font-family:'Montserrat',system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
+  }
+  .pc-card{
+    background:#fff; border:1px solid #D9D9D9; border-radius:16px; padding:20px;
+    box-shadow:0 8px 24px rgba(0,0,0,.06);
+  }
+  .pc-title{ font-size:22px; font-weight:800; margin:0 0 12px; }
+  .field{ margin-bottom:14px; }
+  .field label{ display:block; font-weight:700; margin-bottom:6px; }
+  .input-sm{ width:100%; max-width:420px; padding:10px 12px; border:1px solid #D9D9D9; border-radius:12px; }
+  .btn{
+    border:none; border-radius:1000px; padding:12px 18px; font-weight:800; cursor:pointer;
+  }
+  .btn-primary{ background:#FFD20A; border:1px solid #D9D9D9; }
+  .btn-danger{ background:#e74c3c; color:#fff; }
+  .banner-preview{
+    border:1px solid #D9D9D9; border-radius:12px; padding:10px; display:grid; place-items:center; min-height:220px;
+  }
+  .note{ color:#555; font-size:14px; }
+</style>
+
+<div class="pc-grid">
+
+  <!-- IZQUIERDA: FORM -->
+  <section class="pc-card">
+    <h1 class="pc-title">Editar información de política</h1>
+
+    <form method="post" enctype="multipart/form-data">
+      {% csrf_token %}
+
+      <div class="field">
+        <label for="id_titulo">Título</label>
+        {{ form.titulo }}
+      </div>
+
+      <div class="field">
+        <label for="id_pdf">PDF (opcional)</label>
+        {{ form.pdf }}
+        <p class="note">Solo PDF. Si ya hay un PDF, puedes reemplazarlo subiendo otro.</p>
+      </div>
+
+      <div class="field">
+        <label for="id_enlace">Enlace externo (opcional)</label>
+        {{ form.enlace }}
+        <p class="note">Por ejemplo, un enlace de Drive/SharePoint con permisos de lectura.</p>
+      </div>
+
+      <div class="field">
+        <label for="id_activo">Activo</label>
+        {{ form.activo }}
+        <p class="note">Si está activo, el modal se mostrará a los usuarios en su primer ingreso tras login.</p>
+      </div>
+
+      {% if form.non_field_errors %}
+        <div class="note" style="color:#b00020; border:1px solid #dc3545; padding:10px; border-radius:10px;">
+          {{ form.non_field_errors }}
+        </div>
+      {% endif %}
+
+      <div style="display:flex; gap:10px; flex-wrap:wrap; margin-top:10px;">
+        <button type="submit" class="btn btn-primary">Guardar cambios</button>
+
+        {% if politica and politica.pdf %}
+          <button type="submit" name="eliminar_pdf" class="btn btn-danger"
+                  onclick="return confirm('¿Eliminar el PDF actual?')">
+            Eliminar PDF
+          </button>
+        {% endif %}
+      </div>
+    </form>
+  </section>
+
+  <!-- DERECHA: PREVIEW -->
+  <aside class="pc-card">
+    <h2 class="pc-title">Vista previa</h2>
+    <div class="banner-preview">
+      {% if politica and politica.pdf %}
+        <p class="note" style="margin-bottom:10px;">PDF adjunto:</p>
+        <iframe
+          src="{{ politica.pdf.url }}"
+          title="Política de compra"
+          width="100%"
+          height="420"
+          style="border:none; border-radius:10px;"
+        ></iframe>
+      {% elif politica and politica.enlace %}
+        <p class="note">No hay PDF. Se mostrará el enlace: <br>
+          <a href="{{ politica.enlace }}" target="_blank" rel="noopener">Abrir enlace</a>
+        </p>
+      {% else %}
+        <p class="note">Aún no hay PDF ni enlace configurados.</p>
+      {% endif %}
+    </div>
+  </aside>
+
+</div>
+{% endblock %}
