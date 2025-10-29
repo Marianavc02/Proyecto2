@@ -4,28 +4,182 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Ingreso Empleado</title>
+  <title>Ingreso Empleado | Stanley Black & Decker</title>
+  <link rel="stylesheet" href="{% static 'css/styles.css' %}">
   <style>
-    body{margin:0;display:flex;height:100vh;background:#1a1a1a;font-family:Montserrat,system-ui,Arial}
-    .left{flex:1;background:url("{% static 'img/imgLogin.jpg' %}") center/cover no-repeat}
-    .right{width:40%;min-width:340px;background:#fff;display:flex;flex-direction:column;justify-content:center;align-items:center;padding:40px}
-    h1{margin:0 0 18px;font-size:28px}
-    p{margin:0 0 28px;color:#777}
-    .btn{background:#FFD20A;color:#000;border:none;border-radius:28px;padding:14px 28px;font-weight:700;cursor:pointer}
-    .btn:hover{filter:brightness(.98)}
-    @media(max-width:900px){.right{width:100%}}
+    body {
+      margin: 0;
+      height: 100vh;
+      font-family: 'Montserrat', sans-serif;
+      background: url("{% static 'img/imgLogin.jpg' %}") center/cover no-repeat;
+      /* transición suave al cambiar la imagen de fondo */
+      transition: background-image 1.5s ease-in-out;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* Capa oscura sutil sobre la imagen */
+    body::before {
+      content: "";
+      position: absolute;
+      top: 0; left: 0; right: 0; bottom: 0;
+      /* ligero aumento de oscuridad para mejorar legibilidad sobre fondos variados */
+      background: rgba(0, 0, 0, 0.55);
+      z-index: 0;
+      transition: background 0.5s ease;
+    }
+
+    /* ==== ANIMACIONES ==== */
+    @keyframes fadeZoomIn {
+      0% {
+        opacity: 0;
+        transform: scale(0.9);
+      }
+      100% {
+        opacity: 1;
+        transform: scale(1);
+      }
+    }
+
+    @keyframes slideInLeft {
+      0% {
+        opacity: 0;
+        transform: translateX(-60px);
+      }
+      100% {
+        opacity: 1;
+        transform: translateX(0);
+      }
+    }
+
+    /* ==== LOGIN BOX ==== */
+    .login-box {
+      position: relative;
+      z-index: 1;
+      background: rgba(255, 255, 255, 0.57);
+      border-radius: 26px;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.35);
+      width: 520px;
+      padding: 64px 56px;
+      text-align: center;
+      backdrop-filter: blur(12px);
+      animation: fadeZoomIn 0.9s ease forwards;
+    }
+
+    /* Logo pegado al borde izquierdo con animación */
+    .login-box img {
+      width: 270px;
+      position: absolute;
+      top: 28px;
+      left: 0px;
+      opacity: 0;
+      animation: slideInLeft 1s ease forwards;
+      animation-delay: 0.8s; /* aparece después del cuadro */
+    }
+
+    .login-content {
+      margin-top: 80px;
+    }
+
+    .login-content h1 {
+      font-size: 30px;
+      color: #000;
+      margin-bottom: 14px;
+    }
+
+    .login-content p {
+      color: #444;
+      font-size: 15px;
+      margin-bottom: 36px;
+    }
+
+    .btn-yellow {
+      background: #FFD20A;
+      color: #000;
+      border: none;
+      border-radius: 25px;
+      padding: 16px 28px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: 0.25s;
+      width: 100%;
+      font-size: 16px;
+    }
+
+    .btn-yellow:hover {
+      background: #000;
+      color: #FFD20A;
+    }
+
+    small {
+      display: block;
+      color: #555;
+      font-size: 13px;
+      margin-top: 26px;
+    }
+
+    @media (max-width: 480px) {
+      .login-box {
+        width: 90%;
+        padding: 48px 28px;
+      }
+      .login-box img {
+        width: 160px;
+        top: 20px;
+        left: 20px;
+      }
+    }
   </style>
 </head>
 <body>
-  <div class="left"></div>
-  <div class="right">
-    <h1>Ingresa</h1>
-    <p>Accede con tu cuenta Microsoft para continuar</p>
+  <div class="login-box">
+    <img src="{% static 'img/logo.png' %}" alt="Stanley Black & Decker Logo">
 
-    <!-- Usa el login de allauth que ya redirige a Microsoft -->
-    <form action="{% url 'account_login' %}" method="get">
-      <button type="submit" class="btn">Iniciar sesión con Microsoft</button>
-    </form>
+    <div class="login-content">
+      <h1>Bienvenido</h1>
+      <p>Accede con tu cuenta corporativa de Microsoft para continuar</p>
+
+      <form action="{% url 'account_login' %}" method="get">
+        <button type="submit" class="btn-yellow">Iniciar sesión con Microsoft</button>
+      </form>
+
+      <small>Tu autenticación se realiza de forma segura con Microsoft Azure AD.</small>
+    </div>
   </div>
+  
+    <!-- Script para rotar automáticamente el fondo -->
+    <script>
+      document.addEventListener("DOMContentLoaded", function () {
+        const backgrounds = [
+          "{% static 'img/backgrounds/fondo1.jpg' %}",
+          "{% static 'img/backgrounds/fondo2.jpg' %}",
+          "{% static 'img/backgrounds/fondo3.jpg' %}",
+          "{% static 'img/backgrounds/fondo4.jpg' %}"
+        ];
+
+        // Preload images to avoid flicker
+        const imgs = backgrounds.map(src => {
+          const i = new Image();
+          i.src = src;
+          return i;
+        });
+
+        let current = 0;
+        const body = document.body;
+
+        // Set initial background to first preloaded if available
+        if (imgs[0] && imgs[0].complete) {
+          body.style.backgroundImage = `url(${backgrounds[0]})`;
+        }
+
+        setInterval(() => {
+          current = (current + 1) % backgrounds.length;
+          body.style.backgroundImage = `url(${backgrounds[current]})`;
+        }, 8000); // cambia cada 8 segundos
+      });
+    </script>
 </body>
 </html>
