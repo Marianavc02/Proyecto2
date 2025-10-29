@@ -1,0 +1,70 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Página no disponible</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+  <style>
+    .blocked-wrap{
+      min-height: 100dvh;
+      display: grid;
+      place-items: center;
+      background: #f7f7f7;
+      padding: 24px;
+      font-family: 'Montserrat', system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+    }
+    .blocked-card{
+      background: #fff;
+      border: 1px solid var(--sbd-gray, #D9D9D9);
+      border-radius: 14px;
+      box-shadow: 0 10px 30px rgba(0,0,0,.10);
+      max-width: 960px;
+      width: 100%;
+      overflow: hidden;
+      text-align: center;
+    }
+    .blocked-media{ background: #fff; padding: 18px; }
+    .blocked-media img{ max-width: 100%; height: auto; border-radius: 10px; }
+    .blocked-body{ padding: 16px 18px 20px; }
+    .blocked-title{ margin: 0 0 6px; font-weight: 800; }
+    .blocked-text{ margin: 0; color: #555; }
+
+    /* Botón rojo logout */
+    .btn-logout{
+      background:#e74c3c; color:#fff; font-weight:800;
+      border:none; border-radius:1000px; padding:12px 20px;
+      cursor:pointer; margin-top:12px;
+    }
+    .btn-logout:hover{ filter:brightness(0.95); }
+    .btn-logout:focus{ outline:2px solid #000; outline-offset:2px; }
+  </style>
+</head>
+<body>
+  <div class="blocked-wrap">
+    <div class="blocked-card">
+      <div class="blocked-media">
+        {% if banner_url %}
+          <!-- Si hay banner personalizado -->
+          <img src="{{ banner_url }}" alt="Página no disponible">
+        {% else %}
+          <!-- Si NO hay banner: mostrar logo por defecto -->
+          <img src="{% static 'img/logo.png' %}" alt="Stanley Black & Decker" style="max-width:320px;">
+        {% endif %}
+      </div>
+      <div class="blocked-body">
+        <h2 class="blocked-title">La aplicación estará disponible pronto</h2>
+        <p class="blocked-text">Vuelve más tarde, por favor.</p>
+
+        {% if user.is_authenticated %}
+          <form method="post" action="{% url 'account_logout' %}">
+            {% csrf_token %}
+            <button type="submit" class="btn-logout">Cerrar sesión</button>
+          </form>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</body>
+</html>

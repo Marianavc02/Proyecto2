@@ -19,4 +19,8 @@ urlpatterns = [
     path("empleados/<int:empleado_id>/reporte/", views.reporte_pedidos_empleado, name="reporte_pedidos_empleado"),
     path("modificar-pedido/<int:pedido_id>/", views.modificar_pedido, name="modificar_pedido"),
     path("acta-entrega/<int:pedido_id>/", views.generar_acta_entrega, name="generar_acta_entrega"),
+    path("politica/", views.editar_politica_compra, name="editar_politica_compra"),
+    path("dismiss-policy/", views.dismiss_policy, name="dismiss_policy"),
+    path("mas-info/", views.masinfo_page, name="masinfo"),
+    path("mas-info/editar/", views.editar_masinfo, name="editar_masinfo"),
 ]
