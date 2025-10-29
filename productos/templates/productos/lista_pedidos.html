@@ -1,42 +1,67 @@
 {% extends "base.html" %}
-
 {% block content %}
-<div class="container mt-4">
-  <h2>Mis pedidos</h2>
+<div class="orders-container">
+    <a href="{% url 'home' %}" class="btn-back">← Volver al inicio</a>
 
-  {% if pedidos %}
-    <div class="table-responsive">
-      <table class="table table-bordered table-hover mt-3" style="background-color: #f8f9fa; color: #495057;">
-        <thead style="background-color: #b1b9c0ff; color: white;">
-          <tr>
-            <th>ID</th>
-            <th>Fecha</th>
-            <th>Productos</th>
-            <th>Total</th>
-          </tr>
-        </thead>
-        <tbody>
-          {% for pedido in pedidos %}
-          <tr style="background-color: #e9ecef;">
-            <td>{{ pedido.id }}</td>
-            <td>{{ pedido.fecha|date:"d/m/Y H:i" }}</td>
-            <td>
-              <ul class="list-unstyled mb-0">
-                {% for item in pedido.items.all %}
-                  <li>{{ item.producto.descripcion }} (x{{ item.cantidad }})</li>
-                {% endfor %}
-              </ul>
-            </td>
-            <td style="font-weight: bold;">${{ pedido.total|floatformat:2 }}</td>
-          </tr>
-          {% endfor %}
-        </tbody>
-      </table>
+    <h2>Mis pedidos</h2>
+
+    {% for pedido in pedidos %}
+    <div class="pedido-card">
+        <p><strong>Pedido #{{ pedido.id }}</strong></p>
+        <p>{{ pedido.fecha|date:"d/m/Y H:i" }}</p>
+
+        <p><strong>Productos:</strong></p>
+        <ul>
+            {% for detalle in pedido.detalles.all %}
+                <li>{{ detalle.producto.nombre }} (x{{ detalle.cantidad }})</li>
+            {% endfor %}
+        </ul>
+
+        <p><strong>Total:</strong> ${{ pedido.total }}</p>
     </div>
-  {% else %}
-    <div class="alert alert-secondary mt-3" role="alert">
-      No tienes pedidos registrados.
-    </div>
-  {% endif %}
+    {% empty %}
+        <p>No tienes pedidos registrados.</p>
+    {% endfor %}
 </div>
+
+<style>
+.orders-container {
+    max-width: 800px;
+    margin: 50px auto;
+    background-color: #f6f6f6; /* gris más oscuro */
+    border-radius: 15px;
+    padding: 30px;
+    box-shadow: 0 0 15px rgba(0,0,0,0.1);
+}
+
+.orders-container h2 {
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+.pedido-card {
+    background-color: #ffffff;
+    padding: 20px;
+    border-radius: 12px;
+    margin-bottom: 20px;
+    border: 1px solid #e2e2e2;
+}
+
+.btn-back {
+    display: inline-block;
+    background-color: #ffd400; /* amarillo Stanley */
+    color: #000;
+    font-weight: bold;
+    padding: 10px 20px;
+    border-radius: 8px;
+    text-decoration: none;
+    transition: background-color 0.3s;
+}
+
+.btn-back:hover {
+    background-color: #ffcd00;
+    text-decoration: none;
+    color: #000;
+}
+</style>
 {% endblock %}
