@@ -381,6 +381,94 @@ def generar_acta_entrega(request, pedido_id):
     return response
 
 
+@login_required
+@staff_required()
+def generar_resumen_pedido(request, pedido_id):
+    """Genera un resumen (PDF) para un pedido específico.
+
+    Incluye: Nombre del empleado, correo, número de pedido, fecha/hora,
+    y una tabla con: Código (SKU), Tipo de producto, Descripción, Cantidad, Precio unitario.
+    """
+
+    pedido = get_object_or_404(Pedido, id=pedido_id)
+    empleado = pedido.empleado
+    items = pedido.items.select_related("producto").all()
+
+    # Respuesta PDF
+    response = HttpResponse(content_type="application/pdf")
+    filename = f"resumen_pedido_{pedido.id}.pdf"
+    response["Content-Disposition"] = f'attachment; filename="{filename}"'
+
+    pdf = canvas.Canvas(response, pagesize=A4)
+    width, height = A4
+
+    margin_x = 50
+    y = height - 50
+
+    # Header
+    pdf.setFont("Helvetica-Bold", 16)
+    pdf.drawString(margin_x, y, f"Resumen de pedido - {empleado.preferred_name}")
+    y -= 24
+
+    pdf.setFont("Helvetica", 10)
+    pdf.drawString(margin_x, y, f"Pedido #: {pedido.id}")
+    pdf.drawString(margin_x + 180, y, f"Fecha: {pedido.fecha.strftime('%d/%m/%Y %H:%M')}")
+    y -= 14
+    pdf.drawString(margin_x, y, f"Correo: {empleado.sbd_email}")
+    y -= 24
+
+    # Table headers
+    pdf.setFont("Helvetica-Bold", 11)
+    pdf.drawString(margin_x, y, "Código del producto")
+    pdf.drawString(margin_x + 130, y, "Tipo de producto")
+    pdf.drawString(margin_x + 300, y, "Descripción")
+    pdf.drawString(margin_x + 520, y, "Cantidad")
+    pdf.drawString(margin_x + 580, y, "Precio")
+    y -= 12
+    pdf.line(margin_x, y, width - margin_x, y)
+    y -= 14
+
+    pdf.setFont("Helvetica", 10)
+    total = 0
+    for item in items:
+        if y < 80:
+            pdf.showPage()
+            y = height - 50
+            pdf.setFont("Helvetica", 10)
+
+        sku = item.producto.sku
+        tipo = item.producto.categoria or item.producto.sbu or ""
+        desc = (item.producto.descripcion or "").replace("\n", " ")
+        cantidad = str(item.cantidad)
+        precio = f"${float(item.producto.precio_sin_iva):,.2f}" if item.producto.precio_sin_iva else ""
+
+        pdf.drawString(margin_x, y, sku)
+        pdf.drawString(margin_x + 130, y, str(tipo)[:28])
+        pdf.drawString(margin_x + 300, y, desc[:40])
+        pdf.drawRightString(margin_x + 560, y, cantidad)
+        pdf.drawRightString(margin_x + 640, y, precio)
+
+        if item.producto.precio_sin_iva:
+            total += float(item.producto.precio_sin_iva) * item.cantidad
+
+        y -= 16
+
+    # Total
+    y -= 10
+    pdf.line(margin_x, y, width - margin_x, y)
+    y -= 18
+    pdf.setFont("Helvetica-Bold", 11)
+    pdf.drawRightString(width - margin_x, y, f"Valor total: ${total:,.2f}")
+
+    pdf.showPage()
+    pdf.save()
+
+    return response
+
+
+
+
+
 def staff_required():
     return user_passes_test(lambda u: u.is_staff)
 
