@@ -1,14 +1,10 @@
 # Subir archivo Excel e importar empleados
 import pandas as pd
+from django.contrib import messages
 from django.shortcuts import redirect, render
 
 from .models import Empleado
 
-
-from django.contrib import messages
-from django.shortcuts import render, redirect
-import pandas as pd
-from .models import Empleado
 
 def importar_empleados(request):
     if request.method == "POST" and request.FILES.get("file"):
@@ -22,11 +18,7 @@ def importar_empleados(request):
 
         # Cargar los nuevos registros
         for _, row in df.iterrows():
-            Empleado.objects.create(
-                id=row["ID"],
-                preferred_name=row["Preferred Name"],
-                sbd_email=row["SBD Email"]
-            )
+            Empleado.objects.create(id=row["ID"], preferred_name=row["Preferred Name"], sbd_email=row["SBD Email"])
 
         # ✅ Mensaje de éxito
         messages.success(request, "✅ Carga exitosa de empleados desde Excel.")
