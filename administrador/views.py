@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from datetime import datetime
+import textwrap
 
 import openpyxl
 from django.contrib import messages
@@ -417,13 +418,18 @@ def generar_resumen_pedido(request, pedido_id):
     pdf.drawString(margin_x, y, f"Correo: {empleado.sbd_email}")
     y -= 24
 
-    # Table headers
+    # Tabla con columnas: Descripción | Referencia (SKU) | Tipo de producto | Precio (unitario x cantidad = total)
     pdf.setFont("Helvetica-Bold", 11)
-    pdf.drawString(margin_x, y, "Código del producto")
-    pdf.drawString(margin_x + 130, y, "Tipo de producto")
-    pdf.drawString(margin_x + 300, y, "Descripción")
-    pdf.drawString(margin_x + 520, y, "Cantidad")
-    pdf.drawString(margin_x + 580, y, "Precio")
+    desc_x = margin_x + 5
+    sku_x = margin_x + 210
+    tipo_x = margin_x + 340
+    precio_x = margin_x + 470
+
+    # Encabezados alineados y sin solapamiento
+    pdf.drawString(desc_x, y, "Descripción")
+    pdf.drawString(sku_x, y, "Referencia (SKU)")
+    pdf.drawString(tipo_x, y, "Tipo de producto")
+    pdf.drawString(precio_x, y, "Precio")
     y -= 12
     pdf.line(margin_x, y, width - margin_x, y)
     y -= 14
@@ -431,29 +437,47 @@ def generar_resumen_pedido(request, pedido_id):
     pdf.setFont("Helvetica", 10)
     total = 0
     for item in items:
-        if y < 80:
+        # salto de página si no cabe
+        min_needed = 40
+        if y < 80 + min_needed:
             pdf.showPage()
             y = height - 50
             pdf.setFont("Helvetica", 10)
 
-        sku = item.producto.sku
-        tipo = item.producto.categoria or item.producto.sbu or ""
         desc = (item.producto.descripcion or "").replace("\n", " ")
-        cantidad = str(item.cantidad)
-        precio = f"${float(item.producto.precio_sin_iva):,.2f}" if item.producto.precio_sin_iva else ""
+        sku = item.producto.sku or ""
+        tipo = item.producto.categoria or getattr(item.producto, "sbu", "") or ""
+        cantidad = int(item.cantidad)
+        precio_val = getattr(item.producto, "precio_sin_iva", None)
+        precio_unit = float(precio_val) if precio_val is not None else 0
+        precio_total = precio_unit * cantidad
 
-        pdf.drawString(margin_x, y, sku)
-        pdf.drawString(margin_x + 130, y, str(tipo)[:28])
-        pdf.drawString(margin_x + 300, y, desc[:40])
-        pdf.drawRightString(margin_x + 560, y, cantidad)
-        pdf.drawRightString(margin_x + 640, y, precio)
+        # Formato: $precio_unitario x cantidad = $precio_total
+        if precio_val is not None:
+            precio_str = f"${precio_unit:,.0f} x {cantidad}"
+        else:
+            precio_str = ""
 
-        if item.producto.precio_sin_iva:
-            total += float(item.producto.precio_sin_iva) * item.cantidad
+        # Envolver la descripción en hasta 2 líneas para que quede presentable
+        wrapped = textwrap.wrap(desc, width=55)
+        line1 = wrapped[0] if len(wrapped) >= 1 else ""
+        line2 = wrapped[1] if len(wrapped) >= 2 else None
 
-        y -= 16
+        pdf.drawString(desc_x, y, line1)
+        pdf.drawString(sku_x, y, sku)
+        pdf.drawString(tipo_x, y, str(tipo)[:24])
+        pdf.drawString(precio_x, y, precio_str)
 
-    # Total
+        if line2:
+            y -= 12
+            pdf.drawString(desc_x, y, line2)
+
+        # sumar total usando precio_sin_iva
+        total += precio_total
+
+        y -= 20
+
+    # Línea separadora y total
     y -= 10
     pdf.line(margin_x, y, width - margin_x, y)
     y -= 18
@@ -464,9 +488,6 @@ def generar_resumen_pedido(request, pedido_id):
     pdf.save()
 
     return response
-
-
-
 
 
 def staff_required():
