@@ -23,6 +23,13 @@
             target="_blank">
             Descargar acta
           </a>
+
+          <!-- Botón para imprimir/descargar el resumen del pedido (PDF) - pedido específico -->
+          <a href="{% url 'administrador:generar_resumen_pedido' data.pedido.id %}" 
+            style="background-color: #6c757d; color: white; padding: 7px 14px; border-radius: 6px; text-decoration: none; font-size: 0.9em; margin-left: 8px; font-weight: 500;"
+            target="_blank">
+            Imprimir resumen (PDF)
+          </a>
         </div>
       </h4>
 

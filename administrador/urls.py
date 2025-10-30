@@ -17,6 +17,11 @@ urlpatterns = [
         name="exportar_reporte_empleado_excel",
     ),
     path("empleados/<int:empleado_id>/reporte/", views.reporte_pedidos_empleado, name="reporte_pedidos_empleado"),
+    path(
+        "pedido/<int:pedido_id>/resumen/",
+        views.generar_resumen_pedido,
+        name="generar_resumen_pedido",
+    ),
     path("modificar-pedido/<int:pedido_id>/", views.modificar_pedido, name="modificar_pedido"),
     path("acta-entrega/<int:pedido_id>/", views.generar_acta_entrega, name="generar_acta_entrega"),
     path("politica/", views.editar_politica_compra, name="editar_politica_compra"),
