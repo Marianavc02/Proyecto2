@@ -180,6 +180,15 @@
     color: #000;
     font-size: 18px;
   }
+
+  /* 💬 Aviso de tipo de archivo */
+  .file-note {
+    text-align: center;
+    color: #444;
+    font-size: 14px;
+    margin-top: 10px;
+    font-weight: 500;
+  }
 </style>
 
 <div class="messages">
@@ -214,6 +223,9 @@
         </label>
         <input type="file" name="archivo2" id="archivo2" accept=".xlsx,.xls">
       </div>
+
+      <!-- 💬 Comentario de tipos de archivo -->
+      <p class="file-note">Solo se permiten archivos en formato <strong>.xls</strong> o <strong>.xlsx</strong>.</p>
 
       <!-- 🔘 Ambos botones centrados -->
       <div class="btn-group-center">

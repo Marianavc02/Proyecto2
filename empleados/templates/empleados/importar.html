@@ -38,6 +38,7 @@
     text-align: center;
     transition: transform .2s ease, box-shadow .2s ease;
     box-shadow: 0 6px 20px rgba(0, 0, 0, .08);
+    position: relative;
   }
 
   .upload-btn:hover {
@@ -52,6 +53,15 @@
 
   input[type="file"] {
     display: none;
+  }
+
+  /* Comentario tipos de archivo */
+  .file-info {
+    font-size: 14px;
+    color: #555;
+    text-align: center;
+    margin-top: 10px;
+    font-weight: 500;
   }
 
   /* Spinner de carga */
@@ -117,7 +127,8 @@
           <i class="fas fa-upload"></i>
           Subir datos empleados<br>desde Excel
         </label>
-        <input type="file" name="file" id="file">
+        <input type="file" name="file" id="file" accept=".xlsx,.xls">
+        <p class="file-info">📎 Archivos permitidos: .xlsx, .xls</p>
       </form>
 
       <!-- Botón para ir a la lista -->
