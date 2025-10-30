@@ -64,7 +64,7 @@ def politica_compra_ctx(request: HttpRequest) -> dict:
     ctx["politica_compra"] = politica
 
     user = getattr(request, "user", None)
-    if not user or not user.is_authenticated or user.is_staff:
+    if not user or not user.is_authenticated:
         # No mostrar a anónimos o admins
         return ctx
     key = _policy_session_key(politica)
