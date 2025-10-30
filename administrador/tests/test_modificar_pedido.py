@@ -1,9 +1,9 @@
 import pytest
+from django.contrib.auth.models import User
 from django.urls import reverse
 
 from empleados.models import Empleado
 from productos.models import Pedido, PedidoItem, Producto
-from django.contrib.auth.models import User
 
 
 @pytest.mark.django_db
