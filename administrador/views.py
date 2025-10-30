@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from datetime import datetime
+import textwrap
 
 import openpyxl
 from django.contrib import messages
@@ -374,6 +375,114 @@ def generar_acta_entrega(request, pedido_id):
     y -= 40
     pdf.setFont("Helvetica-Oblique", 9)
     pdf.drawString(50, y, f"Generado automáticamente el {datetime.now().strftime('%d/%m/%Y %H:%M:%S')}")
+
+    pdf.showPage()
+    pdf.save()
+
+    return response
+
+
+@login_required
+@staff_required()
+def generar_resumen_pedido(request, pedido_id):
+    """Genera un resumen (PDF) para un pedido específico.
+
+    Incluye: Nombre del empleado, correo, número de pedido, fecha/hora,
+    y una tabla con: Código (SKU), Tipo de producto, Descripción, Cantidad, Precio unitario.
+    """
+
+    pedido = get_object_or_404(Pedido, id=pedido_id)
+    empleado = pedido.empleado
+    items = pedido.items.select_related("producto").all()
+
+    # Respuesta PDF
+    response = HttpResponse(content_type="application/pdf")
+    filename = f"resumen_pedido_{pedido.id}.pdf"
+    response["Content-Disposition"] = f'attachment; filename="{filename}"'
+
+    pdf = canvas.Canvas(response, pagesize=A4)
+    width, height = A4
+
+    margin_x = 50
+    y = height - 50
+
+    # Header
+    pdf.setFont("Helvetica-Bold", 16)
+    pdf.drawString(margin_x, y, f"Resumen de pedido - {empleado.preferred_name}")
+    y -= 24
+
+    pdf.setFont("Helvetica", 10)
+    pdf.drawString(margin_x, y, f"Pedido #: {pedido.id}")
+    pdf.drawString(margin_x + 180, y, f"Fecha: {pedido.fecha.strftime('%d/%m/%Y %H:%M')}")
+    y -= 14
+    pdf.drawString(margin_x, y, f"Correo: {empleado.sbd_email}")
+    y -= 24
+
+    # Tabla con columnas: Descripción | Referencia (SKU) | Tipo de producto | Precio (unitario x cantidad = total)
+    pdf.setFont("Helvetica-Bold", 11)
+    desc_x = margin_x + 5
+    sku_x = margin_x + 210
+    tipo_x = margin_x + 340
+    precio_x = margin_x + 470
+
+    # Encabezados alineados y sin solapamiento
+    pdf.drawString(desc_x, y, "Descripción")
+    pdf.drawString(sku_x, y, "Referencia (SKU)")
+    pdf.drawString(tipo_x, y, "Tipo de producto")
+    pdf.drawString(precio_x, y, "Precio")
+    y -= 12
+    pdf.line(margin_x, y, width - margin_x, y)
+    y -= 14
+
+    pdf.setFont("Helvetica", 10)
+    total = 0
+    for item in items:
+        # salto de página si no cabe
+        min_needed = 40
+        if y < 80 + min_needed:
+            pdf.showPage()
+            y = height - 50
+            pdf.setFont("Helvetica", 10)
+
+        desc = (item.producto.descripcion or "").replace("\n", " ")
+        sku = item.producto.sku or ""
+        tipo = item.producto.categoria or getattr(item.producto, "sbu", "") or ""
+        cantidad = int(item.cantidad)
+        precio_val = getattr(item.producto, "precio_sin_iva", None)
+        precio_unit = float(precio_val) if precio_val is not None else 0
+        precio_total = precio_unit * cantidad
+
+        # Formato: $precio_unitario x cantidad = $precio_total
+        if precio_val is not None:
+            precio_str = f"${precio_unit:,.0f} x {cantidad}"
+        else:
+            precio_str = ""
+
+        # Envolver la descripción en hasta 2 líneas para que quede presentable
+        wrapped = textwrap.wrap(desc, width=55)
+        line1 = wrapped[0] if len(wrapped) >= 1 else ""
+        line2 = wrapped[1] if len(wrapped) >= 2 else None
+
+        pdf.drawString(desc_x, y, line1)
+        pdf.drawString(sku_x, y, sku)
+        pdf.drawString(tipo_x, y, str(tipo)[:24])
+        pdf.drawString(precio_x, y, precio_str)
+
+        if line2:
+            y -= 12
+            pdf.drawString(desc_x, y, line2)
+
+        # sumar total usando precio_sin_iva
+        total += precio_total
+
+        y -= 20
+
+    # Línea separadora y total
+    y -= 10
+    pdf.line(margin_x, y, width - margin_x, y)
+    y -= 18
+    pdf.setFont("Helvetica-Bold", 11)
+    pdf.drawRightString(width - margin_x, y, f"Valor total: ${total:,.2f}")
 
     pdf.showPage()
     pdf.save()
