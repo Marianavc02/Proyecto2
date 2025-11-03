@@ -33,8 +33,9 @@ jobs:
       - run: python -m pip install --upgrade pip
       - run: pip install bandit safety
 
+     
       - name: Security analysis (Bandit)
         run: bandit -r . -x "env,**/migrations/**,**/tests/**"
 
       - name: Dependency security check (Safety)
-        run: safety scan -r requirements.txt
+        run: safety check -r requirements.txt
