@@ -22,8 +22,8 @@ Pillow==11.0.0
 reportlab==4.2.5
 
 # --- Auth & Requests ---
-django-allauth==0.63.3
-requests==2.32.3
+django-allauth==0.63.6  # ACTUALIZADO: de 0.63.3 a 0.63.6
+requests==2.32.4        # ACTUALIZADO: de 2.32.3 a 2.32.4
 
 # --- Development Tools ---
 flake8==7.1.1
