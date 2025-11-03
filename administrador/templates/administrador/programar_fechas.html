@@ -208,6 +208,34 @@
 </section>
 
 
+<!-- Historial de campañas -->
+<section class="ad-card" style="grid-column: span 2;">
+  <h2 class="ad-title">Historial de campañas</h2>
+  {% if historial %}
+    <table style="width:100%; border-collapse:collapse; background:#fff; border-radius:10px; overflow:hidden;">
+      <thead>
+        <tr style="background:#D9D9D9;">
+          <th style="text-align:left; padding:10px 12px;">Inicio</th>
+          <th style="text-align:left; padding:10px 12px;">Fin</th>
+          <th style="text-align:left; padding:10px 12px;">Registrado</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for h in historial %}
+          <tr style="border-bottom:1px solid #eee;">
+            <td style="padding:10px 12px;">{{ h.inicio|date:'d/m/Y H:i' }}</td>
+            <td style="padding:10px 12px;">{{ h.fin|date:'d/m/Y H:i' }}</td>
+            <td style="padding:10px 12px;">{{ h.creado|date:'d/m/Y H:i' }}</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  {% else %}
+    <p style="color:#555;">Aún no hay campañas registradas.</p>
+  {% endif %}
+</section>
+
+
 <script>
   // === Countdown (máx 999 días, 0–23 h, 0–59 m/s) ===
   (function(){

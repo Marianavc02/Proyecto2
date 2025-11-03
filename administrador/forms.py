@@ -5,7 +5,7 @@ from datetime import datetime, time
 from django import forms
 from django.utils import timezone
 
-from .models import CampaniaConfig, MasInfo, PoliticaCompra
+from .models import CampaniaConfig, CampaniaHistorial, MasInfo, PoliticaCompra
 
 
 class CampaniaForm(forms.Form):
@@ -90,6 +90,11 @@ class CampaniaForm(forms.Form):
 
         if commit:
             self.instance.save()
+            # Registrar historial inmutable de la campaña
+            CampaniaHistorial.objects.create(
+                inicio=self.instance.inicio,
+                fin=self.instance.fin,
+            )
         return self.instance
 
 

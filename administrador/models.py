@@ -45,6 +45,23 @@ class CampaniaConfig(models.Model):
         return self.habilitada and ahora > self.fin
 
 
+class CampaniaHistorial(models.Model):
+    """
+    Registro histórico de campañas creadas. No se elimina al "borrar" la campaña activa.
+    """
+    inicio = models.DateTimeField()
+    fin = models.DateTimeField()
+    creado = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        verbose_name = "Historial de campaña"
+        verbose_name_plural = "Historial de campañas"
+        ordering = ("-inicio",)
+
+    def __str__(self) -> str:
+        return f"{self.inicio} → {self.fin}"
+
+
 def politica_upload_to(instance, filename):
     # Guarda el PDF en media/politicas/<id>/<filename>
     return f"politicas/{instance.id or 'tmp'}/{filename}"
