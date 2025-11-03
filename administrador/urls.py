@@ -28,4 +28,6 @@ urlpatterns = [
     path("dismiss-policy/", views.dismiss_policy, name="dismiss_policy"),
     path("mas-info/", views.masinfo_page, name="masinfo"),
     path("mas-info/editar/", views.editar_masinfo, name="editar_masinfo"),
+    path("empleados-reporte/pdf/", views.exportar_resumen_empleados_pdf, name="exportar_resumen_empleados_pdf"),
+    path("empleados-reporte/actas-zip/", views.exportar_actas_filtradas_zip, name="exportar_actas_filtradas_zip"),
 ]

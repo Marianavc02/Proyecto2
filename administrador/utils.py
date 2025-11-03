@@ -5,17 +5,9 @@ from .models import CampaniaConfig
 
 def obtener_config():
     """
-    Retorna la única configuración (crea una por defecto si no existe).
+    Retorna la campaña habilitada más reciente (o None si no existe).
     """
-    cfg, _ = CampaniaConfig.objects.get_or_create(
-        pk=1,
-        defaults={
-            # Por defecto: hoy + 1 hora a hoy + 2 horas
-            "inicio": timezone.now() + timezone.timedelta(hours=1),
-            "fin": timezone.now() + timezone.timedelta(hours=2),
-            "habilitada": True,
-        },
-    )
+    cfg = CampaniaConfig.objects.filter(habilitada=True).order_by("-id").first()
     return cfg
 
 
