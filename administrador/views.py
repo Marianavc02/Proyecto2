@@ -1,7 +1,8 @@
 from __future__ import annotations
 
-from datetime import datetime
 import textwrap
+from datetime import datetime
+from textwrap import shorten, wrap
 
 import openpyxl
 from django.contrib import messages
@@ -12,7 +13,6 @@ from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
 from reportlab.lib.pagesizes import A4
 from reportlab.pdfgen import canvas
-from textwrap import wrap, shorten
 
 from empleados.models import Empleado
 from productos.models import Pedido, PedidoItem
@@ -295,7 +295,7 @@ def generar_acta_entrega(request, pedido_id):
     items = pedido.items.all()
 
     response = HttpResponse(content_type="application/pdf")
-    response["Content-Disposition"] = f'attachment; filename=\"acta_entrega_pedido_{pedido.id}.pdf\"'
+    response["Content-Disposition"] = f'attachment; filename="acta_entrega_pedido_{pedido.id}.pdf"'
 
     pdf = canvas.Canvas(response, pagesize=A4)
     width, height = A4
@@ -312,11 +312,7 @@ def generar_acta_entrega(request, pedido_id):
     y -= 15
     pdf.drawString(50, y, "NIT: 901.120.539-0")
     y -= 15
-    pdf.drawString(
-        50,
-        y,
-        "Dirección: Av. El Poblado #5A-113, El Poblado, Medellín, Antioquia. Piso 6"
-    )
+    pdf.drawString(50, y, "Dirección: Av. El Poblado #5A-113, El Poblado, Medellín, Antioquia. Piso 6")
     y -= 30
 
     # === CUERPO PRINCIPAL ===
@@ -407,15 +403,12 @@ def generar_acta_entrega(request, pedido_id):
     # === PIE DE PÁGINA ===
     y -= 40
     pdf.setFont("Helvetica-Oblique", 9)
-    pdf.drawString(
-        50,
-        y,
-        f"Generado automáticamente el {datetime.now().strftime('%d/%m/%Y %H:%M:%S')}"
-    )
+    pdf.drawString(50, y, f"Generado automáticamente el {datetime.now().strftime('%d/%m/%Y %H:%M:%S')}")
 
     pdf.showPage()
     pdf.save()
     return response
+
 
 @login_required
 @staff_required()
