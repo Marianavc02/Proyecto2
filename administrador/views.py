@@ -12,6 +12,7 @@ from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
 from reportlab.lib.pagesizes import A4
 from reportlab.pdfgen import canvas
+from textwrap import wrap, shorten
 
 from empleados.models import Empleado
 from productos.models import Pedido, PedidoItem
@@ -285,102 +286,136 @@ def modificar_pedido(request, pedido_id):
 
 def generar_acta_entrega(request, pedido_id):
     """
-    Genera un acta de constancia de entrega en formato PDF
+    Genera un acta formal de entrega de productos en formato PDF
     para un pedido específico realizado por un empleado.
     """
 
-    # Buscar el pedido o mostrar error si no existe
     pedido = get_object_or_404(Pedido, id=pedido_id)
     empleado = pedido.empleado
     items = pedido.items.all()
 
-    # Crear la respuesta HTTP con tipo de contenido PDF
     response = HttpResponse(content_type="application/pdf")
-    response["Content-Disposition"] = f'attachment; filename="acta_entrega_pedido_{pedido.id}.pdf"'
+    response["Content-Disposition"] = f'attachment; filename=\"acta_entrega_pedido_{pedido.id}.pdf\"'
 
-    # Crear el documento PDF
     pdf = canvas.Canvas(response, pagesize=A4)
     width, height = A4
+    y = height - 80
 
     # === ENCABEZADO ===
     pdf.setFont("Helvetica-Bold", 14)
-    pdf.drawCentredString(width / 2, height - 50, "ACTA DE CONSTANCIA DE ENTREGA DE HERRAMIENTAS")
-    pdf.setFont("Helvetica", 10)
-    pdf.drawCentredString(width / 2, height - 70, "Ciudad de Medellín — Empresa Stanley Black & Decker Colombia S.A.S")
+    pdf.drawCentredString(width / 2, y, "ACTA DE ENTREGA DE PRODUCTOS")
+    y -= 40
 
-    # === DATOS DEL EMPLEADO ===
-    y = height - 120
-    pdf.setFont("Helvetica-Bold", 11)
-    pdf.drawString(50, y, "Datos del empleado:")
-    y -= 20
-    pdf.setFont("Helvetica", 10)
-    pdf.drawString(70, y, f"Nombre: {empleado.preferred_name}")
+    # === DATOS DE EMPRESA ===
+    pdf.setFont("Helvetica", 11)
+    pdf.drawString(50, y, "Stanley Black & Decker Colombia Services S.A.S")
     y -= 15
-    pdf.drawString(70, y, f"Correo: {empleado.sbd_email}")
+    pdf.drawString(50, y, "NIT: 901.120.539-0")
     y -= 15
-    pdf.drawString(70, y, f"ID interno: {empleado.id}")
+    pdf.drawString(
+        50,
+        y,
+        "Dirección: Av. El Poblado #5A-113, El Poblado, Medellín, Antioquia. Piso 6"
+    )
     y -= 30
 
-    # === TEXTO DE CONSTANCIA ===
-    pdf.setFont("Helvetica", 10)
+    # === CUERPO PRINCIPAL ===
+    pdf.setFont("Helvetica", 11)
+    fecha = pedido.fecha.strftime("%d de %B de %Y")
     texto = (
-        f"Se hace constancia de la entrega del pedido al empleado {empleado.preferred_name}, "
-        f"identificado con cédula de ciudadanía __________________, con ID {empleado.id}, "
-        f"de los siguientes ítems por el valor correspondiente, el día {pedido.fecha.strftime('%d/%m/%Y')}."
+        f"En la ciudad de Medellín, el día {fecha}, la Compañía Stanley Black & Decker Colombia Services S.A.S, "
+        "en el marco de la Política de Adquisición de Productos por Parte de los Empleados, hace constar "
+        "que ha realizado la entrega de productos de las marcas de la compañía al siguiente colaborador(a), "
+        "quien adquirió dichos elementos a precios especiales conforme a las políticas internas de la organización."
     )
-    pdf.drawString(50, y, texto)
-    y -= 40
-
-    # === TABLA DE PRODUCTOS ENTREGADOS ===
-    pdf.setFont("Helvetica-Bold", 10)
-    pdf.drawString(50, y, "Ítems entregados:")
+    for linea in wrap(texto, 100):
+        pdf.drawString(50, y, linea)
+        y -= 15
     y -= 20
-    pdf.setFont("Helvetica", 10)
-    pdf.drawString(60, y, "Descripción")
-    pdf.drawString(300, y, "Referencia (SKU)")
-    pdf.drawString(450, y, "Cantidad")
-    y -= 15
-    pdf.line(50, y, 550, y)
-    y -= 10
 
-    total = 0
+    pdf.setFont("Helvetica-Bold", 11)
+    pdf.drawString(50, y, "A continuación, se detallan los datos de la entrega:")
+    y -= 25
+
+    # === DATOS DEL EMPLEADO ===
+    pdf.setFont("Helvetica", 11)
+    pdf.drawString(70, y, f"Empleado: {empleado.preferred_name}")
+    y -= 15
+    pdf.drawString(70, y, "Documento de identidad: __________________________")
+    y -= 25
+
+    # === LISTA DE ELEMENTOS ENTREGADOS (TABULAR SIN CANTIDAD) ===
+    pdf.setFont("Helvetica-Bold", 11)
+    pdf.drawString(50, y, "Elementos entregados:")
+    y -= 20
+
+    # Encabezados de la tabla
+    col_x = [70, 250]  # posiciones X de las columnas
+    pdf.setFont("Helvetica-Bold", 10)
+    pdf.drawString(col_x[0], y, "Referencia (SKU)")
+    pdf.drawString(col_x[1], y, "Descripción / Herramienta")
+    y -= 10
+    pdf.line(50, y, 550, y)
+    y -= 15
+    pdf.setFont("Helvetica", 10)
+
     for item in items:
-        if y < 100:  # salto de página si no cabe
+        if y < 100:
             pdf.showPage()
             y = height - 100
-        pdf.drawString(60, y, item.producto.descripcion[:40])  # corta descripción larga
-        pdf.drawString(300, y, item.producto.sku)
-        pdf.drawString(470, y, str(item.cantidad))
-        if item.producto.precio_sin_iva:
-            total += float(item.producto.precio_sin_iva) * item.cantidad
+            pdf.setFont("Helvetica-Bold", 10)
+            pdf.drawString(col_x[0], y, "Referencia (SKU)")
+            pdf.drawString(col_x[1], y, "Descripción / Herramienta")
+            y -= 10
+            pdf.line(50, y, 550, y)
+            y -= 15
+            pdf.setFont("Helvetica", 10)
+
+        desc = shorten(item.producto.descripcion or "", width=70, placeholder="…")
+        pdf.drawString(col_x[0], y, item.producto.sku or "")
+        pdf.drawString(col_x[1], y, desc)
         y -= 15
 
-    # === TOTAL ===
-    y -= 10
     pdf.line(50, y, 550, y)
-    y -= 20
-    pdf.setFont("Helvetica-Bold", 10)
-    pdf.drawString(400, y, f"Valor total: ${total:,.2f}")
-    y -= 40
+    y -= 30
+
+    # === CIERRE DEL DOCUMENTO ===
+    texto_final = (
+        "El empleado firma en señal de conformidad y recibo de los elementos mencionados, "
+        "comprometiéndose a hacer uso adecuado de los mismos y reconociendo que la adquisición "
+        "se realizó bajo las condiciones establecidas por la empresa."
+    )
+    for linea in wrap(texto_final, 100):
+        pdf.drawString(50, y, linea)
+        y -= 15
 
     # === FIRMAS ===
-    pdf.setFont("Helvetica", 10)
-    pdf.drawString(100, y, "_________________________")
-    pdf.drawString(370, y, "_________________________")
+    y -= 40
+    pdf.setFont("Helvetica", 11)
+    pdf.drawString(100, y, "___________________________")
+    pdf.drawString(370, y, "___________________________")
     y -= 15
-    pdf.drawString(120, y, "Firma del Empleado")
-    pdf.drawString(390, y, "Firma de quien entrega")
+    pdf.drawString(115, y, "Firma del Empleado")
+    pdf.drawString(400, y, "Firma del Responsable")
+    y -= 15
+    pdf.drawString(115, y, f"Nombre: {empleado.preferred_name}")
+    pdf.drawString(400, y, "Nombre: ____________________")
+    y -= 15
+    pdf.drawString(115, y, "Cédula: ____________________")
+    pdf.drawString(400, y, "Cédula: ____________________")
 
-    # === FECHA Y CIERRE ===
+    # === PIE DE PÁGINA ===
     y -= 40
     pdf.setFont("Helvetica-Oblique", 9)
-    pdf.drawString(50, y, f"Generado automáticamente el {datetime.now().strftime('%d/%m/%Y %H:%M:%S')}")
+    pdf.drawString(
+        50,
+        y,
+        f"Generado automáticamente el {datetime.now().strftime('%d/%m/%Y %H:%M:%S')}"
+    )
 
     pdf.showPage()
     pdf.save()
-
     return response
-
 
 @login_required
 @staff_required()
