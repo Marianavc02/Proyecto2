@@ -31,8 +31,8 @@ jobs:
         with:
           python-version: '3.11'
       - run: python -m pip install --upgrade pip
-      # Fijamos versión estable de safety para evitar login interactivo
-      - run: pip install bandit safety==3.2.6
+      # Evita conflicto con typer y login interactivo
+      - run: pip install "typer<0.12" bandit "safety==3.2.6"
 
       - name: Security analysis (Bandit)
         run: bandit -r . -x "env,**/migrations/**,**/tests/**"
