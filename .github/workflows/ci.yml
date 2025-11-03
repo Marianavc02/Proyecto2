@@ -22,7 +22,7 @@ jobs:
       - name: Lint code (flake8)
         run: flake8 .
 
-  # seguridad de código y dependencias (usando pip-audit)
+  # seguridad de código y dependencias
   security:
     runs-on: ubuntu-latest
     steps:
@@ -31,11 +31,11 @@ jobs:
         with:
           python-version: '3.11'
       - run: python -m pip install --upgrade pip
-      # instalar auditorías
-      - run: pip install bandit pip-audit
+      - run: pip install bandit safety
 
+     
       - name: Security analysis (Bandit)
         run: bandit -r . -x "env,**/migrations/**,**/tests/**"
 
-      - name: Dependency security check (pip-audit)
-        run: pip-audit -r requirements.txt --format markdown
+      - name: Dependency security check (Safety)
+        run: safety check -r requirements.txt
