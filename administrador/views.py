@@ -477,7 +477,7 @@ def _render_acta_pdf_bytes(pedido) -> bytes:
     texto = (
         f"Se hace constancia de la entrega del pedido al empleado {empleado.preferred_name}, "
         f"identificado con cédula de ciudadanía __________________, con ID {empleado.id}, "
-        f"de los siguientes ítems por el valor correspondiente, el día {pedido.fecha.strftime('%d/%m/%Y')}\."
+        f"de los siguientes ítems por el valor correspondiente, el día {pedido.fecha.strftime('%d/%m/%Y')}."
     )
     pdf.drawString(50, y, texto)
     y -= 40
@@ -643,7 +643,7 @@ def generar_resumen_pedido(request, pedido_id):
 @staff_required()
 def exportar_resumen_empleados_pdf(request):
     from empleados.models import Empleado
-    from productos.models import Pedido, PedidoItem
+    from productos.models import Pedido
     from administrador.models import CampaniaHistorial
 
     query = request.GET.get("q", "").strip()
