@@ -24,7 +24,7 @@
         {% endfor %}
       </select>
       <button type="submit" 
-              style="padding: 10px 20px; background-color: #f4dc00e8; color: black; border: none; border-radius: 5px; font-weight: 600;">
+        style="padding: 10px 20px; background-color: #f4dc00e8; color: black; border: none; border-radius: 5px; font-weight: 600; cursor: pointer;">
           Buscar
       </button>
       {% if query or campania_id %}
@@ -35,31 +35,34 @@
       {% endif %}
   </form>
 
-  <!-- Botón para exportar PDF resumen de todos los empleados filtrados -->
-  <form method="get" action="{% url 'administrador:exportar_resumen_empleados_pdf' %}" style="margin-bottom: 20px;">
-    {% if campania_id %}
-      <input type="hidden" name="campania" value="{{ campania_id }}" />
-    {% endif %}
-    {% if query %}
-      <input type="hidden" name="q" value="{{ query }}" />
-    {% endif %}
-    <button type="submit" style="padding: 10px 20px; background-color: #f4dc00e8; color: black; border: none; border-radius: 5px; font-weight: 600; margin-bottom: 10px;">
-      Exportar PDF resumen
-    </button>
-  </form>
+  <!-- Acciones: Exportar resumen y Descargar ZIP, alineados horizontalmente -->
+  <div style="display: flex; gap: 10px; align-items: center; margin-bottom: 20px;">
+    <!-- Botón para exportar PDF resumen de todos los empleados filtrados -->
+    <form method="get" action="{% url 'administrador:exportar_resumen_empleados_pdf' %}">
+      {% if campania_id %}
+        <input type="hidden" name="campania" value="{{ campania_id }}" />
+      {% endif %}
+      {% if query %}
+        <input type="hidden" name="q" value="{{ query }}" />
+      {% endif %}
+      <button type="submit" style="padding: 10px 20px; background-color: #f4dc00e8; color: black; border: none; border-radius: 5px; font-weight: 600; cursor: pointer;">
+        Exportar PDF resumen
+      </button>
+    </form>
 
-  <!-- Botón para descargar ACTAS individuales (ZIP) para todos los pedidos filtrados -->
-  <form method="get" action="{% url 'administrador:exportar_actas_filtradas_zip' %}" style="margin-bottom: 20px;">
-    {% if campania_id %}
-      <input type="hidden" name="campania" value="{{ campania_id }}" />
-    {% endif %}
-    {% if query %}
-      <input type="hidden" name="q" value="{{ query }}" />
-    {% endif %}
-    <button type="submit" style="padding: 10px 20px; background-color: #a9aeb2ff; color: #fff; border: none; border-radius: 5px; font-weight: 600; margin-bottom: 10px;">
-      Descargar actas (ZIP)
-    </button>
-  </form>
+    <!-- Botón para descargar ACTAS individuales (ZIP) para todos los pedidos filtrados -->
+    <form method="get" action="{% url 'administrador:exportar_actas_filtradas_zip' %}">
+      {% if campania_id %}
+        <input type="hidden" name="campania" value="{{ campania_id }}" />
+      {% endif %}
+      {% if query %}
+        <input type="hidden" name="q" value="{{ query }}" />
+      {% endif %}
+      <button type="submit" style="padding: 10px 20px; background-color: #a9aeb2ff; color: #fff; border: none; border-radius: 5px; font-weight: 600; cursor: pointer;">
+        Descargar actas (ZIP)
+      </button>
+    </form>
+  </div>
   <table style="width: 100%; border-collapse: collapse; background: white; border-radius: 10px; overflow: hidden; box-shadow: 0 4px 8px rgba(0,0,0,0.1);">
     <thead>
       <tr>
