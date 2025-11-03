@@ -29,8 +29,8 @@ jobs:
         with:
           python-version: '3.11'
       - run: python -m pip install --upgrade pip
-      - run: pip install bandit safety
+      - run: pip install bandit pip-audit
       - name: Security analysis (Bandit)
         run: bandit -r . -x "env,**/migrations/**,**/tests/**"
-      - name: Dependency security check (Safety)
-        run: safety scan -r requirements.txt
+      - name: Dependency security check (pip-audit)
+        run: pip-audit -r requirements.txt
