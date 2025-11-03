@@ -47,6 +47,19 @@
       Exportar PDF resumen
     </button>
   </form>
+
+  <!-- Botón para descargar ACTAS individuales (ZIP) para todos los pedidos filtrados -->
+  <form method="get" action="{% url 'administrador:exportar_actas_filtradas_zip' %}" style="margin-bottom: 20px;">
+    {% if campania_id %}
+      <input type="hidden" name="campania" value="{{ campania_id }}" />
+    {% endif %}
+    {% if query %}
+      <input type="hidden" name="q" value="{{ query }}" />
+    {% endif %}
+    <button type="submit" style="padding: 10px 20px; background-color: #a9aeb2ff; color: #fff; border: none; border-radius: 5px; font-weight: 600; margin-bottom: 10px;">
+      Descargar actas (ZIP)
+    </button>
+  </form>
   <table style="width: 100%; border-collapse: collapse; background: white; border-radius: 10px; overflow: hidden; box-shadow: 0 4px 8px rgba(0,0,0,0.1);">
     <thead>
       <tr>
