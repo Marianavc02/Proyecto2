@@ -3,41 +3,168 @@
 {% block admin_content %}
 
 <style>
-  .grid { display:grid; grid-template-columns: 1fr 1fr; gap: 24px; }
-  .card { background:#fff; border:1px solid #D9D9D9; border-radius:14px; padding:18px; }
-
-  .field { margin-bottom:14px; }
-  .field label { font-weight:800; display:block; margin-bottom:6px; }
-
-  .input-sm{
-    width:100%; padding:10px 12px; border:1px solid #D9D9D9; border-radius:12px;
-    outline: none;
+  .grid { 
+    display:grid; 
+    grid-template-columns: 1fr 1fr; 
+    gap: 24px; 
+    align-items:stretch; 
   }
 
-  /* File input bonito */
-  .file-row { display:flex; align-items:center; gap:10px; flex-wrap:wrap; }
+  .card { 
+    background:#fff; 
+    border:1px solid #D9D9D9; 
+    border-radius:14px; 
+    padding:18px; 
+    display:flex; 
+    flex-direction:column; 
+  }
+
+  .field { 
+    margin-bottom:14px; 
+    display:flex; 
+    flex-direction:column; 
+    gap:6px; 
+  }
+
+  .field label { 
+    font-weight:800; 
+  }
+
+  .input-sm {
+    width:100%;
+    padding:10px 12px;
+    border:1px solid #D9D9D9;
+    border-radius:12px;
+    outline:none;
+    box-sizing:border-box;
+  }
+
+  /* ---------- FILE INPUT ---------- */
+  .file-row {
+    display:flex;
+    flex-direction:column;
+    align-items:flex-start;
+    gap:8px;
+  }
+
   .file-input { display:none; }
+
   .file-btn {
-    display:inline-block; background:#111; color:#fff; border:none; border-radius:999px;
-    padding:10px 16px; font-weight:800; cursor:pointer;
+    display:inline-block;
+    background:#111;
+    color:#fff;
+    border:none;
+    border-radius:999px;
+    padding:10px 16px;
+    font-weight:800;
+    cursor:pointer;
   }
-  .file-name { color:#555; font-size:14px; }
 
-  .hint { color:#777; font-size:13px; margin-top:4px; }
+  .file-name {
+    color:#555;
+    font-size:14px;
+    margin-left:4px;
+    text-wrap:pretty;
+  }
 
-  /* Botones */
-  .btn { display:inline-block; border:none; border-radius:1000px; padding:12px 18px; cursor:pointer; font-weight:800; }
-  .btn-primary { background:#FFD20A; color:#000; border:1px solid #D9D9D9; }
-  .btn-danger { background:#e74c3c; color:#fff; }
+  .hint { 
+    color:#777; 
+    font-size:13px; 
+    margin-top:4px; 
+  }
 
-  /* Preview */
-  .preview { border:1px solid #D9D9D9; border-radius:12px; overflow:hidden; display:grid; place-items:center; min-height:360px; }
-  .preview img{ max-width:100%; height:auto; display:block; }
+  /* ---------- TOGGLE ACTIVO BONITO ---------- */
+  .pc-toggle-label {
+    display:flex;
+    align-items:center;
+    gap:12px; /* 🔥 más cerca del texto */
+  }
 
-  @media (max-width: 960px){ .grid { grid-template-columns: 1fr; } }
+  .pc-switch {
+    position:relative;
+    width:44px;
+    height:24px;
+    flex-shrink:0;
+  }
+
+  .pc-switch input[type="checkbox"] {
+    appearance:none;
+    -webkit-appearance:none;
+    width:100%;
+    height:100%;
+    border-radius:999px;
+    background:#d0d0d0;
+    cursor:pointer;
+    position:relative;
+    transition:background .2s ease;
+  }
+
+  .pc-switch input[type="checkbox"]::before {
+    content:"";
+    position:absolute;
+    top:3px;
+    left:3px;
+    width:18px;
+    height:18px;
+    border-radius:50%;
+    background:#fff;
+    box-shadow:0 1px 3px rgba(0,0,0,0.3);
+    transition:transform .2s ease;
+  }
+
+  .pc-switch input[type="checkbox"]:checked {
+    background:#22c55e;
+  }
+
+  .pc-switch input[type="checkbox"]:checked::before {
+    transform:translateX(20px);
+  }
+
+  /* ---------- BOTONES ---------- */
+  .btn { 
+    display:inline-block; 
+    border:none; 
+    border-radius:1000px; 
+    padding:12px 18px; 
+    cursor:pointer; 
+    font-weight:800; 
+  }
+
+  .btn-primary { 
+    background:#FFD20A; 
+    color:#000; 
+    border:1px solid #D9D9D9; 
+  }
+
+  .btn-danger { 
+    background:#e74c3c; 
+    color:#fff; 
+  }
+
+  /* ---------- PREVIEW ---------- */
+  .preview {
+    border:1px solid #D9D9D9;
+    border-radius:12px;
+    overflow:hidden;
+    display:grid;
+    place-items:center;
+    min-height:360px;
+    background:#fafafa;
+    flex:1;
+  }
+
+  .preview img { 
+    max-width:100%; 
+    height:auto; 
+    display:block; 
+  }
+
+  @media (max-width: 960px){ 
+    .grid { grid-template-columns: 1fr; } 
+  }
 </style>
 
-<h1 class="ad-title">Editar “MásInfo”</h1>
+<h3 class="ad-title">Editar “MásInfo”</h3>
 
 <div class="grid">
   <!-- IZQUIERDA: FORM -->
@@ -52,20 +179,22 @@
 
       <div class="field">
         <label>Imagen (PNG/JPG/WEBP)</label>
-
-        <!-- file input custom -->
         <div class="file-row">
           <label for="id_imagen" class="file-btn">Elegir imagen</label>
           <input id="id_imagen" class="file-input" type="file" name="imagen" accept="image/png,image/jpeg,image/webp">
           <span id="file-name" class="file-name">No se ha seleccionado ningún archivo</span>
         </div>
-
         <div class="hint">Sugerido: relación 16:9 · mínimo 1280×720</div>
       </div>
 
+      <!-- ACTIVO -->
       <div class="field">
-        <label for="id_activo">Activo</label>
-        {{ form.activo }}
+        <div class="pc-toggle-label">
+          <label for="{{ form.activo.id_for_label }}">Activo</label>
+          <div class="pc-switch">
+            {{ form.activo }}
+          </div>
+        </div>
       </div>
 
       <div style="display:flex; gap:10px; flex-wrap:wrap; margin-top:6px;">
@@ -96,7 +225,7 @@
 </div>
 
 <script>
-(function(){
+document.addEventListener("DOMContentLoaded", function(){
   const input = document.getElementById('id_imagen');
   const nameEl = document.getElementById('file-name');
   const preview = document.getElementById('preview');
@@ -104,21 +233,20 @@
   if (!input) return;
 
   input.addEventListener('change', function(){
-    if (!input.files || !input.files.length) {
+    if (!input.files.length) {
       nameEl.textContent = 'No se ha seleccionado ningún archivo';
       return;
     }
-    const f = input.files[0];
-    nameEl.textContent = f.name;
+    const file = input.files[0];
+    nameEl.textContent = `Archivo seleccionado: ${file.name} · Da clic en "Guardar" para cargar la imagen`;
 
-    // Vista previa en vivo
-    if (preview && f.type.startsWith('image/')) {
+    if (preview && file.type.startsWith('image/')) {
       const reader = new FileReader();
-      reader.onload = e => { preview.src = e.target.result; };
-      reader.readAsDataURL(f);
+      reader.onload = e => preview.src = e.target.result;
+      reader.readAsDataURL(file);
     }
   });
-})();
+});
 </script>
 
 {% endblock %}
