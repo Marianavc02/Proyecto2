@@ -2,11 +2,11 @@
 from decimal import Decimal
 
 import pandas as pd
-from django.db.models import Sum
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.db import models
+from django.db.models import Sum
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
@@ -184,10 +184,7 @@ def detalle_producto(request, pk):
             producto.save(update_fields=["descripcion_ai", "descripcion_ai_updated"])
 
     # Contar cuántos hay en el carrito de este usuario (por sesión)
-    total_pedidos = (
-        PedidoItem.objects.filter(producto=producto).aggregate(total=Sum('cantidad'))['total']
-        or 0
-    )
+    total_pedidos = PedidoItem.objects.filter(producto=producto).aggregate(total=Sum("cantidad"))["total"] or 0
 
     pedidos = 0
     cart = request.session.get("carrito", {})
@@ -209,11 +206,11 @@ def detalle_producto(request, pk):
         request,
         "productos/detalle_producto.html",
         {
-        "producto": producto, 
-         "pedidos": total_pedidos, 
-         "faltan": faltan, 
-         "cumplido": pedidos >= producto.minimo_pedido
-         },
+            "producto": producto,
+            "pedidos": total_pedidos,
+            "faltan": faltan,
+            "cumplido": pedidos >= producto.minimo_pedido,
+        },
     )
 
 
