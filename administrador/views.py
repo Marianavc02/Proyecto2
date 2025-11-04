@@ -1,8 +1,8 @@
 from __future__ import annotations
 
 import io
-import zipfile
 import textwrap
+import zipfile
 from datetime import datetime
 from textwrap import shorten, wrap
 
@@ -21,7 +21,7 @@ from productos.models import Pedido, PedidoItem
 
 from .decorators import staff_required
 from .forms import CampaniaForm, MasInfoForm, PoliticaCompraForm
-from .models import MasInfo, PoliticaCompra, CampaniaConfig
+from .models import CampaniaConfig, MasInfo, PoliticaCompra
 from .utils import obtener_config
 
 
@@ -89,6 +89,7 @@ def programar_fechas(request):
 
     # Historial de campañas para mostrar bajo el banner
     from administrador.models import CampaniaHistorial
+
     historial = CampaniaHistorial.objects.all()[:20]
 
     return render(
@@ -119,6 +120,7 @@ def estado_campania(request):
 @staff_required()
 def reporte_pedidos(request):
     from administrador.models import CampaniaHistorial
+
     query = request.GET.get("q", "")  # texto buscado
     campania_id = request.GET.get("campania", "")
     campañas = CampaniaHistorial.objects.all().order_by("-inicio")
@@ -202,6 +204,7 @@ def exportar_reporte_excel(request):
 @staff_required()
 def reporte_pedidos_empleado(request, empleado_id):
     from administrador.models import CampaniaHistorial
+
     empleado = get_object_or_404(Empleado, id=empleado_id)
     campania_id = request.GET.get("campania", "")
     campañas = CampaniaHistorial.objects.all().order_by("-inicio")
@@ -250,6 +253,7 @@ def reporte_pedidos_empleado(request, empleado_id):
 @staff_required()
 def lista_empleados_reporte(request):
     from administrador.models import CampaniaHistorial
+
     query = request.GET.get("q", "").strip()
     campania_id = request.GET.get("campania", "")
     campañas = CampaniaHistorial.objects.all().order_by("-inicio")  # Incluye todas
@@ -259,8 +263,7 @@ def lista_empleados_reporte(request):
         try:
             campania = CampaniaHistorial.objects.get(id=campania_id)
             empleados = empleados.filter(
-                pedidos__fecha__gte=campania.inicio,
-                pedidos__fecha__lte=campania.fin
+                pedidos__fecha__gte=campania.inicio, pedidos__fecha__lte=campania.fin
             ).distinct()
         except CampaniaHistorial.DoesNotExist:
             empleados = Empleado.objects.none()
@@ -670,9 +673,9 @@ def generar_resumen_pedido(request, pedido_id):
 @login_required
 @staff_required()
 def exportar_resumen_empleados_pdf(request):
+    from administrador.models import CampaniaHistorial
     from empleados.models import Empleado
     from productos.models import Pedido
-    from administrador.models import CampaniaHistorial
 
     query = request.GET.get("q", "").strip()
     campania_id = request.GET.get("campania", "")
@@ -684,10 +687,14 @@ def exportar_resumen_empleados_pdf(request):
         try:
             campania_hist = CampaniaHistorial.objects.get(id=campania_id)
             # Intentar mapear al objeto CampaniaConfig creado con esas mismas fechas
-            campania_cfg = CampaniaConfig.objects.filter(
-                inicio=campania_hist.inicio,
-                fin=campania_hist.fin,
-            ).order_by("-id").first()
+            campania_cfg = (
+                CampaniaConfig.objects.filter(
+                    inicio=campania_hist.inicio,
+                    fin=campania_hist.fin,
+                )
+                .order_by("-id")
+                .first()
+            )
             if campania_cfg:
                 empleados = empleados.filter(pedidos__campania=campania_cfg).distinct()
             else:
@@ -802,9 +809,9 @@ def exportar_resumen_empleados_pdf(request):
 @staff_required()
 def exportar_actas_filtradas_zip(request):
     """Genera un ZIP con un acta (PDF) por cada pedido filtrado por campaña/búsqueda."""
+    from administrador.models import CampaniaHistorial
     from empleados.models import Empleado
     from productos.models import Pedido
-    from administrador.models import CampaniaHistorial
 
     query = request.GET.get("q", "").strip()
     campania_id = request.GET.get("campania", "")
@@ -815,10 +822,14 @@ def exportar_actas_filtradas_zip(request):
     if campania_id:
         try:
             campania_hist = CampaniaHistorial.objects.get(id=campania_id)
-            campania_cfg = CampaniaConfig.objects.filter(
-                inicio=campania_hist.inicio,
-                fin=campania_hist.fin,
-            ).order_by("-id").first()
+            campania_cfg = (
+                CampaniaConfig.objects.filter(
+                    inicio=campania_hist.inicio,
+                    fin=campania_hist.fin,
+                )
+                .order_by("-id")
+                .first()
+            )
             if campania_cfg:
                 empleados = empleados.filter(pedidos__campania=campania_cfg).distinct()
             else:

@@ -4,102 +4,277 @@
 
 {% block admin_content %}
 <style>
-  .pc-grid{
-    display:grid; grid-template-columns: 1.2fr 1fr; gap:24px; align-items:start;
+  .pc-layout{
+    max-width: 1100px;
+    margin: 0 auto;
     font-family:'Montserrat',system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
   }
+
+  .pc-grid{
+    display:grid;
+    grid-template-columns: minmax(0,1.15fr) minmax(0,1fr);
+    gap:24px;
+    align-items:flex-start;
+  }
+
   .pc-card{
-    background:#fff; border:1px solid #D9D9D9; border-radius:16px; padding:20px;
-    box-shadow:0 8px 24px rgba(0,0,0,.06);
+    background:#fff;
+    border:1px solid #D9D9D9;
+    border-radius:16px;
+    padding:20px 22px;
+    box-shadow:0 8px 24px rgba(0,0,0,.05);
   }
-  .pc-title{ font-size:22px; font-weight:800; margin:0 0 12px; }
-  .field{ margin-bottom:14px; }
-  .field label{ display:block; font-weight:700; margin-bottom:6px; }
-  .input-sm{ width:100%; max-width:420px; padding:10px 12px; border:1px solid #D9D9D9; border-radius:12px; }
+
+  .pc-title{
+    font-size:22px;
+    font-weight:800;
+    margin:0 0 14px;
+  }
+
+  .pc-form{
+    display:flex;
+    flex-direction:column;
+    gap:14px;
+  }
+
+  .field{
+    display:flex;
+    flex-direction:column;
+    gap:6px;
+  }
+
+  .field label{
+    font-weight:600;
+    font-size:14px;
+  }
+
+  .field input[type="text"],
+  .field input[type="url"],
+  .field input[type="file"],
+  .field textarea{
+    padding:10px 12px;
+    border:1px solid #D9D9D9;
+    border-radius:10px;
+    font-size:14px;
+  }
+
+  /* ---------- PDF BONITO (OCULTAR CLEAR) ---------- */
+  .pc-file-widget .file-upload{
+    display:flex;
+    flex-direction:column;
+    gap:6px;
+    font-size:13px;
+  }
+
+
+  /* que el link actual y el “Change” se vean más suaves */
+  .pc-file-widget .file-upload a{
+    text-decoration:underline;
+  }
+  .pc-file-widget .file-upload{
+    color:#555;
+  }
+
+ /* ---------- TOGGLE ACTIVO BONITO ---------- */
+.pc-toggle-label{
+  display:flex;
+  align-items:center;
+  gap:8px;             /* espacio corto entre texto y switch */
+}
+
+/* elimina justify-content para que no se separen */
+.pc-switch{
+  position:relative;
+  width:42px;
+  height:22px;
+  flex-shrink:0;
+}
+
+.pc-switch input[type="checkbox"]{
+  appearance:none;
+  -webkit-appearance:none;
+  width:100%;
+  height:100%;
+  border-radius:999px;
+  background:#d0d0d0;
+  outline:none;
+  cursor:pointer;
+  transition:background .2s ease;
+  position:relative;
+}
+
+.pc-switch input[type="checkbox"]::before{
+  content:"";
+  position:absolute;
+  top:3px;
+  left:3px;
+  width:16px;
+  height:16px;
+  border-radius:50%;
+  background:#fff;
+  box-shadow:0 1px 4px rgba(0,0,0,.3);
+  transition:transform .2s ease;
+}
+
+.pc-switch input[type="checkbox"]:checked{
+  background:#22c55e;
+}
+
+.pc-switch input[type="checkbox"]:checked::before{
+  transform:translateX(18px);
+}
+
+
+  .pc-actions{
+    display:flex;
+    flex-wrap:wrap;
+    gap:10px;
+    margin-top:6px;
+  }
+
   .btn{
-    border:none; border-radius:1000px; padding:12px 18px; font-weight:800; cursor:pointer;
+    border:none;
+    border-radius:1000px;
+    padding:10px 18px;
+    font-weight:700;
+    cursor:pointer;
+    font-size:14px;
   }
-  .btn-primary{ background:#FFD20A; border:1px solid #D9D9D9; }
-  .btn-danger{ background:#e74c3c; color:#fff; }
+  .btn-primary{
+    background:#FFD20A;
+    border:1px solid #D9D9D9;
+  }
+  .btn-danger{
+    background:#e74c3c;
+    color:#fff;
+  }
+
+  .pc-error-box{
+    color:#b00020;
+    border:1px solid #dc3545;
+    padding:8px 10px;
+    border-radius:10px;
+    font-size:13px;
+    background:#fff5f5;
+  }
+
   .banner-preview{
-    border:1px solid #D9D9D9; border-radius:12px; padding:10px; display:grid; place-items:center; min-height:220px;
+    border:1px solid #D9D9D9;
+    border-radius:12px;
+    padding:10px;
+    display:grid;
+    place-items:center;
+    min-height:220px;
   }
-  .note{ color:#555; font-size:14px; }
+
+  .pc-subtitle{
+    font-size:16px;
+    font-weight:700;
+    margin:0 0 8px;
+  }
+
+  .note{
+    color:#555;
+    font-size:13px;
+    text-align:center;
+  }
+
+  @media (max-width: 960px){
+    .pc-grid{
+      grid-template-columns: 1fr;
+    }
+  }
 </style>
 
-<div class="pc-grid">
+<div class="pc-layout">
+  <div class="pc-grid">
 
-  <!-- IZQUIERDA: FORM -->
-  <section class="pc-card">
-    <h1 class="pc-title">Editar información de política</h1>
+    <!-- CARD: TÍTULO + FORM COMPLETO -->
+    <section class="pc-card">
+      <h1 class="pc-title">Política de compra</h1>
 
-    <form method="post" enctype="multipart/form-data">
-      {% csrf_token %}
+      <form method="post" enctype="multipart/form-data" class="pc-form">
+        {% csrf_token %}
 
-      <div class="field">
-        <label for="id_titulo">Título</label>
-        {{ form.titulo }}
-      </div>
-
-      <div class="field">
-        <label for="id_pdf">PDF (opcional)</label>
-        {{ form.pdf }}
-        <p class="note">Solo PDF. Si ya hay un PDF, puedes reemplazarlo subiendo otro.</p>
-      </div>
-
-      <div class="field">
-        <label for="id_enlace">Enlace externo (opcional)</label>
-        {{ form.enlace }}
-        <p class="note">Por ejemplo, un enlace de Drive/SharePoint con permisos de lectura.</p>
-      </div>
-
-      <div class="field">
-        <label for="id_activo">Activo</label>
-        {{ form.activo }}
-        <p class="note">Si está activo, el modal se mostrará a los usuarios en su primer ingreso tras login.</p>
-      </div>
-
-      {% if form.non_field_errors %}
-        <div class="note" style="color:#b00020; border:1px solid #dc3545; padding:10px; border-radius:10px;">
-          {{ form.non_field_errors }}
+        <div class="field">
+          <label for="{{ form.titulo.id_for_label }}">Título</label>
+          {{ form.titulo }}
         </div>
-      {% endif %}
 
-      <div style="display:flex; gap:10px; flex-wrap:wrap; margin-top:10px;">
-        <button type="submit" class="btn btn-primary">Guardar cambios</button>
+        <div class="field">
+          <label for="{{ form.pdf.id_for_label }}">Cargar PDF</label>
+          <div class="pc-file-widget">
+            {{ form.pdf }}
+          </div>
+        </div>
 
-        {% if politica and politica.pdf %}
-          <button type="submit" name="eliminar_pdf" class="btn btn-danger"
-                  onclick="return confirm('¿Eliminar el PDF actual?')">
-            Eliminar PDF
+        <div class="field">
+          <label for="{{ form.enlace.id_for_label }}">Enlace externo</label>
+          {{ form.enlace }}
+        </div>
+
+        <!-- ACTIVO -->
+<div class="field">
+  <div class="pc-toggle-label">
+    <span>Activo</span>
+    <div class="pc-switch">
+      {{ form.activo }}
+    </div>
+  </div>
+</div>
+
+
+        {% if form.non_field_errors %}
+          <div class="pc-error-box">
+            {{ form.non_field_errors }}
+          </div>
+        {% endif %}
+
+        <div class="pc-actions">
+          <button type="submit" class="btn btn-primary">
+            Guardar cambios
           </button>
+
+          {% if politica and politica.pdf %}
+            <button type="submit"
+                    name="eliminar_pdf"
+                    class="btn btn-danger"
+                    onclick="return confirm('¿Eliminar el PDF actual?')">
+              Eliminar PDF
+            </button>
+          {% endif %}
+        </div>
+      </form>
+    </section>
+
+    <!-- CARD: PREVISUALIZACIÓN (como te gustaba) -->
+    <aside class="pc-card">
+      <h2 class="pc-subtitle">Vista previa</h2>
+      <div class="banner-preview">
+        {% if politica and politica.pdf %}
+          <iframe
+            src="{{ politica.pdf.url }}"
+            title="Política de compra"
+            width="100%"
+            height="420"
+            style="border:none; border-radius:10px;"
+          ></iframe>
+        {% elif politica and politica.enlace %}
+          <p class="note">
+            No hay PDF. Se mostrará el enlace:
+            <br>
+            <a href="{{ politica.enlace }}" target="_blank" rel="noopener">
+              Abrir enlace
+            </a>
+          </p>
+        {% else %}
+          <p class="note">
+            Aún no hay PDF ni enlace configurados.
+          </p>
         {% endif %}
       </div>
-    </form>
-  </section>
+    </aside>
 
-  <!-- DERECHA: PREVIEW -->
-  <aside class="pc-card">
-    <h2 class="pc-title">Vista previa</h2>
-    <div class="banner-preview">
-      {% if politica and politica.pdf %}
-        <p class="note" style="margin-bottom:10px;">PDF adjunto:</p>
-        <iframe
-          src="{{ politica.pdf.url }}"
-          title="Política de compra"
-          width="100%"
-          height="420"
-          style="border:none; border-radius:10px;"
-        ></iframe>
-      {% elif politica and politica.enlace %}
-        <p class="note">No hay PDF. Se mostrará el enlace: <br>
-          <a href="{{ politica.enlace }}" target="_blank" rel="noopener">Abrir enlace</a>
-        </p>
-      {% else %}
-        <p class="note">Aún no hay PDF ni enlace configurados.</p>
-      {% endif %}
-    </div>
-  </aside>
-
+  </div>
 </div>
 {% endblock %}

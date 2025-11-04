@@ -49,6 +49,7 @@ class CampaniaHistorial(models.Model):
     """
     Registro histórico de campañas creadas. No se elimina al "borrar" la campaña activa.
     """
+
     inicio = models.DateTimeField()
     fin = models.DateTimeField()
     creado = models.DateTimeField(auto_now_add=True)
