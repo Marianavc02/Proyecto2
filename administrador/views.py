@@ -972,3 +972,7 @@ def editar_masinfo(request):
     else:
         form = MasInfoForm(instance=obj)
     return render(request, "administrador/editar_masinfo.html", {"form": form, "masinfo": obj})
+
+
+def base_admin_redirect(request):
+    return redirect('administrador:programar_fechas')

@@ -5,6 +5,7 @@ from . import views
 app_name = "administrador"
 
 urlpatterns = [
+    path('base_admin/', views.base_admin_redirect, name='base_admin'),
     path("base-admin/", views.base_admin, name="base_admin"),
     path("fechas/", views.programar_fechas, name="programar_fechas"),
     path("estado/", views.estado_campania, name="estado_campania"),
