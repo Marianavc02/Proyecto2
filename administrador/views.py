@@ -975,4 +975,4 @@ def editar_masinfo(request):
 
 
 def base_admin_redirect(request):
-    return redirect('administrador:programar_fechas')
+    return redirect("administrador:programar_fechas")

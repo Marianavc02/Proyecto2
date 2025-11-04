@@ -69,6 +69,32 @@
       .nav-countdown .nc-num{ font-size:14px; }
       .nav-links{ gap:14px; }
     }
+    /* ===== Acordeón de marcas para móvil ===== */
+.nav-toggle {
+  display: none;
+  background: var(--sbd-yellow);
+  border: none;
+  font-weight: 700;
+  padding: 8px 12px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-family: 'Montserrat', sans-serif;
+  align-items: center;
+  gap: 4px;
+}
+
+.nav-toggle .material-icons {
+  font-size: 18px;
+  vertical-align: middle;
+}
+
+/* Oculta las marcas en móvil por defecto */
+@media (max-width: 900px) {
+  .nav-toggle { display: flex; }
+  .nav-links { display: none; flex-direction: column; gap: 10px; padding-left: 10px; }
+  .nav-links.open { display: flex; }
+}
+
     /* ======= FOOTER STANLEY BLACK & DECKER ======= */
     .sbd-footer {
       position: fixed;        /* 🔹 Fijo en la pantalla */
@@ -108,14 +134,18 @@
     </div>
 
     <!-- CENTRO: enlaces -->
-    <ul class="nav-links">
-      <li><a href="{% url 'productos_por_empresa' 'DeWalt' %}">DeWalt</a></li>
-      <li><a href="{% url 'productos_por_empresa' 'Stanley' %}">Stanley</a></li>
-      <li><a href="{% url 'productos_por_empresa' 'Irwin' %}">Irwin</a></li>
-      <li><a href="{% url 'productos_por_empresa' 'Black&Decker' %}">Black&Decker</a></li>
-      <li><a href="{% url 'productos_por_empresa' 'Otros' %}">Otros</a></li>
-      <li><a href="{% url 'administrador:masinfo' %}">Más info</a></li>
-    </ul>
+   <div class="nav-links-wrapper">
+  <button class="nav-toggle" aria-expanded="false">Marcas <span class="material-icons">expand_more</span></button>
+  <ul class="nav-links">
+    <li><a href="{% url 'productos_por_empresa' 'DeWalt' %}">DeWalt</a></li>
+    <li><a href="{% url 'productos_por_empresa' 'Stanley' %}">Stanley</a></li>
+    <li><a href="{% url 'productos_por_empresa' 'Irwin' %}">Irwin</a></li>
+    <li><a href="{% url 'productos_por_empresa' 'Black&Decker' %}">Black&Decker</a></li>
+    <li><a href="{% url 'productos_por_empresa' 'Otros' %}">Otros</a></li>
+    <li><a href="{% url 'administrador:masinfo' %}">Más info</a></li>
+  </ul>
+</div>
+
 
     <!-- DERECHA: buscador + iconos -->
     <div class="icons">
@@ -299,6 +329,22 @@
     });
   })();
 </script>
+<script>
+  (function(){
+    const btn = document.querySelector('.nav-toggle');
+    const links = document.querySelector('.nav-links');
+    if(btn && links){
+      btn.addEventListener('click', ()=>{
+        const expanded = btn.getAttribute('aria-expanded') === 'true';
+        btn.setAttribute('aria-expanded', !expanded);
+        links.classList.toggle('open');
+        const icon = btn.querySelector('.material-icons');
+        if(icon) icon.textContent = expanded ? 'expand_more' : 'expand_less';
+      });
+    }
+  })();
+</script>
+
 <footer class="sbd-footer">
   <div class="footer-content">
     <p>© 2025 <strong>Stanley Black & Decker</strong>. Todos los derechos reservados.</p>
