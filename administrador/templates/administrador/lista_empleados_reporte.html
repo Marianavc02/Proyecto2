@@ -6,7 +6,7 @@
 
   <h2 style="margin-bottom: 20px; font-weight: 600;">Empleados - Reporte de Pedidos</h2>
 
-  <!-- 🔍 Barra de búsqueda -->
+  <!-- 🔍 Barra de búsqueda y filtro de campaña -->
   <form method="get" style="margin-bottom: 20px; display: flex; gap: 10px;">
       <input 
           type="text" 
@@ -15,11 +15,19 @@
           value="{{ query }}" 
           style="flex: 1; max-width: 400px; padding: 10px; border: 1px solid #ccc; border-radius: 5px;"
       />
+      <select name="campania" style="padding: 10px; border: 1px solid #ccc; border-radius: 5px; font-size: 15px; min-width: 220px;">
+        <option value="">Todas las campañas</option>
+        {% for c in campañas %}
+          <option value="{{ c.id }}" {% if campania_id == c.id|stringformat:'s' %}selected{% endif %}>
+            {{ c.inicio|date:'d/m/Y H:i' }} - {{ c.fin|date:'d/m/Y H:i' }}
+          </option>
+        {% endfor %}
+      </select>
       <button type="submit" 
-              style="padding: 10px 20px; background-color: #f4dc00e8; color: black; border: none; border-radius: 5px; font-weight: 600;">
+        style="padding: 10px 20px; background-color: #f4dc00e8; color: black; border: none; border-radius: 5px; font-weight: 600; cursor: pointer;">
           Buscar
       </button>
-      {% if query %}
+      {% if query or campania_id %}
       <a href="{% url 'administrador:lista_empleados_reporte' %}" 
          style="padding: 10px 20px; background-color: #a9aeb2ff; color: white; border-radius: 5px; text-decoration: none; font-weight: 600;">
           Limpiar
@@ -27,7 +35,34 @@
       {% endif %}
   </form>
 
-  <!-- Tabla de empleados -->
+  <!-- Acciones: Exportar resumen y Descargar ZIP, alineados horizontalmente -->
+  <div style="display: flex; gap: 10px; align-items: center; margin-bottom: 20px;">
+    <!-- Botón para exportar PDF resumen de todos los empleados filtrados -->
+    <form method="get" action="{% url 'administrador:exportar_resumen_empleados_pdf' %}">
+      {% if campania_id %}
+        <input type="hidden" name="campania" value="{{ campania_id }}" />
+      {% endif %}
+      {% if query %}
+        <input type="hidden" name="q" value="{{ query }}" />
+      {% endif %}
+      <button type="submit" style="padding: 10px 20px; background-color: #f4dc00e8; color: black; border: none; border-radius: 5px; font-weight: 600; cursor: pointer;">
+        Exportar PDF resumen
+      </button>
+    </form>
+
+    <!-- Botón para descargar ACTAS individuales (ZIP) para todos los pedidos filtrados -->
+    <form method="get" action="{% url 'administrador:exportar_actas_filtradas_zip' %}">
+      {% if campania_id %}
+        <input type="hidden" name="campania" value="{{ campania_id }}" />
+      {% endif %}
+      {% if query %}
+        <input type="hidden" name="q" value="{{ query }}" />
+      {% endif %}
+      <button type="submit" style="padding: 10px 20px; background-color: #a9aeb2ff; color: #fff; border: none; border-radius: 5px; font-weight: 600; cursor: pointer;">
+        Descargar actas (ZIP)
+      </button>
+    </form>
+  </div>
   <table style="width: 100%; border-collapse: collapse; background: white; border-radius: 10px; overflow: hidden; box-shadow: 0 4px 8px rgba(0,0,0,0.1);">
     <thead>
       <tr>
@@ -42,11 +77,11 @@
         <td style="padding: 12px 15px;">{{ empleado.preferred_name }}</td>
         <td style="padding: 12px 15px;">{{ empleado.sbd_email }}</td>
         <td style="padding: 12px 15px; text-align: center; display: flex; justify-content: center; gap: 10px;">
-          <a href="{% url 'administrador:reporte_pedidos_empleado' empleado.id %}" 
+          <a href="{% url 'administrador:reporte_pedidos_empleado' empleado.id %}?{% if campania_id %}campania={{ campania_id }}&{% endif %}{% if query %}q={{ query|urlencode }}{% endif %}" 
              style="padding: 8px 16px; background-color: #a9aeb2ff; color: white; border-radius: 5px; text-decoration: none; font-weight: 600;">
             Ver pedidos
           </a>
-          <a href="{% url 'administrador:exportar_reporte_empleado_excel' empleado.id %}" 
+          <a href="{% url 'administrador:exportar_reporte_empleado_excel' empleado.id %}?{% if campania_id %}campania={{ campania_id }}&{% endif %}{% if query %}q={{ query|urlencode }}{% endif %}" 
              style="padding: 8px 16px; background-color: #f4dc00e8; color: black; border-radius: 5px; text-decoration: none; font-weight: 600;">
             Exportar Excel
           </a>

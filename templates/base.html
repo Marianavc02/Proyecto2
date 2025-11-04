@@ -69,6 +69,23 @@
       .nav-countdown .nc-num{ font-size:14px; }
       .nav-links{ gap:14px; }
     }
+    /* ======= FOOTER STANLEY BLACK & DECKER ======= */
+    .sbd-footer {
+      position: fixed;        /* 🔹 Fijo en la pantalla */
+      bottom: 0;              /* 🔹 Pegado al fondo */
+      left: 0;                /* 🔹 Alineado a la izquierda */
+      width: 100%;            /* 🔹 Ocupar todo el ancho */
+      background-color: #d1d1d1ff; /* 🔹 Color corporativo */
+      text-align: center;
+      padding: 12px 0;
+      font-family: 'Montserrat', sans-serif;
+      font-weight: 500;
+      color: #111;
+      border-top: 1px solid #d1d1d1ff;
+      z-index: 1000;          /* 🔹 Encima de otros elementos */
+    }
+
+
   </style>
 </head>
 
@@ -156,8 +173,9 @@
   </div>
 {% endif %}
 
-
   {% block content %}{% endblock %}
+  
+
 
   <!-- JS: toggle del buscador -->
   <script>
@@ -281,6 +299,11 @@
     });
   })();
 </script>
+<footer class="sbd-footer">
+  <div class="footer-content">
+    <p>© 2025 <strong>Stanley Black & Decker</strong>. Todos los derechos reservados.</p>
+  </div>
+</footer>
 
 </body>
 </html>
